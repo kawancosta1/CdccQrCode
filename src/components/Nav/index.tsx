@@ -1,10 +1,8 @@
 
 import logoCdcc from '../img/CdccLogo.png'
-import img540 from '../img/540.jpg'
-import img0016 from '../img/001.6.png'
-import img0016var from '../img/001.6_variacao.png'
 import style from './style.module.css'
 import { useState } from 'react'
+import { imageDatabase } from '../../data/imageDatabase'
 
 
 export function Nav(){
@@ -13,6 +11,7 @@ export function Nav(){
     const [showImage, setShowImage] = useState(false)
     const [currentImages, setCurrentImages] = useState<string[]>([])
     const [currentImageIndex, setCurrentImageIndex] = useState(0)
+    const [shelveInfo, setShelvesInfo] = useState<{ name: string; range: string }>({ name: '', range: '' })
 
     const toggleMenu = () => {
         setMenuOpen(!menuOpen)
@@ -21,19 +20,19 @@ export function Nav(){
     const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value
         setSearchValue(value)
-        
-        // Banco de dados de códigos
-        const imageDatabase: { [key: string]: string[] } = {
-            '540': [img540],
-            '001.6': [img0016, img0016var]
-        }
-        
-        if (imageDatabase[value]) {
-            setCurrentImages(imageDatabase[value])
-            setCurrentImageIndex(0)
-            setShowImage(true)
-        } else {
-            setShowImage(false)
+    }
+
+    const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === 'Enter') {
+            const value = (e.target as HTMLInputElement).value
+            if (imageDatabase[value]) {
+                setCurrentImages(imageDatabase[value].images)
+                setShelvesInfo({ name: imageDatabase[value].shelf, range: imageDatabase[value].range })
+                setCurrentImageIndex(0)
+                setShowImage(true)
+            } else {
+                setShowImage(false)
+            }
         }
     }
 
@@ -52,10 +51,10 @@ export function Nav(){
     return (
         <>
             <nav className={style.navBar}>
-                <img src={logoCdcc} alt="logoCdcc" />
+                <img src={logoCdcc} alt="Logo Oficial do CDCC" />
                 
                 {/* Menu Hamburger */}
-                <button className={style.hamburger} onClick={toggleMenu}>
+                <button className={`${style.hamburger} ${menuOpen ? style.open : ''}`} onClick={toggleMenu}>
                     <span className={`${style.line1} ${menuOpen ? style.open : ''}`}></span>
                     <span className={`${style.line2} ${menuOpen ? style.open : ''}`}></span>
                     <span className={`${style.line3} ${menuOpen ? style.open : ''}`}></span>
@@ -63,13 +62,13 @@ export function Nav(){
 
                 {/* Menu Desktop/Tablet */}
                 <div className={`${style.menuContainer} ${menuOpen ? style.menuOpen : ''}`}>
-                    <p className={style.itens}>Catalogo</p>
                     <input 
                         type="text" 
                         placeholder="Pesquisar..." 
                         className={style.searchBar}
                         value={searchValue}
                         onChange={handleSearchChange}
+                        onKeyDown={handleKeyPress}
                     />
                     <p className={style.itens} id="contato-mobile">Contato</p>
                 </div>
@@ -79,6 +78,12 @@ export function Nav(){
             {/* Exibir imagem quando encontrar o código */}
             {showImage && (
                 <div className={style.imageContainer}>
+                    {/* Info da Estante */}
+                    <div className={style.shelfInfo}>
+                        <div className={style.shelfName}>{shelveInfo.name}</div>
+                        <div className={style.shelfRange}>Números: {shelveInfo.range}</div>
+                    </div>
+
                     <img src={currentImages[currentImageIndex]} alt="QR Code" className={style.resultImage} />
                     
                     {/* Botões de navegação se houver múltiplas imagens */}
