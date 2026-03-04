@@ -10,6 +10,33 @@
     padding: 0.8rem 0;
 }
 
+.roomSelector{
+    display: flex;
+    gap: 0.5rem;
+}
+
+.roomBtn{
+    padding: 0.6rem 1rem;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    background-color: transparent;
+    color: white;
+    border-radius: 0.3rem;
+    cursor: pointer;
+    font-size: 0.95rem;
+    font-weight: 600;
+    transition: 0.3s;
+}
+
+.roomBtn:hover{
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.roomBtnActive{
+    background-color: white;
+    color: var(--primary);
+    border-color: white;
+}
+
 .menuContainer{
     display: flex;
     flex-direction: row;
@@ -128,19 +155,24 @@ img{
     bottom: 0;
     background-color: rgba(0, 0, 0, 0.9);
     display: flex;
-    justify-content: center;
-    align-items: center;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: stretch;
     z-index: 1000;
     padding: 0;
     width: 100vw;
     height: 100vh;
+    overflow-y: auto;
 }
 
 .resultImage{
-    width: 100%;
-    height: 100%;
+    width: auto;
+    height: auto;
+    max-height: 70vh;
+    max-width: 40vw;
     object-fit: contain;
     display: block;
+    flex: 0 0 auto;
 }
 
 .closeButton{
@@ -211,23 +243,336 @@ img{
     z-index: 1001;
 }
 
-.shelfInfo{
-    position: absolute;
-    top: 2rem;
-    left: 2rem;
+.contentWrapper{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 2rem;
+    width: 100%;
+    flex: 1;
+    min-height: 0;
+    padding: 2rem;
+}
+
+.mapContainer{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    flex: 0 0 auto;
+    gap: 1rem;
+    max-height: 70vh;
+}
+
+.mapLabel{
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: white;
+    background-color: var(--primary);
+    padding: 0.8rem 1.5rem;
+    border-radius: 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.mapShelfSelector{
+    display: flex;
+    gap: 0.5rem;
+    justify-content: center;
+    width: 100%;
+}
+
+.shelfSelectorBtn{
+    padding: 0.6rem 1.2rem;
+    border: 2px solid var(--primary);
+    background-color: transparent;
+    color: var(--primary);
+    border-radius: 0.3rem;
+    cursor: pointer;
+    font-size: 0.95rem;
+    font-weight: 600;
+    transition: 0.3s;
+}
+
+.shelfSelectorBtn:hover{
+    background-color: rgba(147, 83, 108, 0.1);
+}
+
+.shelfSelectorBtnActive{
     background-color: var(--primary);
     color: white;
-    padding: 4rem 4.5rem;
+}
+
+.mapWrapper{
+    position: relative;
+    display: inline-block;
+    width: 100%;
+    max-width: 350px;
+}
+
+.mapImage{
+    width: 100%;
+    height: auto;
+    aspect-ratio: 3 / 4; /* ajustar para o mesmo ratio do arquivo do mapa */
+    object-fit: contain;
+    border-radius: 0.5rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.mapArrow{
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    background-color: #000000;
+    border-radius: 50%;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.8);
+    animation: arrowPulse 1.5s ease-in-out infinite;
+    z-index: 10;
+}
+
+@keyframes arrowPulse {
+    0%, 100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 0.7;
+        transform: scale(1.2);
+    }
+}
+
+/* Posições de cada estante no mapa da Sala 1 (ajustar conforme necessário) */
+.arrow-sala1-estante-1{
+   top: 42%;
+    left: 21%;
+    transform: translate(-50%, -50%);
+}
+.arrow-sala1-estante-2{
+    top: 38%;
+    left: 21%;
+    transform: translate(-50%, -50%);
+}
+.arrow-sala1-estante-3{
+     top: 30%;
+    left: 12%;
+    transform: translate(-50%, -50%);
+}
+.arrow-sala1-estante-4{
+   top: 26%;
+    left: 20%;
+    transform: translate(-50%, -50%);
+}
+.arrow-sala1-estante-5{
+    top: 22%;
+    left: 20%;
+    transform: translate(-50%, -50%);
+}
+.arrow-sala1-estante-6{
+    top: 10%;
+    left: 10%;
+    transform: translate(-50%, -50%);
+}
+.arrow-sala1-estante-7{
+     top: 10%;
+    left: 10%;
+    transform: translate(-50%, -50%);
+}
+.arrow-sala1-estante-8{
+    top: 10%;
+    right: 62%;
+    transform: translate(-50%, -50%);
+}
+.arrow-sala1-estante-9{
+     top: 10%;
+    right: 58%;
+    transform: translate(-50%, -50%);
+}
+.arrow-sala1-estante-10{
+   top: 10%;
+    right: 42%;
+    transform: translate(-50%, -50%);
+}
+.arrow-sala1-estante-11{
+     top: 10%;
+    right: 38%;
+    transform: translate(-50%, -50%);
+}
+.arrow-sala1-estante-12{
+    top: 2%;
+    right: 20%;
+    transform: translate(-50%, -50%);
+}
+.arrow-sala1-estante-13{
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+.arrow-sala1-estante-14{
+    top: 22%;
+    right: 20%;;
+    transform: translate(-50%, -50%);
+}
+.arrow-sala1-estante-15{
+   top: 27%;
+    right: 20%;
+    transform: translate(-50%, -50%);
+}
+.arrow-sala1-estante-16{
+    top: 30%;
+    right: 12%;
+    transform: translate(-50%, -50%);
+}
+.arrow-sala1-estante-17{
+  top: 38%;
+    right: 20%;
+    transform: translate(-50%, -50%);
+}
+.arrow-sala1-estante-18{
+    top: 42%;
+    right: 20%;
+    transform: translate(-50%, -50%);
+}
+.arrow-sala1-estante-19{
+      top: 50%;
+    right: 12%;
+    transform: translate(-50%, -50%);
+}
+.arrow-sala1-estante-20{
+     top: 54%;
+    right: 20%;
+    transform: translate(-50%, -50%);
+}
+.arrow-sala1-estante-21{
+    top: 60%;
+    right: 20%;
+    transform: translate(-50%, -50%);
+}
+.arrow-sala1-estante-22{
+     top: 61%;
+    right: 12%;
+    transform: translate(-50%, -50%);
+}
+.arrow-sala1-estante-23{
+    top: 69%;
+    right: 18%;
+    transform: translate(-50%, -50%);
+}
+.arrow-sala1-estante-24{
+    top: 73%;
+    right: 17%;
+    transform: translate(-50%, -50%);
+}
+.arrow-sala1-estante-25{
+    top: 82%;
+    right: 13%;
+    transform: translate(-50%, -50%);
+}
+.arrow-sala1-estante-26{
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+.arrow-sala1-estante-27{
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+.arrow-sala1-estante-28{
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+/* Posições de cada estante no mapa da Sala 2 (coordenadas atualizadas) */
+.arrow-estante-1{
+    top: 78%;
+    left: 13.2%;
+}
+
+.arrow-estante-2{
+    top: 75%;
+    left: 24%;
+}
+
+.arrow-estante-3{
+    top: 71%;
+  left: 22%;
+}
+
+.arrow-estante-4{
+    top: 63%;
+  left: 12%;
+}
+
+.arrow-estante-5{
+    top: 60%;
+   left: 24%;;
+}
+
+.arrow-estante-6{
+    top: 55%;
+  left: 24%;
+}
+
+.arrow-estante-7{
+    top: 48%;
+  left: 8.2%;
+}
+
+.arrow-estante-8{
+    top: 44%;
+    left: 24%;
+}
+
+.arrow-estante-9{
+    top: 39%;
+    left: 24%;
+}
+
+.arrow-estante-10{
+    top: 31%;
+    left: 12%;
+}
+
+.arrow-estante-11{
+    top: 26.5%;
+    left: 24%;
+}
+
+.arrow-estante-12{
+    top: 27.2%;
+    left: 24%;
+}
+
+.shelfInfo{
+    position: absolute;
+    top: 20rem;
+    left: 9rem;
+    background-color: var(--primary);
+    color: white;
+    padding: 1rem 2.5rem;
     border-radius: 1rem;
     z-index: 1001;
-    max-width: 600px;
+    max-width: 250px;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
     border: 2px solid rgba(255, 255, 255, 0.2);
       text-shadow: 0.5px 1px 1px rgb(13, 8, 22);
 }
 
-.shelfName{
+.roomLabel{
     font-size: 4rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    opacity: 0.85;
+    margin-bottom: 0.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+    padding-bottom: 0.5rem;
+}
+
+.shelfName{
+    font-size: 2rem;
     text-shadow: 2px 1px 9px black;
     font-weight: bold;
     margin-bottom: 1rem;
@@ -236,9 +581,142 @@ img{
 }
 
 .shelfRange{
-    font-size: 3.3rem;
+    font-size: 1.5rem;
     color: rgba(255, 255, 255, 0.95);
     font-weight: 500;
+}
+
+/* Botões para alternar entre salas dentro do overlay */
+.roomToggle{
+    position: relative;
+    display: flex !important;
+    justify-content: center;
+    align-items: center;
+    gap: 1.5rem;
+    width: 100%;
+    padding: 1rem 1rem;
+margin: 0px;
+    background-color: rgba(0, 0, 0, 0.8);
+    border-top: 2px solid rgba(255, 255, 255, 0.2);
+    border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+    box-sizing: border-box;
+}
+
+.roomToggleBtn{
+    padding: 1rem 1.5rem;
+    border-radius: 999px;
+    border: 2px solid rgb(255, 255, 255);
+    background-color: rgba(147, 83, 108, 0.6);
+    color: white;
+    font-size: 2rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: 0.3s;
+    white-space: nowrap;
+    min-width: 120px;
+}
+
+.roomToggleBtn:hover{
+    background-color: rgba(255, 255, 255, 0.1);
+   box-shadow: 0 4px 8px rgba(255, 255, 255, 0.3);
+}
+
+.roomToggleBtnActive{
+    background-color: white;
+    color: var(--primary);
+   
+}
+
+.otherRoomInfo{
+    margin-top: 0.5rem;
+    font-size: 1rem;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+/* Responsividade para Tablet (768px) */
+@media (max-width: 768px) {
+    .contentWrapper{
+        flex-direction: column;
+    }
+
+    .resultImage{
+        height: 400px;
+    }
+
+    .mapArrow{
+        font-size: 2.5rem;
+    }
+}
+
+/* Responsividade para Mobile (480px) */
+@media (max-width: 480px) {
+    .contentWrapper{
+        flex-direction: column;
+        gap: 0;
+        width: 100%;
+        max-width: 100%;
+    }
+
+    .resultImage{
+        height: 400px;
+        width: 100%;
+    }
+    .mapArrow{
+        font-size: 2rem;
+    }
+
+    .shelfInfo{
+        padding: 0.4rem 0.6rem;
+        max-width: calc(35% - 1rem);
+        top: 7rem;
+        left: 0.5rem;
+        right: 0.5rem;
+    }
+
+    .roomLabel{
+        font-size: 0.6rem;
+        letter-spacing: 0.8px;
+        margin-bottom: 0.3rem;
+        padding-bottom: 0.3rem;
+    }
+
+    .shelfName{
+        font-size: 0.65rem;
+    }
+
+    .shelfRange{
+        font-size: 0.75rem;
+    }
+
+    .roomToggle{
+        padding: 0.5rem 0;
+        background-color: rgba(0, 0, 0, 0.3);
+    }
+
+    .roomToggleBtn{
+        flex: 1 1 45%;
+        text-align: center;
+        font-size: 0.75rem;
+        padding: 0.4rem 0.3rem;
+    }
+
+    .photoContainer{
+        width: 100%;
+    }
+
+    .mapContainer{
+        width: 100%;
+        flex: 1;
+    }
+
+    .mapLabel{
+        font-size: 1rem;
+        padding: 0.6rem 1rem;
+    }
+
+    .mapWrapper{
+        width: 100%;
+    }
 }
 
 /* Tablet e acima (768px) */
@@ -246,6 +724,46 @@ img{
     .navBar{
         gap: 1.5rem;
         padding: 0.8rem 0;
+    }
+
+    .roomSelector{
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        gap: 0;
+        border-top: 2px solid rgba(255, 255, 255, 0.2);
+        display: flex;
+        background-color: var(--primary);
+        z-index: 999;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+
+    .roomBtn{
+        flex: 1;
+        border-radius: 0;
+        border: none;
+        border-right: 1px solid rgba(255, 255, 255, 0.4);
+        padding: 0.9rem 1rem;
+        font-size: 0.95rem;
+        font-weight: 600;
+        background-color: transparent;
+        color: white;
+        cursor: pointer;
+        transition: 0.3s;
+    }
+
+    .roomBtn:hover{
+        background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .roomBtn:last-child{
+        border-right: none;
+    }
+
+    .roomBtnActive{
+        background-color: rgba(255, 255, 255, 0.2);
+        font-weight: 700;
     }
 
     .hamburger{
@@ -303,6 +821,46 @@ img{
         min-height: auto;
     }
 
+    .roomSelector{
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        gap: 0;
+        border-top: 2px solid rgba(255, 255, 255, 0.2);
+        display: flex;
+        background-color: var(--primary);
+        z-index: 999;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+
+    .roomBtn{
+        flex: 1;
+        border-radius: 0;
+        border: none;
+        border-right: 1px solid rgba(255, 255, 255, 0.4);
+        padding: 1rem 1.2rem;
+        font-size: 0.7rem;
+        font-weight: 600;
+        background-color: transparent;
+        color: white;
+        cursor: pointer;
+        transition: 0.3s;
+    }
+
+    .roomBtn:hover{
+        background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .roomBtn:last-child{
+        border-right: none;
+    }
+
+    .roomBtnActive{
+        background-color: rgba(255, 255, 255, 0.2);
+        font-weight: 700;
+    }
+
     .hamburger{
         display: flex;
         order: 3;
@@ -357,5 +915,89 @@ img{
 
     .menuOpen .searchBar{
         display: block;
+    }
+}
+
+/* Abas para Desktop e Mobile */
+.tabsContainer{
+    display: flex;
+    gap: 0;
+    background-color: var(--primary);
+    border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+    margin: 0;
+    width: 100%;
+    justify-content: flex-start;
+    position: relative;
+    z-index: 1001;
+    flex: 0 0 auto;
+    min-height: 60px;
+    padding: 0;
+}
+
+.tabButton{
+    flex: 1;
+    padding: 1rem;
+    border: none;
+    background-color: transparent;
+    color: white;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.3s;
+    border-bottom: 3px solid transparent;
+    min-width: 100px;
+    white-space: nowrap;
+}
+
+.tabButton:hover{
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.tabButton.tabActive{
+    background-color: rgba(255, 255, 255, 0.2);
+    border-bottom-color: white;
+}
+
+.photoContainer{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    flex: 0 0 auto;
+    width: 100%;
+    padding: 0.5rem;
+    overflow-y: auto;
+}
+
+.hidden{
+    display: none !important;
+}
+
+/* Mostrar abas em todos os tamanhos */
+@media (max-width: 768px) {
+    .tabsContainer{
+        display: flex !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        min-height: 50px;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    .photoContainer.hidden,
+    .mapContainer.hidden{
+        display: none !important;
+    }
+}
+
+/* Desktop: manter abas visíveis, respeitando o .hidden */
+@media (min-width: 769px) {
+    .tabsContainer{
+        display: flex;
+        visibility: visible;
+        opacity: 1;
+        min-height: 60px;
+        margin: 0;
     }
 }
