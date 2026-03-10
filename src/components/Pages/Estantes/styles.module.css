@@ -1,0 +1,62 @@
+.gridEstantes {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 15px;
+  margin-top: 30px;
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+  
+}
+
+.linkEstante {
+  text-decoration: none;
+  color: inherit;
+}
+
+.buttonEstante {
+  padding: 20px;
+  background-color: #f0f0f0;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  text-align: center;
+  font-weight: 600;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.buttonEstante:hover {
+  background-color: #e0e0e0;
+  border-color: #007bff;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.buttonEstante:active {
+  transform: translateY(0);
+}
+
+@media (max-width: 768px) {
+  .gridEstantes {
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 12px;
+  }
+
+  .buttonEstante {
+    padding: 15px;
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  .gridEstantes {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+  }
+
+  .buttonEstante {
+    padding: 12px;
+    font-size: 12px;
+  }
+}

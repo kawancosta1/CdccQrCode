@@ -596,17 +596,18 @@ img{
     width: 100%;
     padding: 1rem 1rem;
 margin: 0px;
-    background-color: rgba(0, 0, 0, 0.8);
+    background-color: rgba(31, 31, 31, 0.651);
     border-top: 2px solid rgba(255, 255, 255, 0.2);
     border-bottom: 2px solid rgba(255, 255, 255, 0.2);
     box-sizing: border-box;
 }
 
 .roomToggleBtn{
+    opacity: 0.3;
     padding: 1rem 1.5rem;
     border-radius: 999px;
     border: 2px solid rgb(255, 255, 255);
-    background-color: rgba(147, 83, 108, 0.6);
+    background-color: rgba(147, 83, 107, 0.466);
     color: white;
     font-size: 2rem;
     font-weight: 700;
@@ -616,12 +617,9 @@ margin: 0px;
     min-width: 120px;
 }
 
-.roomToggleBtn:hover{
-    background-color: rgba(255, 255, 255, 0.1);
-   box-shadow: 0 4px 8px rgba(255, 255, 255, 0.3);
-}
 
 .roomToggleBtnActive{
+    opacity: 1;
     background-color: white;
     color: var(--primary);
    

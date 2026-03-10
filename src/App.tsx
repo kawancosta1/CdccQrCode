@@ -1,18 +1,42 @@
 
 import './styles/global.css'
 import './styles/theme.css'
-import { Home } from './components/Pages/Home'
 
 // ========================================
-// CATÁLOGO QR CODE - SALA 2
+// IMPORTAÇÕES DE PÁGINAS
 // ========================================
-// Estantes e suas classificações da CDU
-// TODO: Adicionar Sala 1 com estrutura similar
+import { Home } from './components/Pages/Home'
+import { Estantes } from './components/Pages/Estantes'
+import { EstanteSala2 } from './components/Pages/EstanteSala2'
+
+
+// ========================================
+// IMPORTAÇÕES DE LAYOUT
+// ========================================
+import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { MainTemplate } from './components/template/MainTemplate'
+
+
+// ========================================
+// CATÁLOGO QR CODE
+// ========================================
+// Sistema de catalogação de estantes com QR codes
+// Suporta Sala 1 e Sala 2
 
 export function App(){
-  return <>
-    <Home/>
- 
-  </>
+  return (
+    <BrowserRouter>
+      <MainTemplate>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/estantes" element={<Estantes />} />
+          <Route path="/estantes/sala2/:numero" element={<EstanteSala2 />} />
+        </Routes>
+        
+        
+        
+      </MainTemplate>
+    </BrowserRouter>
+  )
 }
 

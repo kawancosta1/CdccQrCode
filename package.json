@@ -1,7 +1,20 @@
 {
   "name": "qrcodecdcc",
+  "version": "1.0.0",
+  "description": "Sistema de QR Code para a Biblioteca da CDCC - USP",
+  "author": "Kawan da Silva Costa",
+  "contributors": [
+    {
+      "name": "Alcino Salviano Cavalcanti",
+      "contribution": "Mapas (Sala 1 e Sala 2), fotos das estantes, ideias e acessibilidade"
+    },
+    {
+      "name": "Mariane Ferreira dos Santos",
+      "contribution": "Fotos e edição das estantes (Sala 2), espaço lúdico e ideias"
+    }
+  ],
+  "license": "Apache-2.0",
   "private": true,
-  "version": "0.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",

@@ -4,7 +4,8 @@ import styles from "./style.module.css"
 export function Footer(){
     return (
         <div className={styles.footer}>
-            <p>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Doloremque labore minus aperiam eligendi, ullam exercitationem veritatis accusantium fugiat facilis molestiae cum accusamus officia quos quia optio iste ipsa. Suscipit, impedit.</p>
+            <p>© 2026 Kawan da Silva Costa - CDCC/USP</p>
+            <p>Licenciado sob <a href="/LICENSE" target="_blank" rel="noopener noreferrer">Apache License 2.0</a></p>
         </div>
     )
 }

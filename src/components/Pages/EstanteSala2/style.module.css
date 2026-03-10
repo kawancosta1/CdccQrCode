@@ -1,0 +1,221 @@
+* {
+  box-sizing: border-box;
+}
+.container {
+  width: 100%;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  
+  padding: 20px;
+}
+
+.container h1 {
+  
+  color: #333;
+  font-size: 28px;
+  margin: 0;
+}
+
+.contentWrapper{
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  
+  margin: 0 auto;
+  gap: 10px;
+}
+
+.imagens{
+display: flex;
+flex-direction: row;
+
+}
+
+.image {
+   width: 600px;
+  height: 800px;
+  margin: 0%;
+  padding: 0%;
+}
+
+.error {
+  text-align: center;
+  padding: 40px 20px;
+  color: #666;
+}
+
+.error h2 {
+  color: #d32f2f;
+  font-size: 24px;
+  margin-bottom: 15px;
+}
+
+.error p {
+  margin: 10px 0;
+  font-size: 16px;
+}
+/* TEXTO */
+.title{
+  font-size: 5rem;
+text-shadow: 2px 2px 6px violet;
+color: rgb(65, 60, 60);
+}
+/* ========================================
+   ESTILOS DO MAPA
+   ======================================== */
+
+
+.mapImage {
+ width: 600px;
+  height: 800px;
+  aspect-ratio: 3 / 4;
+  object-fit: contain;
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.ContainerTitulo{
+margin:1%;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border: 5px solid transparent;
+  border-radius: 20px;
+  padding: 10px;
+  padding-left: 30px;
+  padding-right: 30px;
+  font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif ;
+  transition: 0.2s;
+
+}
+.ContainerTitulo:hover{
+   border: 5px solid rgba(131, 4, 110, 0.329);
+  border-radius: 20px;
+  padding: 10px;
+  padding-left: 30px;
+  padding-right: 30px;
+}
+.mapArrow {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  background-color: #000000;
+  border-radius: 50%;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.8);
+  animation: arrowPulse 1.5s ease-in-out infinite;
+  z-index: 10;
+}
+
+@keyframes arrowPulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(1.2);
+  }
+}
+
+/* Posições de cada estante no mapa da Sala 2 */
+.arrow-estante-1 {
+  bottom: -23%;
+  left: 11.2%;
+ 
+}
+
+.arrow-estante-2 {
+    bottom: -16%;
+  left: 14%;
+
+}
+
+.arrow-estante-3 {
+  bottom: -12%;
+  left: 14%;
+  transform: translate(-50%, -50%);
+}
+
+.arrow-estante-4 {
+  bottom: -1%;
+  left: 12%;
+  transform: translate(-50%, -50%);
+}
+
+.arrow-estante-5 {
+  bottom: 4%;
+  left: 14%;
+  transform: translate(-50%, -50%);
+}
+
+.arrow-estante-6 {
+ bottom: 8%;
+  left: 14%;
+  transform: translate(-50%, -50%);
+}
+
+.arrow-estante-7 {
+  bottom: 14%;
+  left: 11%;
+  transform: translate(-50%, -50%);
+}
+
+.arrow-estante-8 {
+  bottom: 25%;
+  left: 16%;
+  transform: translate(-50%, -50%);
+}
+
+.arrow-estante-9 {
+  bottom: 29%;
+  left: 16%;
+  transform: translate(-50%, -50%);
+}
+
+.arrow-estante-10 {
+   bottom: 35%;
+  left: 11%;
+  transform: translate(-50%, -50%);
+}
+
+.arrow-estante-11 {
+  bottom: 44%;
+  left: 17%;
+  transform: translate(-50%, -50%);
+}
+
+.arrow-estante-12 {
+  bottom: 48%;
+  left: 17%;
+  transform: translate(-50%, -50%);
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 15px;
+  }
+
+  .container h1 {
+    font-size: 22px;
+  }
+
+  .image {
+    max-height: 400px;
+  }
+}
+
+@media (max-width: 480px) {
+  .image {
+    max-height: 300px;
+  }
+
+  .container h1 {
+    font-size: 18px;
+  }
+}

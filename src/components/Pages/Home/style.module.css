@@ -6,4 +6,99 @@
 
 .titulo{
     text-align: center;
+    font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif ;
+    transition: 0.2s;
+    font-size: 5rem;
+    text-shadow: 1px 1px 6px violet;
+    color: rgb(65, 60, 60);
+    border-bottom:3px solid rgba(195, 93, 255, 0.438) ;
+}
+
+h2{
+    text-align: center;
+    font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif ;
+    transition: 0.2s;
+    font-size: 3rem;
+    text-shadow: 1px 1px 6px violet;
+    color: rgb(65, 60, 60);
+}
+img{
+  border-radius: 20px;
+}
+
+/* ------------------ */
+/* CARROSSEL */
+/* ------------------ */
+
+.carrousel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0px;
+}
+
+.botao{
+  z-index: 1;
+  width: 100px;
+  height: 100px;
+  margin: 0%;
+  padding: 0%;
+
+}
+
+.carouselViewport {
+  position: relative;
+  width: 1050px;
+  height: 585px;
+  overflow: hidden;
+
+}
+
+/* estilo base das imagens */
+
+.carrouselImg {
+  position: absolute;
+  width: 350px;
+  height: 450px;
+  object-fit: cover;
+  transition: all 0.5s ease;
+  opacity: 0;
+  border-radius: 20px;
+
+}
+
+/* imagem central */
+
+.carrouselAtual {
+  left: 50%;
+  transform: translateX(-50%) scale(1);
+  
+  opacity: 1;
+  z-index: 5;
+  
+  
+}
+
+/* primeira à esquerda */
+
+.carrouselPrev1 {
+  left: 36%;
+  transform: translateX(-350px) scale(0.8);
+  opacity: 0.8;
+  z-index: 4;
+}
+
+/* primeira à direita */
+
+.carrouselNext1 {
+  left: 31%;
+  transform: translateX(350px) scale(0.8);
+  opacity: 0.8;
+  z-index: 4;
+}
+
+/* imagens fora do range */
+
+.hidden {
+  opacity: 0;
 }

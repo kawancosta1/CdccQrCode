@@ -5,6 +5,7 @@ import mapaSala2 from '../img/MapaSala2.png'
 import style from './style.module.css'
 import { useState } from 'react'
 import { imageDatabaseSala1, imageDatabaseSala2 } from '../../data'
+import { Link } from 'react-router-dom'
 
 
 export function Nav(){
@@ -182,7 +183,7 @@ export function Nav(){
     return (
         <>
             <nav className={style.navBar}>
-                <img src={logoCdcc} alt="Logo Oficial do CDCC" />
+                <Link to={"/"}><img src={logoCdcc} alt="Logo Oficial do CDCC" /></Link>
 
                 {/* Menu Hamburger */}
                 <button className={`${style.hamburger} ${menuOpen ? style.open : ''}`} onClick={toggleMenu}>
@@ -201,12 +202,14 @@ export function Nav(){
                         onChange={handleSearchChange}
                         onKeyDown={handleKeyPress}
                     />
-                    <a href="">
+                    
                         <p className={style.itens} id="contato-mobile">Contato</p>
-                    </a>
-                    <a href="">
-                        <p className={style.itens} id="contato-mobile">Estantes</p>
-                    </a>
+                    
+                   
+                        <Link to="/estantes">
+                            <p className={style.itens} id="contato-mobile">Estantes</p>
+                        </Link>
+                    
                 </div>
             
             </nav>
@@ -323,12 +326,12 @@ export function Nav(){
                     {currentImages.length > 1 && (
                         <>
                             {currentImageIndex > 0 && (
-                                <button className={style.prevButton} onClick={prevImage}>
+                                <button className={style.prevButton} onClick={prevImage} style={{ opacity: activeTab === 'map' ? 0 : 1 }}>
                                     ◀
                                 </button>
                             )}
                             {currentImageIndex < currentImages.length - 1 && (
-                                <button className={style.nextButton} onClick={nextImage}>
+                                <button className={style.nextButton} onClick={nextImage} style={{ opacity: activeTab === 'map' ? 0 : 1 }}>
                                     ▶
                                 </button>
                             )}
