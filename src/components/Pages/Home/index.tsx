@@ -7,27 +7,63 @@ import arvore from "../../img/Carrousel/arvore.jpg";
 import guiaManga from "../../img/Carrousel/guia_manga.jpg";
 import sala1Espaco from "../../img/Carrousel/sala1Espaco.jpg";
 
+import SegurandoSeta1 from "../../img/Mascote/SegurandoSeta1.png";
+import SegurandoSeta2 from "../../img/Mascote/SegurandoSeta2.png";
+
 import { useState } from "react";
 
 export function Home() {
+
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
+  const [blinkLeft, setBlinkLeft] = useState(false);
+  const [blinkRight, setBlinkRight] = useState(false);
+  
+  const [animateLeftButton, setAnimateLeftButton] = useState(false);
+  const [animateRightButton, setAnimateRightButton] = useState(false);
 
   const carrouselImages = [
     espacoLudico,
     vestibular,
     arvore,
     guiaManga,
-    sala1Espaco,
+    sala1Espaco
   ];
+
+  function blinkLeftFox() {
+    setBlinkLeft(true);
+
+    setTimeout(() => {
+      setBlinkLeft(false);
+    }, 500);
+  }
+
+  function blinkRightFox() {
+    setBlinkRight(true);
+
+    setTimeout(() => {
+      setBlinkRight(false);
+    }, 500);
+  }
 
   const nextImage = () => {
     setCurrentImageIndex((prev) => (prev + 1) % carrouselImages.length);
+    blinkRightFox();
+    setAnimateRightButton(true);
+    setTimeout(() => {
+      setAnimateRightButton(false);
+    }, 600);
   };
 
   const prevImage = () => {
     setCurrentImageIndex(
       (prev) => (prev - 1 + carrouselImages.length) % carrouselImages.length
     );
+    blinkLeftFox();
+    setAnimateLeftButton(true);
+    setTimeout(() => {
+      setAnimateLeftButton(false);
+    }, 600);
   };
 
   const getPrev1 = () =>
@@ -45,8 +81,24 @@ export function Home() {
       <h2>Destaques</h2>
 
       <div className={styles.carrousel}>
-        <button className={styles.botao} onClick={prevImage}>◀</button>
 
+        {/* RAPOSA ESQUERDA */}
+        <div className={styles.mascoteCorda1}>
+          <button 
+            className={`${styles.botao} ${animateLeftButton ? styles.botaoAnimado : ''}`}
+            onClick={prevImage}
+          >
+            ◀
+          </button>
+
+          <img
+            src={blinkLeft ? SegurandoSeta2 : SegurandoSeta1}
+            alt="Mascote"
+            className={`${styles.SegurandoSeta1} ${animateLeftButton ? styles.raposaAnimada : ''}`}
+          />
+        </div>
+
+        {/* CARROSSEL */}
         <div className={styles.carouselViewport}>
           <div className={styles.CarrouselTrack}>
             {carrouselImages.map((image, index) => {
@@ -78,9 +130,25 @@ export function Home() {
           </div>
         </div>
 
-        <button className={styles.botao} onClick={nextImage}>▶</button>
+        {/* RAPOSA DIREITA */}
+        <div className={styles.mascoteCorda2}>
+          <button 
+            className={`${styles.botao} ${animateRightButton ? styles.botaoAnimado : ''}`}
+            onClick={nextImage}
+          >
+            ▶
+          </button>
+
+          <img
+            src={blinkRight ? SegurandoSeta2 : SegurandoSeta1}
+            alt="Mascote"
+            className={`${styles.SegurandoSeta1} ${animateRightButton ? styles.raposaAnimada : ''}`}
+          />
+        </div>
+
       </div>
-       <h2>Destaques</h2>
+
+      <h2>Destaques</h2>
     </Container>
   );
 }

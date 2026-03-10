@@ -22,6 +22,7 @@ h2{
     text-shadow: 1px 1px 6px violet;
     color: rgb(65, 60, 60);
 }
+
 img{
   border-radius: 20px;
 }
@@ -35,26 +36,42 @@ img{
   align-items: center;
   justify-content: center;
   gap: 0px;
+  position: relative;
 }
+
+/* BOTÃO */
 
 .botao{
-  z-index: 1;
-  width: 100px;
+  position: relative;
+  z-index: 20; /* botão fica na frente */
+  font-size: 2rem;
+  color: var(--primary);
+  text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.548);
+  background-color: white;
+  width: 150px;
   height: 100px;
-  margin: 0%;
+  margin: 1%;
   padding: 0%;
-
+  border: none;
+  border: 2px solid rgba(238, 130, 238, 0.158);  
+  transition: 0.4s;
+  border-radius: 10px;
 }
+.botao:hover{
+  border: 2px solid var(--primary);
+  transition: ease-in-out 0.3s;
+}
+
+/* VIEWPORT */
 
 .carouselViewport {
   position: relative;
-  width: 1050px;
+  width: 1000px;
   height: 585px;
   overflow: hidden;
-
 }
 
-/* estilo base das imagens */
+/* IMAGENS */
 
 .carrouselImg {
   position: absolute;
@@ -64,22 +81,18 @@ img{
   transition: all 0.5s ease;
   opacity: 0;
   border-radius: 20px;
-
 }
 
-/* imagem central */
+/* CENTRAL */
 
 .carrouselAtual {
   left: 50%;
   transform: translateX(-50%) scale(1);
-  
   opacity: 1;
   z-index: 5;
-  
-  
 }
 
-/* primeira à esquerda */
+/* ESQUERDA */
 
 .carrouselPrev1 {
   left: 36%;
@@ -88,7 +101,7 @@ img{
   z-index: 4;
 }
 
-/* primeira à direita */
+/* DIREITA */
 
 .carrouselNext1 {
   left: 31%;
@@ -97,8 +110,121 @@ img{
   z-index: 4;
 }
 
-/* imagens fora do range */
-
 .hidden {
   opacity: 0;
+}
+
+/* ------------------ */
+/* RAPOSA */
+/* ------------------ */
+
+.mascoteCorda1{
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.mascoteCorda2{
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* RAPOSA ATRÁS DO BOTÃO */
+
+.SegurandoSeta1{
+  position: relative;
+  width: 90px;
+  height: 130px;
+
+  margin-top: -20px;
+  margin-left: -20px;
+
+  z-index: 1; /* fica atrás do botão */
+}
+
+/* ------------------ */
+/* ANIMAÇÕES */
+/* ------------------ */
+
+@keyframes swing {
+  0% { transform: rotate(0deg) translateY(3px); }
+  25% { transform: rotate(-10deg) translateY(3px); }
+  50% { transform: rotate(0deg) translateY(-7px); }
+  75% { transform: rotate(10deg) translateY(3px); }
+  100% { transform: rotate(0deg) translateY(7px); }
+}
+
+@keyframes raposaSwing {
+  0% { transform: scaleX(1) translateY(0px); }
+  25% { transform: scaleX(1) translateY(-5px); }
+  50% { transform: scaleX(1) translateY(5px); }
+  75% { transform: scaleX(1) translateY(-5px); }
+  100% { transform: scaleX(1) translateY(0px); }
+}
+
+.botaoAnimado {
+  animation: swing 0.6s ease-in-out;
+  transform-origin: top center;
+}
+
+.raposaAnimada {
+  animation: raposaSwing 0.6s ease-in-out;
+}
+
+/* ------------------ */
+/* MOBILE */
+/* ------------------ */
+
+@media (max-width: 480px) {
+
+.titulo {
+    font-size: 2.5rem;
+}
+
+h2 {
+    font-size: 1.5rem;
+}
+
+.carouselViewport {
+    width: 400px;
+    height: 350px;
+    padding: 0 10px;
+    box-sizing: border-box;
+}
+
+.carrouselImg {
+    width: 200px;
+    height: 200px;
+}
+
+.botao {
+    width: 60px;
+    height: 30px;
+    font-size: 1.2rem;
+    
+}
+
+.carrouselPrev1 {
+    transform: translateX(-160px) scale(0.8);
+}
+
+.carrouselNext1 {
+    transform: translateX(90px) scale(0.8);
+}
+
+.mascoteCorda2{
+  position: absolute;
+  top: 20%;
+  left: 87%;
+}
+
+.mascoteCorda1{
+  position: absolute;
+  top: 20%;
+  right: 82%;
+}
+
 }

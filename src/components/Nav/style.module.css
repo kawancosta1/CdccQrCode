@@ -404,8 +404,8 @@ img{
     transform: translate(-50%, -50%);
 }
 .arrow-sala1-estante-13{
-    top: 50%;
-    left: 50%;
+     top: 10%;
+    right: 12%;
     transform: translate(-50%, -50%);
 }
 .arrow-sala1-estante-14{
@@ -600,6 +600,7 @@ margin: 0px;
     border-top: 2px solid rgba(255, 255, 255, 0.2);
     border-bottom: 2px solid rgba(255, 255, 255, 0.2);
     box-sizing: border-box;
+    transform: scale(0.8);
 }
 
 .roomToggleBtn{
@@ -615,6 +616,7 @@ margin: 0px;
     transition: 0.3s;
     white-space: nowrap;
     min-width: 120px;
+    
 }
 
 
@@ -622,6 +624,7 @@ margin: 0px;
     opacity: 1;
     background-color: white;
     color: var(--primary);
+     transform: scale(1.2);
    
 }
 
@@ -666,7 +669,7 @@ margin: 0px;
     .shelfInfo{
         padding: 0.4rem 0.6rem;
         max-width: calc(35% - 1rem);
-        top: 7rem;
+        top: 9rem;
         left: 0.5rem;
         right: 0.5rem;
     }
