@@ -25,7 +25,7 @@ import { MainTemplate } from './components/template/MainTemplate'
 
 export function App(){
   return (
-    <BrowserRouter>
+    <BrowserRouter basename="/CdccQrCode">
       <MainTemplate>
         <Routes>
           <Route path="/" element={<Home />} />
