@@ -132,7 +132,7 @@ export function Home() {
           <p className={styles.texto}>Primeiro, Acesse o <a href="https://dedalus.usp.br/" className={styles.linkDedalus} target="_blank" rel="noreferrer">Dedalus</a> e selecione a unidade no botão "Catálogo Geral"</p>
           <img src={dedalus} alt="Passo 1 Dedalus" className={styles.dedalus}/>
         </div>
-         <div className={styles.containerDedalus}>
+       <div className={styles.containerDedalus}>
           <p className={styles.texto}>Após selecionar a unidade, procure o nome do livro ou o autor no campo de busca</p>
           <img src={dedalus2} alt="Passo 2 Dedalus" className={styles.dedalus}/>
         </div>
@@ -160,6 +160,7 @@ export function Home() {
           <img src={dedalus6} alt="Passo 5 Dedalus" className={styles.dedalus}/>
          
         </div>
+        
         
         
         
