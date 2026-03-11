@@ -97,7 +97,7 @@ img{
 .carrouselPrev1 {
   left: 36%;
   transform: translateX(-350px) scale(0.8);
-  opacity: 0.8;
+  opacity: 0.3;
   z-index: 4;
 }
 
@@ -106,7 +106,7 @@ img{
 .carrouselNext1 {
   left: 31%;
   transform: translateX(350px) scale(0.8);
-  opacity: 0.8;
+  opacity: 0.3;
   z-index: 4;
 }
 
@@ -136,13 +136,13 @@ img{
 
 .SegurandoSeta1{
   position: relative;
-  width: 90px;
-  height: 130px;
+  width: 40px;
+  height: 70px;
 
   margin-top: -20px;
-  margin-left: -20px;
+  margin-left: -5px;
 
-  z-index: 1; /* fica atrás do botão */
+  z-index: 5; /* fica atrás do botão */
 }
 
 /* ------------------ */
@@ -190,14 +190,20 @@ h2 {
 
 .carouselViewport {
     width: 400px;
-    height: 350px;
+    height: 210px;
+    
     padding: 0 10px;
     box-sizing: border-box;
+
+
+    
+    
 }
 
 .carrouselImg {
-    width: 200px;
+    width: 250px;
     height: 200px;
+
 }
 
 .botao {
@@ -208,23 +214,23 @@ h2 {
 }
 
 .carrouselPrev1 {
-    transform: translateX(-160px) scale(0.8);
+    transform: translateX(-140px) scale(0.6);
 }
 
 .carrouselNext1 {
-    transform: translateX(90px) scale(0.8);
+    transform: translateX(20px) scale(0.6);
 }
 
 .mascoteCorda2{
   position: absolute;
   top: 20%;
-  left: 87%;
+  left: 85%;
 }
 
 .mascoteCorda1{
   position: absolute;
   top: 20%;
-  right: 82%;
+  right: 87%;
 }
 
 }
