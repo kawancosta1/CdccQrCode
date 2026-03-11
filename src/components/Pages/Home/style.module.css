@@ -9,9 +9,14 @@
     font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif ;
     transition: 0.2s;
     font-size: 5rem;
-    text-shadow: 1px 1px 6px violet;
+    text-shadow: 1px 1px 3px violet;
     color: rgb(65, 60, 60);
-    border-bottom:3px solid rgba(195, 93, 255, 0.438) ;
+    text-decoration-line: underline;
+    text-decoration-style: solid ;
+    text-decoration-thickness: 1px;
+    
+    margin: 10px;
+    
 }
 
 h2{
@@ -21,6 +26,7 @@ h2{
     font-size: 3rem;
     text-shadow: 1px 1px 6px violet;
     color: rgb(65, 60, 60);
+    
 }
 
 img{
@@ -53,13 +59,24 @@ img{
   margin: 1%;
   padding: 0%;
   border: none;
-  border: 2px solid rgba(238, 130, 238, 0.158);  
+  
   transition: 0.4s;
   border-radius: 10px;
 }
 .botao:hover{
   border: 2px solid var(--primary);
   transition: ease-in-out 0.3s;
+}
+
+.carrouselBackground{
+  background:#240319;
+  width: 100%;
+  height: 300px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  border-radius: 10px;
 }
 
 /* VIEWPORT */
@@ -90,6 +107,9 @@ img{
   transform: translateX(-50%) scale(1);
   opacity: 1;
   z-index: 5;
+
+  box-shadow:0 10px 30px rgba(0,0,0,0.2);
+
 }
 
 /* ESQUERDA */
@@ -142,7 +162,7 @@ img{
   margin-top: -20px;
   margin-left: -5px;
 
-  z-index: 5; /* fica atrás do botão */
+  z-index: 6; /* fica atrás do botão */
 }
 
 /* ------------------ */
@@ -189,11 +209,14 @@ h2 {
 }
 
 .carouselViewport {
-    width: 400px;
+    width: 410px;
     height: 210px;
     
     padding: 0 10px;
     box-sizing: border-box;
+  
+
+  
 
 
     
@@ -201,8 +224,8 @@ h2 {
 }
 
 .carrouselImg {
-    width: 250px;
-    height: 200px;
+    width: 85%;
+    height: 100%;
 
 }
 
@@ -223,13 +246,13 @@ h2 {
 
 .mascoteCorda2{
   position: absolute;
-  top: 20%;
-  left: 78%;
+  top: 30%;
+  left: 84%;
 }
 
 .mascoteCorda1{
   position: absolute;
-  top: 20%;
+  top: 30%;
   right: 83%;
 }
 

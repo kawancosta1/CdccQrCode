@@ -1,4 +1,4 @@
-import { Container } from "../../Container";
+
 import styles from "./style.module.css";
 
 import espacoLudico from "../../img/Carrousel/espacoLudico.jpg";
@@ -76,79 +76,74 @@ export function Home() {
   const next1 = getNext1();
 
   return (
-    <Container>
-      <h1 className={styles.titulo}>Biblioteca CDCC</h1>
-      <h2>Destaques</h2>
+   <>
+      <h1 className={styles.titulo}>Destaques</h1>
+      
 
-      <div className={styles.carrousel}>
-
-        {/* RAPOSA ESQUERDA */}
-        <div className={styles.mascoteCorda1}>
-          <button 
-            className={`${styles.botao} ${animateLeftButton ? styles.botaoAnimado : ''}`}
-            onClick={prevImage}
-          >
-            ◀
-          </button>
-
-          <img
-            src={blinkLeft ? SegurandoSeta2 : SegurandoSeta1}
-            alt="Mascote"
-            className={`${styles.SegurandoSeta1} ${animateLeftButton ? styles.raposaAnimada : ''}`}
-          />
-        </div>
-
-        {/* CARROSSEL */}
-        <div className={styles.carouselViewport}>
-          <div className={styles.CarrouselTrack}>
-            {carrouselImages.map((image, index) => {
-
-              let className = styles.carrouselImg;
-
-              if (index === currentImageIndex) {
-                className += ` ${styles.carrouselAtual}`;
-              } 
-              else if (index === prev1) {
-                className += ` ${styles.carrouselPrev1}`;
-              } 
-              else if (index === next1) {
-                className += ` ${styles.carrouselNext1}`;
-              } 
-              else {
-                className += ` ${styles.hidden}`;
-              }
-
-              return (
-                <img
-                  key={index}
-                  src={image}
-                  alt={`Slide ${index}`}
-                  className={className}
-                />
-              );
-            })}
+      <div className={styles.carrouselBackground}>
+        <div className={styles.carrousel}>
+          {/* RAPOSA ESQUERDA */}
+          <div className={styles.mascoteCorda1}>
+            <button
+              className={`${styles.botao} ${animateLeftButton ? styles.botaoAnimado : ''}`}
+              onClick={prevImage}
+            >
+              ◀
+            </button>
+            <img
+              src={blinkLeft ? SegurandoSeta2 : SegurandoSeta1}
+              alt="Mascote"
+              className={`${styles.SegurandoSeta1} ${animateLeftButton ? styles.raposaAnimada : ''}`}
+            />
+          </div>
+          {/* CARROSSEL */}
+          <div className={styles.carouselViewport}>
+            <div className={styles.CarrouselTrack}>
+              {carrouselImages.map((image, index) => {
+                let className = styles.carrouselImg;
+                if (index === currentImageIndex) {
+                  className += ` ${styles.carrouselAtual}`;
+                }
+                else if (index === prev1) {
+                  className += ` ${styles.carrouselPrev1}`;
+                }
+                else if (index === next1) {
+                  className += ` ${styles.carrouselNext1}`;
+                }
+                else {
+                  className += ` ${styles.hidden}`;
+                }
+                return (
+                  <img
+                    key={index}
+                    src={image}
+                    alt={`Slide ${index}`}
+                    className={className}
+                  />
+                );
+              })}
+            </div>
+          </div>
+          {/* RAPOSA DIREITA */}
+          <div className={styles.mascoteCorda2}>
+            <button
+              className={`${styles.botao} ${animateRightButton ? styles.botaoAnimado : ''}`}
+              onClick={nextImage}
+            >
+              ▶
+            </button>
+            <img
+              src={blinkRight ? SegurandoSeta2 : SegurandoSeta1}
+              alt="Mascote"
+              className={`${styles.SegurandoSeta1} ${animateRightButton ? styles.raposaAnimada : ''}`}
+            />
           </div>
         </div>
-
-        {/* RAPOSA DIREITA */}
-        <div className={styles.mascoteCorda2}>
-          <button 
-            className={`${styles.botao} ${animateRightButton ? styles.botaoAnimado : ''}`}
-            onClick={nextImage}
-          >
-            ▶
-          </button>
-
-          <img
-            src={blinkRight ? SegurandoSeta2 : SegurandoSeta1}
-            alt="Mascote"
-            className={`${styles.SegurandoSeta1} ${animateRightButton ? styles.raposaAnimada : ''}`}
-          />
-        </div>
-
       </div>
+      
 
       <h2>Destaques</h2>
-    </Container>
+      </>
+    
   );
 }
