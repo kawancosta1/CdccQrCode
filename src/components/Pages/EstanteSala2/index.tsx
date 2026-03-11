@@ -2,6 +2,8 @@ import { useParams } from 'react-router-dom'
 
 import style from './style.module.css'
 
+import { useState } from 'react'
+
 import mapaSala2 from '../../img/MapaSala2.png'
 
 // ========================================
@@ -42,6 +44,11 @@ const ESTANTES_IMAGENS: { [key: string]: string } = {
 }
 
 export function EstanteSala2() {
+
+  const [viewMode, setViewMode] = useState<'estante' | 'mapa'>('estante');
+
+
+
   const { numero } = useParams<{ numero: string }>()
   const imagem = numero ? ESTANTES_IMAGENS[numero] : null
 
@@ -64,17 +71,33 @@ export function EstanteSala2() {
   <div className={style.ContainerTitulo}>
     <h1 className={style.title}>Sala 2 </h1>
     <h2 className={style.title}>Estante {numero}</h2>
+    <div className={style.tabButtons}>
+  <button 
+    onClick={() => setViewMode('estante')}
+    className={` ${viewMode === 'estante' ? style.activeTab : ''}`}
+  >
+    📷 Estante
+  </button>
+  <button 
+    onClick={() => setViewMode('mapa')}
+    className={viewMode === 'mapa' ? style.activeTab : ''}
+  >
+    🗺️ Mapa
+  </button>
+</div>
   </div>
-  <div className={style.imagens}>
-     <img src={mapaSala2} alt="Mapa Sala 2" className={style.mapImage} />
-        <div className={`${style.mapArrow} ${style[`arrow-estante-${numero}`]}`}>
-      </div>
-      <img src={imagem} alt={`Estante ${numero}`} className={style.image} />
-    
-      {/* Mapa com indicador */}
+  {/* renderização CONDICIONAL  */}
+ {viewMode === 'estante' ? (
+  <img src={imagem} alt={`Estante ${numero}`} className={style.image} />
+) : (
+  <div className={style.mapContainer}>
+    <img src={mapaSala2} alt="Mapa Sala 2" className={style.mapImage} />
+    <div className={`${style.mapArrow} ${style[`arrow-estante-${numero}`]}`}></div>
+  </div>
+)}
     
        
-  </div>
+
 </div>
     
   )
