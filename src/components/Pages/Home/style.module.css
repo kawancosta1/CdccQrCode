@@ -1,37 +1,40 @@
-.p{
-    width: 50%;
-    text-align: center;
-    margin: 0 auto;
+.titulo {
+  text-align: center;
+  margin: 20px;
+  padding: 10px;
+  border-radius: 20px;
+  color: white;
+  background-color: var(--primary);
+  font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+  box-shadow: 1px 1px 3px rgb(0, 0, 0);
 }
 
-.titulo{
-    text-align: center;
-    font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif ;
-    transition: 0.2s;
-    font-size: 5rem;
-    text-shadow: 1px 1px 3px violet;
-    color: rgb(65, 60, 60);
-    text-decoration-line: underline;
-    text-decoration-style: solid ;
-    text-decoration-thickness: 1px;
-    
-    margin: 10px;
-    
+.subtitulo {
+  margin: 20px;
+  padding: 10px;
+  box-shadow: 1px 1px 3px rgb(0, 0, 0);
+  border-radius: 20px;
+  color: white;
+  background-color: var(--primary);
+  text-align: center;
+  font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
 }
 
-h2{
-    text-align: center;
-    font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif ;
-    transition: 0.2s;
-    font-size: 3rem;
-    text-shadow: 1px 1px 6px violet;
-    color: rgb(65, 60, 60);
-    
+.comoUsar {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+  padding-bottom: 50px;
 }
 
-img{
+.dedalus {
+  max-width: 90%;
+  height: auto;
   border-radius: 20px;
 }
+
 
 /* ------------------ */
 /* CARROSSEL */
@@ -41,219 +44,169 @@ img{
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0px;
   position: relative;
-}
-
-/* BOTÃO */
-
-.botao{
-  position: relative;
-  z-index: 20; /* botão fica na frente */
-  font-size: 2rem;
-  color: var(--primary);
-  text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.548);
-  background-color: white;
-  width: 150px;
-  height: 100px;
-  margin: 1%;
-  padding: 0%;
-  border: none;
-  
-  transition: 0.4s;
-  border-radius: 10px;
-}
-.botao:hover{
-  border: 2px solid var(--primary);
-  transition: ease-in-out 0.3s;
-}
-
-.carrouselBackground{
-  background:#240319;
   width: 100%;
-  height: 300px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  border-radius: 10px;
+  max-width: 1200px;
+  margin: 0 auto;
 }
-
-/* VIEWPORT */
 
 .carouselViewport {
   position: relative;
-  width: 1000px;
-  height: 585px;
+  width: 800px; /* Reduzi um pouco para caber melhor entre os botões */
+  height: 500px;
   overflow: hidden;
+  z-index: 5;
 }
-
-/* IMAGENS */
 
 .carrouselImg {
   position: absolute;
-  width: 350px;
-  height: 450px;
+  width: 400px;
+  height: 100%;
   object-fit: cover;
-  transition: all 0.5s ease;
-  opacity: 0;
+  transition: all 0.5s ease-in-out;
   border-radius: 20px;
+  opacity: 0;
+  pointer-events: none; /* Imagens não "roubam" o clique do botão */
 }
 
-/* CENTRAL */
+/* POSIÇÕES */
 
 .carrouselAtual {
   left: 50%;
   transform: translateX(-50%) scale(1);
   opacity: 1;
-  z-index: 5;
-
-  box-shadow:0 10px 30px rgba(0,0,0,0.2);
-
+  z-index: 10;
+  pointer-events: auto;
 }
 
-/* ESQUERDA */
-
 .carrouselPrev1 {
-  left: 36%;
-  transform: translateX(-350px) scale(0.8);
-  opacity: 0.3;
+  left: 0%;
+  transform: translateX(-20%) scale(0.7);
+  opacity: 0.4;
   z-index: 4;
 }
 
-/* DIREITA */
-
 .carrouselNext1 {
-  left: 31%;
-  transform: translateX(350px) scale(0.8);
-  opacity: 0.3;
+  left: 100%;
+  transform: translateX(-80%) scale(0.7);
+  opacity: 0.4;
   z-index: 4;
 }
 
 .hidden {
   opacity: 0;
+  transform: translateX(-50%) scale(0.5);
+  z-index: 1;
 }
 
 /* ------------------ */
-/* RAPOSA */
+/* BOTÕES E MASCOTES */
 /* ------------------ */
 
-.mascoteCorda1{
-  position: relative;
+.mascoteCorda1, .mascoteCorda2 {
   display: flex;
   flex-direction: column;
   align-items: center;
+  z-index: 50; /* Garante que fiquem acima das imagens laterais */
 }
 
-.mascoteCorda2{
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+.botao {
+  cursor: pointer;
+  font-size: 2rem;
+  color: var(--primary);
+  background-color: white;
+  width: 80px;
+  height: 60px;
+  border: none;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  transition: 0.3s;
+  opacity: 1;
 }
 
-/* RAPOSA ATRÁS DO BOTÃO */
-
-.SegurandoSeta1{
-  position: relative;
-  width: 40px;
-  height: 70px;
-
-  margin-top: -20px;
-  margin-left: -5px;
-
-  z-index: 6; /* fica atrás do botão */
+.botao:hover {
+  transform: scale(1.1);
+  border: 2px solid var(--primary);
 }
 
-/* ------------------ */
+.SegurandoSeta1 {
+  width: 50px;
+  height: auto;
+  margin-top: -10px;
+}
+
+/* COMO USAR */
+
+  .dedalus{
+   max-width: 600px;
+    height: auto;
+   
+  }
+
+  .texto{
+     font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    color: var(--primary);
+    font-size: 1rem;
+    font-weight: bold;
+    background-color: bisque;
+    width: 300px;
+    text-align: center;
+
+  }
+
+.linkDedalus{
+  text-decoration: none;
+}
+
+
 /* ANIMAÇÕES */
-/* ------------------ */
 
 @keyframes swing {
-  0% { transform: rotate(0deg) translateY(3px); }
-  25% { transform: rotate(-10deg) translateY(3px); }
-  50% { transform: rotate(0deg) translateY(-7px); }
-  75% { transform: rotate(10deg) translateY(3px); }
-  100% { transform: rotate(0deg) translateY(7px); }
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(-10deg); }
+  75% { transform: rotate(10deg); }
 }
 
 @keyframes raposaSwing {
-  0% { transform: scaleX(1) translateY(0px); }
-  25% { transform: scaleX(1) translateY(-5px); }
-  50% { transform: scaleX(1) translateY(5px); }
-  75% { transform: scaleX(1) translateY(-5px); }
-  100% { transform: scaleX(1) translateY(0px); }
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
 }
 
 .botaoAnimado {
-  animation: swing 0.6s ease-in-out;
-  transform-origin: top center;
+  animation: swing 0.3s ease-in-out;
 }
 
 .raposaAnimada {
   animation: raposaSwing 0.6s ease-in-out;
 }
 
-/* ------------------ */
 /* MOBILE */
-/* ------------------ */
 
 @media (max-width: 480px) {
+  .carouselViewport {
+    width: 300px;
+    height: 250px;
+  }
+  .carrouselImg {
+    width: 200px;
+  }
+  .carrouselPrev1 {
+    transform: translateX(-50%) scale(0.6);
+  }
+  .carrouselNext1 {
+    transform: translateX(-50%) scale(0.6);
+  }
 
-.titulo {
-    font-size: 2.5rem;
-}
-
-h2 {
-    font-size: 1.5rem;
-}
-
-.carouselViewport {
-    width: 410px;
-    height: 210px;
-    
-    padding: 0 10px;
-    box-sizing: border-box;
-  
-
-  
-
-
-    
-    
-}
-
-.carrouselImg {
-    width: 85%;
-    height: 100%;
-
-}
-
-.botao {
-    width: 60px;
-    height: 30px;
-    font-size: 1.2rem;
-    
-}
-
-.carrouselPrev1 {
-    transform: translateX(-140px) scale(0.6);
-}
-
-.carrouselNext1 {
-    transform: translateX(20px) scale(0.6);
-}
-
-.mascoteCorda2{
-  position: absolute;
-  top: 30%;
-  left: 84%;
-}
-
-.mascoteCorda1{
-  position: absolute;
-  top: 30%;
-  right: 83%;
-}
-
+  .dedalus{
+    width: 300px;
+    height: auto;
+  }
+  .containerDedalus{
+    width: auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+  }
 }

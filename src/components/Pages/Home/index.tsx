@@ -1,4 +1,3 @@
-
 import styles from "./style.module.css";
 
 import espacoLudico from "../../img/Carrousel/espacoLudico.jpg";
@@ -6,6 +5,13 @@ import vestibular from "../../img/Carrousel/vestibular.jpg";
 import arvore from "../../img/Carrousel/arvore.jpg";
 import guiaManga from "../../img/Carrousel/guia_manga.jpg";
 import sala1Espaco from "../../img/Carrousel/sala1Espaco.jpg";
+import dedalus from "../../img/Dedalus.png"
+import dedalus2 from "../../img/Dedalus2.png"
+import dedalus3 from "../../img/Dedalus3.png"
+import dedalus4 from "../../img/Dedalus4.png"
+import dedalus5 from "../../img/Dedalus5.png"
+import dedalus6 from "../../img/Dedalus6.png"
+
 
 import SegurandoSeta1 from "../../img/Mascote/SegurandoSeta1.png";
 import SegurandoSeta2 from "../../img/Mascote/SegurandoSeta2.png";
@@ -13,12 +19,9 @@ import SegurandoSeta2 from "../../img/Mascote/SegurandoSeta2.png";
 import { useState } from "react";
 
 export function Home() {
-
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-
   const [blinkLeft, setBlinkLeft] = useState(false);
   const [blinkRight, setBlinkRight] = useState(false);
-  
   const [animateLeftButton, setAnimateLeftButton] = useState(false);
   const [animateRightButton, setAnimateRightButton] = useState(false);
 
@@ -32,53 +35,36 @@ export function Home() {
 
   function blinkLeftFox() {
     setBlinkLeft(true);
-
-    setTimeout(() => {
-      setBlinkLeft(false);
-    }, 500);
+    setTimeout(() => setBlinkLeft(false), 500);
   }
 
   function blinkRightFox() {
     setBlinkRight(true);
-
-    setTimeout(() => {
-      setBlinkRight(false);
-    }, 500);
+    setTimeout(() => setBlinkRight(false), 500);
   }
 
   const nextImage = () => {
     setCurrentImageIndex((prev) => (prev + 1) % carrouselImages.length);
     blinkRightFox();
     setAnimateRightButton(true);
-    setTimeout(() => {
-      setAnimateRightButton(false);
-    }, 600);
+    setTimeout(() => setAnimateRightButton(false), 600);
   };
 
   const prevImage = () => {
-    setCurrentImageIndex(
-      (prev) => (prev - 1 + carrouselImages.length) % carrouselImages.length
+    setCurrentImageIndex((prev) => 
+      (prev - 1 + carrouselImages.length) % carrouselImages.length
     );
     blinkLeftFox();
     setAnimateLeftButton(true);
-    setTimeout(() => {
-      setAnimateLeftButton(false);
-    }, 600);
+    setTimeout(() => setAnimateLeftButton(false), 600);
   };
 
-  const getPrev1 = () =>
-    (currentImageIndex - 1 + carrouselImages.length) % carrouselImages.length;
-
-  const getNext1 = () =>
-    (currentImageIndex + 1) % carrouselImages.length;
-
-  const prev1 = getPrev1();
-  const next1 = getNext1();
+  const prev1 = (currentImageIndex - 1 + carrouselImages.length) % carrouselImages.length;
+  const next1 = (currentImageIndex + 1) % carrouselImages.length;
 
   return (
-   <>
+    <>
       <h1 className={styles.titulo}>Destaques</h1>
-      
 
       <div className={styles.carrouselBackground}>
         <div className={styles.carrousel}>
@@ -92,38 +78,37 @@ export function Home() {
             </button>
             <img
               src={blinkLeft ? SegurandoSeta2 : SegurandoSeta1}
-              alt="Mascote"
+              alt="Mascote Esquerda"
               className={`${styles.SegurandoSeta1} ${animateLeftButton ? styles.raposaAnimada : ''}`}
             />
           </div>
+
           {/* CARROSSEL */}
           <div className={styles.carouselViewport}>
             <div className={styles.CarrouselTrack}>
               {carrouselImages.map((image, index) => {
-                let className = styles.carrouselImg;
+                let positionClass = styles.hidden;
+                
                 if (index === currentImageIndex) {
-                  className += ` ${styles.carrouselAtual}`;
+                  positionClass = styles.carrouselAtual;
+                } else if (index === prev1) {
+                  positionClass = styles.carrouselPrev1;
+                } else if (index === next1) {
+                  positionClass = styles.carrouselNext1;
                 }
-                else if (index === prev1) {
-                  className += ` ${styles.carrouselPrev1}`;
-                }
-                else if (index === next1) {
-                  className += ` ${styles.carrouselNext1}`;
-                }
-                else {
-                  className += ` ${styles.hidden}`;
-                }
+
                 return (
                   <img
                     key={index}
                     src={image}
                     alt={`Slide ${index}`}
-                    className={className}
+                    className={`${styles.carrouselImg} ${positionClass}`}
                   />
                 );
               })}
             </div>
           </div>
+
           {/* RAPOSA DIREITA */}
           <div className={styles.mascoteCorda2}>
             <button
@@ -134,16 +119,51 @@ export function Home() {
             </button>
             <img
               src={blinkRight ? SegurandoSeta2 : SegurandoSeta1}
-              alt="Mascote"
+              alt="Mascote Direita"
               className={`${styles.SegurandoSeta1} ${animateRightButton ? styles.raposaAnimada : ''}`}
             />
           </div>
         </div>
       </div>
-      
 
-      <h2>Destaques</h2>
-      </>
-    
+      <div className={styles.comoUsar}>
+        <h2 className={styles.subtitulo}>Como usar o nosso buscador</h2>
+        <div className={styles.containerDedalus}>
+          <p className={styles.texto}>Primeiro, Acesse o <a href="https://dedalus.usp.br/" className={styles.linkDedalus} target="_blank" rel="noreferrer">Dedalus</a> e selecione a unidade no botão "Catálogo Geral"</p>
+          <img src={dedalus} alt="Passo 1 Dedalus" className={styles.dedalus}/>
+        </div>
+         <div className={styles.containerDedalus}>
+          <p className={styles.texto}>Após selecionar a unidade, procure o nome do livro ou o autor no campo de busca</p>
+          <img src={dedalus2} alt="Passo 2 Dedalus" className={styles.dedalus}/>
+        </div>
+         <div className={styles.containerDedalus}>
+          <p className={styles.texto}>Após digitar e apertar o enter na barra de pesquisa, selecione a opção que aparece a unidade que você deseja, como, por exemplo, o CDCC</p>
+          <img src={dedalus3} alt="Passo 3 Dedalus" className={styles.dedalus}/>
+        </div>
+         <div className={styles.containerDedalus}>
+          <p className={styles.texto}>Após selecionar o livro, copie o código</p>
+          <img src={dedalus4} alt="Passo 4 Dedalus" className={styles.dedalus}/>
+        </div>
+         <div className={styles.containerDedalus}>
+          <p className={styles.texto}>Logo após copiar o codigo, coloque esse codigo na barra de pesquisa do nosso site de <a href="#">buscas</a></p>
+          <img src={dedalus4} alt="Passo 4 Dedalus" className={styles.dedalus}/>
+         
+        </div>
+
+         <div className={styles.containerDedalus}>
+          <p className={styles.texto}>Logo após copiar o codigo, coloque esse codigo na barra de pesquisa do  site de <a href="#">buscas</a></p>
+          <img src={dedalus5} alt="Passo 5 Dedalus" className={styles.dedalus}/>
+         
+        </div>
+            <div className={styles.containerDedalus}>
+          <p className={styles.texto}>Logo após copiar o codigo, coloque esse codigo na barra de pesquisa do  site de <a href="#">buscas</a></p>
+          <img src={dedalus6} alt="Passo 5 Dedalus" className={styles.dedalus}/>
+         
+        </div>
+        
+        
+        
+      </div>
+    </>
   );
 }
