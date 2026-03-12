@@ -9,6 +9,20 @@
     <link rel="stylesheet" crossorigin href="/CdccQrCode/assets/index-Bcaty7eJ.css">
   </head>
   <body>
+    <script>
+      // Este script restaura a URL original que veio do 404.html redirect.
+      // Exemplo: /CdccQrCode/?p=/estantes → restaura para /CdccQrCode/estantes
+      (function(l) {
+        if (l.search[1] === '/') {
+          var decoded = l.search.slice(1).split('&').map(function(s) {
+            return s.replace(/~and~/g, '&')
+          }).join('?');
+          window.history.replaceState(null, null,
+            l.pathname.slice(0, -1) + decoded + l.hash
+          );
+        }
+      }(window.location))
+    </script>
     <div id="root"></div>
   </body>
 </html>
