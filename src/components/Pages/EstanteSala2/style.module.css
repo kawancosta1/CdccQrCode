@@ -133,7 +133,7 @@ button {
   position: absolute;
   width: 10px;
   height: 10px;
-  background: black;
+  background: rgb(255, 0, 0);
   border-radius: 50%;
   box-shadow: 0 0 15px rgba(0,0,0,0.8);
   animation: arrowPulse 1.5s ease-in-out infinite;
@@ -154,16 +154,16 @@ button {
 
 /* posições das estantes */
 
-.arrow-estante-1 { top:80%; left:11.2%; }
+.arrow-estante-1 { top:78%; left:11.2%; }
 .arrow-estante-2 { top:75%; left:22%; }
 .arrow-estante-3 { top:72%; left:22%; }
-.arrow-estante-4 { top:65%; left:11.2%; }
+.arrow-estante-4 { top:63%; left:11.2%; }
 .arrow-estante-5 { top:59%; left:22%; }
 .arrow-estante-6 { top:55.5%; left:22%; }
-.arrow-estante-7 { top:50%; left:11.2%; }
+.arrow-estante-7 { top:48%; left:11.2%; }
 .arrow-estante-8 { top:43.5%; left:22%; }
 .arrow-estante-9 { top:40.5%; left:22%; }
-.arrow-estante-10 {  top:33%; left:11.2%;  }
+.arrow-estante-10 {  top:31%; left:11.2%;  }
 .arrow-estante-11 { top:27.5%; left:22%; }
 .arrow-estante-12 { top:23.5%; left:22%;  }
 

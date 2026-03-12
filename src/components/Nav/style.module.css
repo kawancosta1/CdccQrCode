@@ -326,9 +326,9 @@ a{
     position: absolute;
     width: 10px;
     height: 10px;
-    background-color: #000000;
+    background-color: rgb(255, 238, 0);
     border-radius: 50%;
-    box-shadow: 0 0 15px rgba(0, 0, 0, 0.8);
+    box-shadow: 0 0 15px rgba(255, 0, 0, 0.5);
     animation: arrowPulse 1.5s ease-in-out infinite;
     z-index: 10;
 }

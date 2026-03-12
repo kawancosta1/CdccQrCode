@@ -1,9 +1,14 @@
+
+@import url('https://fonts.googleapis.com/css2?family=Bungee&display=swap');
+
+
 *{
     margin: 0rem;
     padding: 0px;
     /* no border box, garantimos que o padding e o margin são somados ao tamanho do content */
     box-sizing: border-box;   
 }
+
 
 html, body{
   width: 100%;

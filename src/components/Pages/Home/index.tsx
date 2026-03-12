@@ -1,5 +1,6 @@
 import styles from "./style.module.css";
 
+
 import espacoLudico from "../../img/Carrousel/espacoLudico.jpg";
 import vestibular from "../../img/Carrousel/vestibular.jpg";
 import arvore from "../../img/Carrousel/arvore.jpg";
@@ -13,8 +14,13 @@ import dedalus5 from "../../img/Dedalus5.png"
 import dedalus6 from "../../img/Dedalus6.png"
 
 
-import SegurandoSeta1 from "../../img/Mascote/SegurandoSeta1.png";
-import SegurandoSeta2 from "../../img/Mascote/SegurandoSeta2.png";
+import BentinhoPuxando from "../../img/Mascote/bentinhoPuxando2.png";
+import BentinhoPuxando2 from "../../img/Mascote/bentinhoPuxando.png";
+import BentinhoPensando from "../../img/Mascote/pensando.png";
+import BentinhoPensando2 from "../../img/Mascote/pensando2.png";
+import BentinhoPuxandoSono from "../../img/Mascote/bentinhoPuxandoSono.png";
+import BentinhoPuxandoSono2 from "../../img/Mascote/bentinhoPuxandoSono2.png";
+
 
 import { useState } from "react";
 
@@ -77,9 +83,9 @@ export function Home() {
               ◀
             </button>
             <img
-              src={blinkLeft ? SegurandoSeta2 : SegurandoSeta1}
+              src={blinkLeft ? BentinhoPuxandoSono2 : BentinhoPuxandoSono}
               alt="Mascote Esquerda"
-              className={`${styles.SegurandoSeta1} ${animateLeftButton ? styles.raposaAnimada : ''}`}
+              className={`${styles.BentinhoPuxando} ${animateLeftButton ? styles.raposaAnimada : ''}`}
             />
           </div>
 
@@ -118,48 +124,50 @@ export function Home() {
               ▶
             </button>
             <img
-              src={blinkRight ? SegurandoSeta2 : SegurandoSeta1}
+              src={blinkRight ? BentinhoPuxando : BentinhoPuxando2}
               alt="Mascote Direita"
-              className={`${styles.SegurandoSeta1} ${animateRightButton ? styles.raposaAnimada : ''}`}
+              className={`${styles.BentinhoPuxando} ${animateRightButton ? styles.raposaAnimada : ''}`}
             />
           </div>
         </div>
       </div>
 
       <div className={styles.comoUsar}>
-        <h2 className={styles.subtitulo}>Como usar o nosso buscador</h2>
+        <span className={styles.linha}> </span>
+        <div className={`${styles.subtitulo}`}>
+          <div><img src={BentinhoPensando2} alt="" className={styles.BentinhoPensando2} /></div>
+         <div>
+           <h2>Como utilizar o nosso buscador </h2>
+         </div><div><img src={BentinhoPensando} alt="" className={styles.BentinhoPensando} /> </div></div>
+         <span className={styles.linha}> </span>
         <div className={styles.containerDedalus}>
-          <p className={styles.texto}>Primeiro, Acesse o <a href="https://dedalus.usp.br/" className={styles.linkDedalus} target="_blank" rel="noreferrer">Dedalus</a> e selecione a unidade no botão "Catálogo Geral"</p>
+          <p className={styles.texto}>Primeiro, acesse o <a href="https://dedalus.usp.br/" className={styles.linkDedalus} target="_blank" rel="noreferrer">Dedalus</a> e clique no botao "Catalogo Geral" para selecionar a unidade</p>
           <img src={dedalus} alt="Passo 1 Dedalus" className={styles.dedalus}/>
         </div>
        <div className={styles.containerDedalus}>
-          <p className={styles.texto}>Após selecionar a unidade, procure o nome do livro ou o autor no campo de busca</p>
+          <p className={styles.texto}>Apos selecionar a unidade, pesquise pelo nome do livro ou pelo nome do autor</p>
           <img src={dedalus2} alt="Passo 2 Dedalus" className={styles.dedalus}/>
         </div>
          <div className={styles.containerDedalus}>
-          <p className={styles.texto}>Após digitar e apertar o enter na barra de pesquisa, selecione a opção que aparece a unidade que você deseja, como, por exemplo, o CDCC</p>
+          <p className={styles.texto}>Nos resultados da busca, selecione o livro desejado e verifique se a unidade e o CDCC</p>
           <img src={dedalus3} alt="Passo 3 Dedalus" className={styles.dedalus}/>
         </div>
          <div className={styles.containerDedalus}>
-          <p className={styles.texto}>Após selecionar o livro, copie o código</p>
+          <p className={styles.texto}>Na pagina do livro, localize e copie o codigo de classificacao</p>
           <img src={dedalus4} alt="Passo 4 Dedalus" className={styles.dedalus}/>
         </div>
          <div className={styles.containerDedalus}>
-          <p className={styles.texto}>Logo após copiar o codigo, coloque esse codigo na barra de pesquisa do nosso site de <a href="#">buscas</a></p>
-          <img src={dedalus4} alt="Passo 4 Dedalus" className={styles.dedalus}/>
+          <p className={styles.texto}>Cole o codigo na barra de pesquisa do nosso site e pressione Enter</p>
+          <img src={dedalus5} alt="Passo 5 Dedalus" className={styles.dedalus}/>
          
         </div>
 
          <div className={styles.containerDedalus}>
-          <p className={styles.texto}>Logo após copiar o codigo, coloque esse codigo na barra de pesquisa do  site de <a href="#">buscas</a></p>
-          <img src={dedalus5} alt="Passo 5 Dedalus" className={styles.dedalus}/>
+          <p className={styles.texto}>O resultado mostra a estante e uma foto indicando a porção onde o livro esta localizado</p>
+          <img src={dedalus6} alt="Passo 6 Dedalus" className={styles.dedalus}/>
          
         </div>
-            <div className={styles.containerDedalus}>
-          <p className={styles.texto}>Logo após copiar o codigo, coloque esse codigo na barra de pesquisa do  site de <a href="#">buscas</a></p>
-          <img src={dedalus6} alt="Passo 5 Dedalus" className={styles.dedalus}/>
-         
-        </div>
+
         
         
         

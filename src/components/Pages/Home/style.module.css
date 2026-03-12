@@ -1,3 +1,5 @@
+
+
 .titulo {
   text-align: center;
   margin: 20px;
@@ -10,15 +12,29 @@
 }
 
 .subtitulo {
-  margin: 20px;
-  padding: 10px;
-  box-shadow: 1px 1px 3px rgb(0, 0, 0);
+  margin: 30px;
+  display: flex;
+  gap: 5px;
   border-radius: 20px;
-  color: white;
-  background-color: var(--primary);
+  color: var(--primary);
+  font-size: 2rem;
+  font-family: "Bungee", sans-serif;
   text-align: center;
-  font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+  width: 100%;
+  max-width: 600px;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.61);
 }
+.BentinhoPensando{
+  width: 50px;
+  height: auto;
+
+}
+.BentinhoPensando2{
+  width: 50px;
+  height: auto;
+
+}
+
 
 .comoUsar {
   display: flex;
@@ -48,6 +64,7 @@
   width: 100%;
   max-width: 1200px;
   margin: 0 auto;
+  
 }
 
 .carouselViewport {
@@ -56,6 +73,7 @@
   height: 500px;
   overflow: hidden;
   z-index: 5;
+  margin-bottom: 20%;
 }
 
 .carrouselImg {
@@ -129,13 +147,23 @@
   border: 2px solid var(--primary);
 }
 
-.SegurandoSeta1 {
-  width: 50px;
+.BentinhoPuxando {
+  width: 40px;
   height: auto;
   margin-top: -10px;
+  z-index: -1;
 }
 
+
 /* COMO USAR */
+
+.linha{
+  margin-bottom: 0px;
+  width: 100%;
+  height: 10px;
+  background-color:rgba(86, 1, 94, 0.712);
+
+}
 
   .dedalus{
    max-width: 600px;
@@ -144,18 +172,29 @@
   }
 
   .texto{
-     font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
-    color: var(--primary);
-    font-size: 1rem;
-    font-weight: bold;
-    background-color: bisque;
-    width: 300px;
+     font-family: "Bungee", sans-serif;
+    color: rgb(241, 206, 206);
+    font-size: 1.5rem;
+    padding: 10px;
+    border-radius: 4px;
+    text-shadow: 2px 1px 4px black;
+    background-color: var(--primary);
+    width: 100%;
     text-align: center;
 
   }
 
 .linkDedalus{
-  text-decoration: none;
+text-decoration: underline solid;
+text-decoration-color: red;
+  font-size: 2rem;
+  color: blueviolet;
+  transition: 0.2s;
+  margin: 3px;
+}
+.linkDedalus:hover{
+ text-decoration: underline dashed;
+
 }
 
 
@@ -168,8 +207,8 @@
 }
 
 @keyframes raposaSwing {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
+  0%, 100% { transform: translateY(0) rotate(-5deg) }
+  50% { transform: translateY(5px) rotate(5deg)  }
 }
 
 .botaoAnimado {
