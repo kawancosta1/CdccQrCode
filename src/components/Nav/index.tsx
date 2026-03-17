@@ -225,13 +225,13 @@ export function Nav(){
                         {activeRoom === 1 && roomDataSala1 && (
                             <>
                                 <div className={style.shelfName}>{roomDataSala1.shelf}</div>
-                                <div className={style.shelfRange}>Números: {roomDataSala1.range}</div>
+                               
                             </>
                         )}
                         {activeRoom === 2 && roomDataSala2 && (
                             <>
                                 <div className={style.shelfName}>{roomDataSala2.shelf}</div>
-                                <div className={style.shelfRange}>Números: {roomDataSala2.range}</div>
+                                
                             </>
                         )}
                         {hasSala1 && hasSala2 && roomDataSala1 && roomDataSala2 && (

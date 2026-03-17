@@ -384,6 +384,7 @@ a{
     top: 10%;
     right: 62%;
     transform: translate(-50%, -50%);
+    
 }
 .arrow-sala1-estante-9{
      top: 10%;
@@ -677,7 +678,7 @@ margin: 0px;
     }
 
     .roomLabel{
-        font-size: 0.6rem;
+        font-size: 3rem;
         letter-spacing: 0.8px;
         margin-bottom: 0.3rem;
         padding-bottom: 0.3rem;

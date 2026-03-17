@@ -71,6 +71,7 @@
   position: relative;
   width: 800px; /* Reduzi um pouco para caber melhor entre os botões */
   height: 500px;
+  border-radius: 20px;
   overflow: hidden;
   z-index: 5;
   margin-bottom: 20%;
@@ -231,9 +232,11 @@ text-decoration-color: red;
   }
   .carrouselPrev1 {
     transform: translateX(-50%) scale(0.6);
+    border-radius: 20px;
   }
   .carrouselNext1 {
     transform: translateX(-50%) scale(0.6);
+    border-radius: 20px;
   }
 
   .dedalus{
@@ -246,6 +249,6 @@ text-decoration-color: red;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    gap: 20px;
+    gap: 0px;
   }
 }
