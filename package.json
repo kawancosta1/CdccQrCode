@@ -1,7 +1,6 @@
 {
   "name": "qrcodecdcc",
   "version": "1.0.0",
-  "homepage": "https://kawancosta1.github.io/CdccQrCode",
   "description": "Sistema de QR Code para a Biblioteca da CDCC - USP",
   "author": "Kawan da Silva Costa",
   "contributors": [
@@ -21,8 +20,7 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview",
-    "deploy": "gh-pages -d dist"
+    "preview": "vite preview"
   },
   "dependencies": {
     "lucide-react": "^0.577.0",

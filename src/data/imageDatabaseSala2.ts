@@ -214,7 +214,7 @@ export interface ImageData {
   range: string
 }
 
-export const imageDatabase: { [key: string]: ImageData } = {
+export const imageDatabaseSala2: { [key: string]: ImageData } = {
   // Estante 1
   '001.4': { images: [est1_001_4], shelf: 'Estante 1', range: '001.4 - 001.6' },
   '001.43': { images: [est1_001_43], shelf: 'Estante 1', range: '001.4 - 001.6' },

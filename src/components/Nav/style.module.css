@@ -9,12 +9,29 @@
     position: relative;
     padding: 0.8rem 0;
 }
-
 .roomSelector{
     display: flex;
     gap: 0.5rem;
 }
 
+.searchError {
+  color: rgb(255, 0, 0);
+  text-shadow: 1px 1px 2px black;
+  font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+  font-size: 1.3rem;
+  font-weight: bold;
+  border:3px  solid rgb(88, 0, 0);
+  margin-top: 4px;
+  position: absolute;
+  top: 0px;
+  right: 10px;
+  width: 30%;
+  background-color: rgb(255, 255, 255);
+  border-radius: 20px;
+transition: 0.5s;
+ padding: 15px;
+text-align: center;
+}
 .roomBtn{
     padding: 0.6rem 1rem;
     border: 2px solid rgba(255, 255, 255, 0.3);
@@ -35,6 +52,7 @@
     background-color: white;
     color: var(--primary);
     border-color: white;
+    
 }
 
 .menuContainer{
@@ -608,12 +626,12 @@ margin: 0px;
 
 .roomToggleBtn{
     opacity: 0.3;
-    padding: 1rem 1.5rem;
+    padding: 3rem;
     border-radius: 999px;
     border: 2px solid rgb(255, 255, 255);
     background-color: rgba(147, 83, 107, 0.466);
     color: white;
-    font-size: 2rem;
+    font-size: 3rem;
     font-weight: 700;
     cursor: pointer;
     transition: 0.3s;
@@ -672,7 +690,7 @@ margin: 0px;
     .shelfInfo{
         padding: 0.4rem 0.6rem;
         max-width: calc(55% - 1rem);
-        top: 9rem;
+        top: 12rem;
         left: 0.5rem;
         right: 0.5rem;
     }
@@ -700,8 +718,9 @@ margin: 0px;
     .roomToggleBtn{
         flex: 1 1 45%;
         text-align: center;
-        font-size: 0.75rem;
+        font-size: 2rem;
         padding: 0.4rem 0.3rem;
+        font-family:"Bungee", sans-serif;
     }
 
     .photoContainer{
@@ -944,14 +963,17 @@ margin: 0px;
     padding: 1rem;
     border: none;
     background-color: transparent;
-    color: white;
-    font-size: 1rem;
+    color: rgb(255, 255, 255);
+    font-size: 2.5rem;
+    font-family:"Bungee", sans-serif;
     font-weight: 600;
     cursor: pointer;
     transition: 0.3s;
     border-bottom: 3px solid transparent;
     min-width: 100px;
     white-space: nowrap;
+    opacity: 0.2;
+    scale: 0.5;
 }
 
 .tabButton:hover{
@@ -961,6 +983,8 @@ margin: 0px;
 .tabButton.tabActive{
     background-color: rgba(255, 255, 255, 0.2);
     border-bottom-color: white;
+    opacity: 1;
+    scale: 1.1;
 }
 
 .photoContainer{
