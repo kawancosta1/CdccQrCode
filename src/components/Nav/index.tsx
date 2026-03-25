@@ -17,6 +17,19 @@ interface RoomData {
   range: string;
 }
 
+type Sala1RangeEntry = RoomData & {
+  codeBase?: string;
+  cutterPrefixStart?: string;
+  cutterNumberStart?: number;
+  cutterPrefixEnd?: string;
+  cutterNumberEnd?: number;
+};
+
+type CutterInput = {
+  letter: string;
+  number: number;
+};
+
 
 // dentro da room config tem as classes de cada mapa, caso for esse mapa
 const ROOM_CONFIG: Record<RoomId,
@@ -115,12 +128,87 @@ export function Nav() {
       return value;
     }
 
+    if(value.startsWith("R")){
+
+     value = value.charAt(0);
+
+     return value;
+
+    }
+
     // Para os demais, usa só o trecho antes do espaço.
     if (value.includes(" ")) {
       return value.split(" ")[0];
     }
 
     return value;
+  };
+
+  const parse8693Cutter = (rawValue: string): CutterInput | null => {
+    const value = rawValue.trim().toUpperCase();
+    if (!value.startsWith("869.3")) return null;
+
+    const parts = value.split(" ").filter(Boolean);
+    if (parts.length < 2) return null;
+
+    const cutterText = parts[1];
+    const letter = cutterText.charAt(0);
+    const numberText = cutterText.slice(1);
+    const number = Number(numberText);
+
+    if (letter < "A" || letter > "Z") return null;
+    if (numberText.length === 0 || Number.isNaN(number)) return null;
+
+    return { letter, number };
+  };
+
+  const isInsideCutterRange = (
+    inputLetter: string,
+    inputNumber: number,
+    startLetter: string,
+    startNumber: number,
+    endLetter: string,
+    endNumber: number,
+  ) => {
+    if (inputLetter < startLetter || inputLetter > endLetter) return false;
+    if (inputLetter === startLetter && inputNumber < startNumber) return false;
+    if (inputLetter === endLetter && inputNumber > endNumber) return false;
+    return true;
+  };
+
+  const findSala1ByCutterRange = (rawValue: string): RoomData | null => {
+    const parsed = parse8693Cutter(rawValue);
+    if (!parsed) return null;
+
+    for (const entry of Object.values(imageDatabaseSala1) as Sala1RangeEntry[]) {
+      if (
+        entry.codeBase !== "869.3" ||
+        !entry.cutterPrefixStart ||
+        entry.cutterNumberStart === undefined ||
+        !entry.cutterPrefixEnd ||
+        entry.cutterNumberEnd === undefined
+      ) {
+        continue;
+      }
+
+      const startLetter = entry.cutterPrefixStart.toUpperCase();
+      const endLetter = entry.cutterPrefixEnd.toUpperCase();
+
+      if (
+        isInsideCutterRange(
+          parsed.letter,
+          parsed.number,
+          startLetter,
+          entry.cutterNumberStart,
+          endLetter,
+          entry.cutterNumberEnd,
+        )
+      ) {
+        return entry;
+      }
+    }
+
+    return null;
   };
 
   const toggleMenu = () => {
@@ -139,10 +227,26 @@ export function Nav() {
   const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key !== "Enter") return;
 
-    const normalizedValue = normalizeSearchValue((e.target as HTMLInputElement).value);
-    const sala1Entry = imageDatabaseSala1[normalizedValue];
-    const sala2Entry = imageDatabaseSala2[normalizedValue];
-    const sala3Entry = imageDatabaseSala3[normalizedValue];
+    const rawInput = (e.target as HTMLInputElement).value;
+    const normalizedValue = normalizeSearchValue(rawInput);
+    const parsed8693Cutter = parse8693Cutter(rawInput);
+
+    let sala1Entry: RoomData | null = null;
+    if (parsed8693Cutter) {
+      // Para 869.3 com cutter (ex: 869.3 C500), usa busca por faixa.
+      sala1Entry = findSala1ByCutterRange(rawInput);
+    } else {
+      sala1Entry = imageDatabaseSala1[normalizedValue] ?? null;
+    }
+
+    let sala2Entry: RoomData | null = null;
+    let sala3Entry: RoomData | null = null;
+
+    // Quando for 869.3 com cutter, ignora Sala 2 e Sala 3.
+    if (!parsed8693Cutter) {
+      sala2Entry = imageDatabaseSala2[normalizedValue] ?? null;
+      sala3Entry = imageDatabaseSala3[normalizedValue] ?? null;
+    }
 
     if (sala1Entry) {
       setRoomDataSala1(sala1Entry);
@@ -221,18 +325,20 @@ export function Nav() {
     setActiveTab("photo");
   };
 
-  // Lê "Estante 1 / Estante 2" e devolve [1, 2] para desenhar setas no mapa.
+  // Lê "Estante 1 / Estante 2" ou "Estante R" e devolve os identificadores para desenhar setas no mapa.
   const extractShelves = (roomData: RoomData | null) => {
-    if (!roomData) return [1];
-    // esse /\d+/g é um regex, /=\d pega um ou mais digitos e flag "g" é para todos, exemplo: "Estante 8" -> ["8"]
-//"Estante 8 / Estante 9" -> ["8", "9"]
-    const matches = roomData.shelf.match(/\d+/g);
-    // se ele extrair os numeros, por exemplo, estante 7/ estante 3 = [7,3]
-    if (matches) {
-      // converte a string para numero e esse m é acada elemento do array
-      return matches.map((m) => parseInt(m));
+    if (!roomData) return ["1"];
+
+    const matches = Array.from(
+      roomData.shelf.matchAll(/Estante\s+([A-Za-z0-9]+)/gi),
+      (match) => match[1].toUpperCase(),
+    );
+
+    if (matches.length > 0) {
+      return matches;
     }
-    return [1];
+
+    return ["1"];
   };
 
   const switchActiveRoom = (room: RoomId) => {

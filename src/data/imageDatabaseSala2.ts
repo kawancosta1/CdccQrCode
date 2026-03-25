@@ -208,6 +208,10 @@ import est12_980 from '../components/img/sala2/Estante12/980.png'
 import est12_981_64 from '../components/img/sala2/Estante12/981.64.png'
 import est12_981 from '../components/img/sala2/Estante12/981.png'
 
+// Estante 13: R
+import est13_r from '../components/img/sala2/Estante13/R.png'
+import est13_r_var from '../components/img/sala2/Estante13/R_variacao.png'
+
 export interface ImageData {
   images: string[]
   shelf: string
@@ -426,4 +430,7 @@ export const imageDatabaseSala2: { [key: string]: ImageData } = {
   '980': { images: [est12_980], shelf: 'Estante 12', range: '909 - 981.64' },
   '981': { images: [est12_981, est12_981_64], shelf: 'Estante 12', range: '909 - 981.64' },
   '981.64': { images: [est12_981_64], shelf: 'Estante 12', range: '909 - 981.64' },
+
+  // Estante 13
+  'R': { images: [est13_r, est13_r_var], shelf: 'Estante R/ Estante R2/ Estante R3/ Estante R4', range: 'R' },
 }

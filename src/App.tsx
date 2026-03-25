@@ -13,7 +13,7 @@ import { EstanteSala2 } from './components/Pages/EstanteSala2'
 // ========================================
 // IMPORTAÇÕES DE LAYOUT
 // ========================================
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { HashRouter, Routes, Route } from 'react-router-dom'
 import { MainTemplate } from './components/template/MainTemplate'
 
 
@@ -25,7 +25,7 @@ import { MainTemplate } from './components/template/MainTemplate'
 
 export function App(){
   return (
-    <BrowserRouter basename="/CdccQrCode">
+    <HashRouter>
       <MainTemplate>
         <Routes>
           <Route path="/" element={<Home />} />
@@ -36,7 +36,7 @@ export function App(){
         
         
       </MainTemplate>
-    </BrowserRouter>
+    </HashRouter>
   )
 }
 

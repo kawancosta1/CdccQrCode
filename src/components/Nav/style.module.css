@@ -565,6 +565,31 @@ a{
     top: 27.2%;
     left: 24%;
 }
+.arrow-estante-13{
+    top: 20.2%;
+    left: 24%;
+}
+
+.arrow-estante-R{
+    top: 2.2%;
+    left: 22%;
+}
+
+.arrow-estante-R2{
+ top: 2.2%;
+    left: 85%;
+}
+.arrow-estante-R3{
+    top: 6%;
+    left: 10%;
+
+}
+.arrow-estante-R4{
+    top: 5%;
+    left: 90%;
+
+}
+
 
 .shelfInfo{
     position: absolute;
@@ -693,6 +718,7 @@ margin: 0px;
         top: 12rem;
         left: 0.5rem;
         right: 0.5rem;
+      
     }
 
     .roomLabel{
@@ -700,10 +726,12 @@ margin: 0px;
         letter-spacing: 0.8px;
         margin-bottom: 0.3rem;
         padding-bottom: 0.3rem;
+           font-family:"Bungee", sans-serif;
     }
 
     .shelfName{
-        font-size: 2rem;
+        font-size: 1.5rem;
+          
     }
 
     .shelfRange{
