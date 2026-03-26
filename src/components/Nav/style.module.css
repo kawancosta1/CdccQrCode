@@ -676,8 +676,9 @@ margin: 0px;
 
 .otherRoomInfo{
     margin-top: 0.5rem;
-    font-size: 1rem;
+    font-size: 1.2rem;
     color: rgba(255, 255, 255, 0.9);
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
 }
 
 /* Responsividade para Tablet (768px) */
@@ -713,16 +714,17 @@ margin: 0px;
     }
 
     .shelfInfo{
-        padding: 0.4rem 0.6rem;
-        max-width: calc(55% - 1rem);
-        top: 12rem;
+        padding: 0.1rem 0.3rem;
+        max-width: calc(95% - 1rem);
+        max-height: calc(20% - 1rem);
+        top: 11.5rem;
         left: 0.5rem;
         right: 0.5rem;
       
     }
 
     .roomLabel{
-        font-size: 3rem;
+        font-size: 1.8rem;
         letter-spacing: 0.8px;
         margin-bottom: 0.3rem;
         padding-bottom: 0.3rem;
@@ -730,12 +732,12 @@ margin: 0px;
     }
 
     .shelfName{
-        font-size: 1.5rem;
+        font-size: 1.3rem;
           
     }
 
     .shelfRange{
-        font-size: 1.5rem;
+        font-size: 1.3rem;
     }
 
     .roomToggle{

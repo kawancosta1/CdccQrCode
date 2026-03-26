@@ -186,6 +186,9 @@ import est22_700 from '../components/img/sala1/Estante22/700.png';
 import est22_709 from '../components/img/sala1/Estante22/709.png';
 import est22_796 from '../components/img/sala1/Estante22/796.png';
 
+import est22_612 from '../components/img/sala1/Estante22/612.png';
+import est22_EF612 from '../components/img/sala1/Estante22/EF612.png';
+
 // Estante 23
 import est23_909 from '../components/img/sala1/Estante23/909.png';
 import est23_EF808_4 from '../components/img/sala1/Estante23/EF808.4.png';
@@ -250,20 +253,24 @@ export const imageDatabaseSala1: { [key: string]: ImageData } = {
   'S863': { images: [est4_S863], shelf: 'Estante 4', range: '843 - 863' },
 
   // Estante 5 - Range: 869.3 A - 869.3 E
-  '869.3 A368': { images: [est5_869_3_A368], shelf: 'Estante 5', range: '869.3 A - 869.3 E', codeBase: '869.3', cutterPrefixStart: 'A', cutterNumberStart: 368, cutterPrefixEnd: 'A', cutterNumberEnd: 368 },
+  '869.3 A': { images: [est5_869_3_A368], shelf: 'Estante 5', range: '869.3 A - 869.3 E', codeBase: '869.3', cutterPrefixStart: 'A', cutterNumberStart: 368, cutterPrefixEnd: 'A', cutterNumberEnd: 368 },
   '869.3 A447': { images: [est5_869_3_A447], shelf: 'Estante 5', range: '869.3 A - 869.3 E', codeBase: '869.3', cutterPrefixStart: 'A', cutterNumberStart: 447, cutterPrefixEnd: 'A', cutterNumberEnd: 447 },
   '869.3 A481': { images: [est5_869_3_A481], shelf: 'Estante 5', range: '869.3 A - 869.3 E', codeBase: '869.3', cutterPrefixStart: 'A', cutterNumberStart: 481, cutterPrefixEnd: 'A', cutterNumberEnd: 481 },
   '869.3 A524-777': { images: [est5_869_3_A524_777], shelf: 'Estante 5', range: '869.3 A - 869.3 E', codeBase: '869.3', cutterPrefixStart: 'A', cutterNumberStart: 524, cutterPrefixEnd: 'A', cutterNumberEnd: 777 },
   '869.3 A848': { images: [est5_869_3_A848], shelf: 'Estante 5', range: '869.3 A - 869.3 E', codeBase: '869.3', cutterPrefixStart: 'A', cutterNumberStart: 848, cutterPrefixEnd: 'A', cutterNumberEnd: 848 },
   '869.3 A994': { images: [est5_869_3_A994], shelf: 'Estante 5', range: '869.3 A - 869.3 E', codeBase: '869.3', cutterPrefixStart: 'A', cutterNumberStart: 994, cutterPrefixEnd: 'A', cutterNumberEnd: 994 },
-  '869.3_B273': { images: [est5_869_3_B273], shelf: 'Estante 5', range: '869.3 A - 869.3 E', codeBase: '869.3', cutterPrefixStart: 'B', cutterNumberStart: 273, cutterPrefixEnd: 'B', cutterNumberEnd: 273 },
+  '869.3 B': { images: [est5_869_3_B273], shelf: 'Estante 5', range: '869.3 A - 869.3 E', codeBase: '869.3', cutterPrefixStart: 'B', cutterNumberStart: 273, cutterPrefixEnd: 'B', cutterNumberEnd: 917 },
+  '869.3 B273': { images: [est5_869_3_B273], shelf: 'Estante 5', range: '869.3 A - 869.3 E', codeBase: '869.3', cutterPrefixStart: 'B', cutterNumberStart: 273, cutterPrefixEnd: 'B', cutterNumberEnd: 273 },
   '869.3 B277-B917': { images: [est5_869_3_B277_B917], shelf: 'Estante 5', range: '869.3 A - 869.3 E', codeBase: '869.3', cutterPrefixStart: 'B', cutterNumberStart: 277, cutterPrefixEnd: 'B', cutterNumberEnd: 917 },
+  '869.3 C': { images: [est5_869_3_C156], shelf: 'Estante 5', range: '869.3 A - 869.3 E', codeBase: '869.3', cutterPrefixStart: 'C', cutterNumberStart: 156, cutterPrefixEnd: 'C', cutterNumberEnd: 972 },
   '869.3 C156': { images: [est5_869_3_C156], shelf: 'Estante 5', range: '869.3 A - 869.3 E', codeBase: '869.3', cutterPrefixStart: 'C', cutterNumberStart: 156, cutterPrefixEnd: 'C', cutterNumberEnd: 156 },
   '869.3 C180-C543': { images: [est5_869_3_C180_C543], shelf: 'Estante 5', range: '869.3 A - 869.3 E', codeBase: '869.3', cutterPrefixStart: 'C', cutterNumberStart: 180, cutterPrefixEnd: 'C', cutterNumberEnd: 543 },
   '869.3 C672': { images: [est5_869_3_C672], shelf: 'Estante 5', range: '869.3 A - 869.3 E', codeBase: '869.3', cutterPrefixStart: 'C', cutterNumberStart: 672, cutterPrefixEnd: 'C', cutterNumberEnd: 672 },
   '869.3 C755-C949': { images: [est5_869_3_C755_C949], shelf: 'Estante 5', range: '869.3 A - 869.3 E', codeBase: '869.3', cutterPrefixStart: 'C', cutterNumberStart: 755, cutterPrefixEnd: 'C', cutterNumberEnd: 949 },
   '869.3 C972': { images: [est5_869_3_C972], shelf: 'Estante 5', range: '869.3 A - 869.3 E', codeBase: '869.3', cutterPrefixStart: 'C', cutterNumberStart: 972, cutterPrefixEnd: 'C', cutterNumberEnd: 972 },
+  '869.3 D': { images: [est5_869_3_D192_D942], shelf: 'Estante 5', range: '869.3 A - 869.3 E', codeBase: '869.3', cutterPrefixStart: 'D', cutterNumberStart: 192, cutterPrefixEnd: 'D', cutterNumberEnd: 942 },
   '869.3 D192-D942': { images: [est5_869_3_D192_D942], shelf: 'Estante 5', range: '869.3 A - 869.3 E', codeBase: '869.3', cutterPrefixStart: 'D', cutterNumberStart: 192, cutterPrefixEnd: 'D', cutterNumberEnd: 942 },
+  '869.3 E': { images: [est5_869_3_E82], shelf: 'Estante 5', range: '869.3 A - 869.3 E', codeBase: '869.3', cutterPrefixStart: 'E', cutterNumberStart: 82, cutterPrefixEnd: 'E', cutterNumberEnd: 82 },
   '869.3 E82': { images: [est5_869_3_E82], shelf: 'Estante 5', range: '869.3 A - 869.3 E', codeBase: '869.3', cutterPrefixStart: 'E', cutterNumberStart: 82, cutterPrefixEnd: 'E', cutterNumberEnd: 82 },
 
   // Estante 6 - Range: 869.3 F - 869.3 R
@@ -301,7 +308,7 @@ export const imageDatabaseSala1: { [key: string]: ImageData } = {
   '871': { images: [est9_871], shelf: 'Estante 9', range: '869.4 - 899.153' },
   '880': { images: [est9_880], shelf: 'Estante 9', range: '869.4 - 899.153' },
   '891.5': { images: [est9_891_5], shelf: 'Estante 9', range: '869.4 - 899.153' },
-  '891.73-891.709': { images: [est9_891_73_891_709], shelf: 'Estante 9', range: '869.4 - 899.153' },
+  '891.73': { images: [est9_891_73_891_709], shelf: 'Estante 9', range: '869.4 - 899.153' },
   '891.821 - 899.153': { images: [est9_891_821___899_153], shelf: 'Estante 9', range: '869.4 - 899.153' },
 
   // Estante 10-13 - Range: 809.89283 A - Z
@@ -381,6 +388,9 @@ export const imageDatabaseSala1: { [key: string]: ImageData } = {
   '700': { images: [est22_700], shelf: 'Estante 22', range: '597.6 - 796' },
   '709': { images: [est22_709], shelf: 'Estante 22', range: '597.6 - 796' },
   '796': { images: [est22_796], shelf: 'Estante 22', range: '597.6 - 796' },
+   '612': { images: [est22_612], shelf: 'Estante 22', range: '597.6 - 796' },
+    'EF612': { images: [est22_EF612], shelf: 'Estante 22', range: '597.6 - 796' },
+  
 
   // Estante 23 - Range: 909 - EF869
   '909': { images: [est23_909], shelf: 'Estante 23', range: '909 - EF869' },

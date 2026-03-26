@@ -128,6 +128,14 @@ export function Nav() {
       return value;
     }
 
+    // Para códigos 869.3 X (ex: 869.3 A, 869.3 F), mantém o padrão completo
+    if (value.startsWith("869.3") && value.includes(" ")) {
+      const parts = value.split(" ");
+      if (parts.length >= 2 && parts[1].length === 1 && /^[A-Z]$/i.test(parts[1])) {
+        return `${parts[0]} ${parts[1].toUpperCase()}`;
+      }
+    }
+
     if(value.startsWith("R")){
 
      value = value.charAt(0);
