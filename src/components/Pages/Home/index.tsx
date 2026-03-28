@@ -1,11 +1,12 @@
 import styles from "./style.module.css";
 
-
-import espacoLudico from "../../img/Carrousel/espacoLudico.jpg";
-import vestibular from "../../img/Carrousel/vestibular.jpg";
-import arvore from "../../img/Carrousel/arvore.jpg";
-import guiaManga from "../../img/Carrousel/guia_manga.jpg";
-import sala1Espaco from "../../img/Carrousel/sala1Espaco.jpg";
+import { Link } from 'react-router-dom'
+import espacoLudico from "../../img/Carrousel/espacoLudico.png";
+import vestibular from "../../img/Carrousel/vestibular.png";
+// import arvore from "../../img/Carrousel/arvore.jpg";
+// import guiaManga from "../../img/Carrousel/guia_manga.jpg";
+import buscarLivros from "../../img/Carrousel/buscarLivros.png";
+// import sala1Espaco from "../../img/Carrousel/sala1Espaco.jpg";
 import dedalus from "../../img/Dedalus.png"
 import dedalus2 from "../../img/Dedalus2.png"
 import dedalus3 from "../../img/Dedalus3.png"
@@ -32,11 +33,9 @@ export function Home() {
   const [animateRightButton, setAnimateRightButton] = useState(false);
 
   const carrouselImages = [
+    buscarLivros,
     espacoLudico,
     vestibular,
-    arvore,
-    guiaManga,
-    sala1Espaco
   ];
 
   function blinkLeftFox() {
@@ -103,13 +102,40 @@ export function Home() {
                   positionClass = styles.carrouselNext1;
                 }
 
-                return (
+                const img = (
                   <img
-                    key={index}
                     src={image}
                     alt={`Slide ${index}`}
                     className={`${styles.carrouselImg} ${positionClass}`}
                   />
+                );
+
+                // Se for buscarLivros, envolva com link
+                if (image === espacoLudico) {
+                  return (
+                   <Link key={index} to = "/EspacoLudico">
+                   {img}</Link>
+                    
+                  );
+                }
+                if (image === buscarLivros) {
+                  return (
+                    <a 
+                      key={index} 
+                      href="https://dedalus.usp.br/F" 
+                      target="_blank" 
+                      rel="noreferrer"
+                      style={{ textDecoration: 'none' }}
+                    >
+                      {img}
+                    </a>
+                  );
+                }
+
+                return (
+                  <div key={index}>
+                    {img}
+                  </div>
                 );
               })}
             </div>

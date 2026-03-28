@@ -3,6 +3,7 @@
   grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
   gap: 15px;
   margin-top: 30px;
+  margin-bottom: 10px;
   max-width: 800px;
   margin-left: auto;
   margin-right: auto;
@@ -59,4 +60,15 @@
     padding: 12px;
     font-size: 12px;
   }
+}
+h1{
+   font-family:"Bungee", sans-serif;
+   margin: 20px;
+   text-align: center;
+}
+p{
+  font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+   text-align: center;
+   font-size: 1.4rem;
+   font-weight: bolder;
 }

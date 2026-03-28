@@ -100,15 +100,17 @@
 
 .carrouselPrev1 {
   left: 0%;
-  transform: translateX(-20%) scale(0.7);
+  transform: translateX(-20%) scale(0.5);
   opacity: 0.4;
+  filter: brightness(0.4);
   z-index: 4;
 }
 
 .carrouselNext1 {
   left: 100%;
-  transform: translateX(-80%) scale(0.7);
+  transform: translateX(-80%) scale(0.5);
   opacity: 0.4;
+  filter: brightness(0.4);
   z-index: 4;
 }
 
@@ -231,11 +233,11 @@ text-decoration-color: red;
     width: 200px;
   }
   .carrouselPrev1 {
-    transform: translateX(-50%) scale(0.6);
+    transform: translateX(-50%) scale(0.2);
     border-radius: 20px;
   }
   .carrouselNext1 {
-    transform: translateX(-50%) scale(0.6);
+    transform: translateX(-50%) scale(0.2);
     border-radius: 20px;
   }
 

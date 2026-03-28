@@ -352,7 +352,7 @@ export const imageDatabaseSala1: { [key: string]: ImageData } = {
   '500.07': { images: [est15_500_07, est16_500_07, est15_500_07_variacao], shelf: 'Estante 15 / Estante 16', range: '469 - 510.07' },
 
   // Estante 16 - Range: 500 - 510.07
-  '510.07': { images: [est16_510_07, est17_510_07_variacao, est16_510_07_variacao2], shelf: 'Estante 16 / Estante 17', range: '500 - 530.07' },
+  '510.07': { images: [est16_510_07_variacao2,est16_510_07, est17_510_07_variacao], shelf: 'Estante 16 / Estante 17', range: '500 - 530.07' },
 
   // Estante 17 - Range: 510.07 - 530.07
   '520': { images: [est17_520], shelf: 'Estante 17', range: '510.07 - 530.07' },
