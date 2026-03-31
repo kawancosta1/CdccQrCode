@@ -113,7 +113,7 @@ export function Home() {
                 // Se for buscarLivros, envolva com link
                 if (image === espacoLudico) {
                   return (
-                   <Link key={index} to = "/EspacoLudico">
+                   <Link key={index} to = "/espacoludico">
                    {img}</Link>
                     
                   );

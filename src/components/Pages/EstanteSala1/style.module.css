@@ -166,6 +166,7 @@ button {
 .arrow-estante-10 {  top:7%; left:50%;  }
 .arrow-estante-11 { top:7%; left:55%;  }
 .arrow-estante-12 { top:3%; left:64%;  }
+.arrow-estante-13 { top:7%; left:78%;  }
 .arrow-estante-14 { top:23%; left:72%;  }
 .arrow-estante-15 { top:27%; left:72%;  }
 .arrow-estante-16 { top:36%; left:78%;  }
@@ -175,8 +176,8 @@ button {
 .arrow-estante-20 { top:55%; left:72%;  }
 .arrow-estante-21 { top:59%; left:72%;  }
 .arrow-estante-22 { top:62%; left:78%;  }
-.arrow-estante-23 { top:75%; left:69%;  }
-.arrow-estante-24 { top:78%; left:80%;  }
+.arrow-estante-23 {top:70%; left:75%;  }
+.arrow-estante-24 { top:75%; left:69%;  }
 .arrow-estante-25 { top:78%; left:80%;  }
 
 /* ========================================
