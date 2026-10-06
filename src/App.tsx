@@ -34,8 +34,8 @@ export function App() {
           <Route path="/estantes/sala1/:numero" element={<EstanteSala1 />} />
           <Route path="/estantes/sala2/:numero" element={<EstanteSala2 />} />
           <Route path="/espacoludico/xadrez" element={<RegrasJogo titulo="Xadrez" regras = "Em breve"/>} /> 
-          <Route path="/espacoludico/batalha" element={<RegrasJogo titulo="Xadrez" regras = "Em breve"/> } />
-          <Route path="/espacoludico/ludo" element={<RegrasJogo titulo="Xadrez" regras = "Em breve"/> } />  
+          <Route path="/espacoludico/batalha" element={<RegrasJogo titulo="BatalhaNaval" regras = "Em breve"/> } />
+          <Route path="/espacoludico/ludo" element={<RegrasJogo titulo="Ludo" regras = "Em breve"/> } />  
         </Routes>
       </MainTemplate>
     </HashRouter>
