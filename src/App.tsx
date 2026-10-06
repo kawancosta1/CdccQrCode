@@ -9,9 +9,7 @@ import { Estantes } from "./components/Pages/Estantes";
 import { EstanteSala1 } from "./components/Pages/EstanteSala1";
 import { EstanteSala2 } from "./components/Pages/EstanteSala2";
 import { EspacoLudico } from "./components/Pages/EspacoLudico";
-import { Xadrez} from "./components/Pages/Xadrez"
-import { Ludo} from "./components/Pages/Ludo"
-import { Batalha} from "./components/Pages/Batalha"
+import { RegrasJogo } from "./components/RegrasJogo";
 
 // ========================================
 // IMPORTAÇÕES DE LAYOUT
@@ -35,9 +33,9 @@ export function App() {
           <Route path="/estantes" element={<Estantes />} />
           <Route path="/estantes/sala1/:numero" element={<EstanteSala1 />} />
           <Route path="/estantes/sala2/:numero" element={<EstanteSala2 />} />
-          <Route path="/espacoludico/xadrez" element={<Xadrez/>} /> 
-          <Route path="/espacoludico/batalha" element={<Batalha/>} /> 
-          <Route path="/espacoludico/ludo" element={<Ludo/>} />   
+          <Route path="/espacoludico/xadrez" element={<RegrasJogo titulo="Xadrez" regras = "Em breve"/>} /> 
+          <Route path="/espacoludico/batalha" element={<RegrasJogo titulo="Xadrez" regras = "Em breve"/> } />
+          <Route path="/espacoludico/ludo" element={<RegrasJogo titulo="Xadrez" regras = "Em breve"/> } />  
         </Routes>
       </MainTemplate>
     </HashRouter>
