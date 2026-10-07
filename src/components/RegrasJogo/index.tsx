@@ -13,6 +13,7 @@ export function RegrasJogo({ titulo, regras }: RegrasJogoProps){
     
         <h1 className={styles.title}>{titulo}</h1>
         <p>{regras}</p>
+        <p>boa sorte</p>
 
     
     </>
