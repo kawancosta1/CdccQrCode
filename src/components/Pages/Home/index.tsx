@@ -161,7 +161,7 @@ export function Home() {
               {/* image é uma otima key */}
                {carrouselImages.map((image,index) => {
                 // () => setCurrentImageIndex(index) faz ser executado no click, sem isso, ele é executado 
-                return <span key = {image} onClick = {() => setCurrentImageIndex(index)}>{currentImageIndex === index ? '●' : '○'}</span>
+                return <button aria-label={`Ir pra imagem ${index + 1}`} key={image} onClick = {() => setCurrentImageIndex(index)}>{currentImageIndex === index ? '●' : '○'}</button>
                    
 
                })}
