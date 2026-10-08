@@ -1,9 +1,10 @@
 
 import styles from './style.module.css'
-import { Link } from 'react-router-dom'
+
 import xadrez from '../../img/Ludico/xadrez.jpg'
 import ludo from '../../img/Ludico/ludo.jpg'
 import batalhaNaval from '../../img/Ludico/batalhaNaval.jpg'
+import { CardJogo } from '../CardJogo'
 
 export function EspacoLudico(){
 
@@ -12,30 +13,9 @@ export function EspacoLudico(){
         <>
 
       <div className={styles.container}>
-          
-               <div className={styles.xadrez}>
-                   <h1 className={styles.title}>Xadrex</h1>
-                   <p className={styles.paragrafo}>O xadrez é um jogo de estratégia para dois jogadores, jogado em um tabuleiro de 64 casas. Cada jogador controla peças com movimentos específicos, como torre, bispo e cavalo, com o objetivo de dar “xeque-mate” no rei adversário. Não envolve sorte, apenas planejamento, lógica e antecipação de jogadas.
-                         
-                   </p>
-                    <Link to = '/espacoludico/xadrez'><img src = {xadrez} alt="" className={styles.jogos}/></Link>
-               </div>
-               <div className={styles.ludo}>
-                   <h1 className={styles.title}>Ludo</h1>
-                   <p className={styles.paragrafo}>
-                      O Ludo é um jogo de tabuleiro para até quatro jogadores, em que cada um tenta levar suas peças do início até o centro do tabuleiro. Os movimentos são determinados pelo lançamento de dados, o que introduz sorte no jogo. Vence quem conseguir levar todas as suas peças ao destino primeiro.
-                       
-                   </p>
-                    <Link  to = '/espacoludico/ludo'><img src = {ludo} alt=""  className={styles.jogos}/></Link>
-               </div>
-                  <div className={styles.batalhaNaval}>
-                   <h1 className={styles.title}>Batalha naval</h1>
-                   <p className={styles.paragrafo}>
-                     Batalha Naval é um jogo para dois jogadores baseado em dedução e estratégia. Cada jogador posiciona seus navios em um tabuleiro oculto e tenta adivinhar a localização dos navios adversários por meio de coordenadas. O objetivo é afundar toda a frota do oponente antes que ele faça o mesmo.
-                       
-                   </p>
-                    <Link  to = '/espacoludico/batalha'><img src = {batalhaNaval} alt=""  className={styles.jogos}/></Link>
-               </div>
+         <CardJogo titulo = "Xadrez" paragrafo = "O xadrez é um jogo de tabuleiro estratégico jogado entre dois jogadores. Cada jogador controla um conjunto de peças, cada uma com movimentos específicos, e o objetivo é capturar o rei do oponente." route = "/espacoludico/xadrez" imagem = {xadrez}/>
+         <CardJogo titulo = "Ludo" paragrafo = "O ludo é um jogo de tabuleiro para crianças, onde os jogadores lançam dados e movem peças ao redor de um tabuleiro." route = "/espacoludico/ludo" imagem = {ludo}/>
+         <CardJogo titulo = "Batalha Naval" paragrafo = "O batalha naval é um jogo de tabuleiro onde os jogadores tentam afundar os navios do oponente." route = "/espacoludico/batalha" imagem = {batalhaNaval}/>
              
       </div>
         
