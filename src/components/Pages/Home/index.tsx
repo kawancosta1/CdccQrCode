@@ -138,6 +138,7 @@ export function Home() {
                   </div>
                 );
               })}
+              
             </div>
           </div>
 
@@ -157,7 +158,13 @@ export function Home() {
           </div>
         </div>
       </div>
+              {/* image é uma otima key */}
+               {carrouselImages.map((image,index) => {
+                // () => setCurrentImageIndex(index) faz ser executado no click, sem isso, ele é executado 
+                return <span key = {image} onClick = {() => setCurrentImageIndex(index)}>{currentImageIndex === index ? '●' : '○'}</span>
+                   
 
+               })}
       <div className={styles.comoUsar}>
         <span className={styles.linha}> </span>
         <div className={`${styles.subtitulo}`}>
