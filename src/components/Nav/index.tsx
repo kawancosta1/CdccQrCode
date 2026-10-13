@@ -1,4 +1,4 @@
-import logoCdcc from "../img/CdccLogo.png";
+  import logoCdcc from "../img/CdccLogo.png";
 import mapaSala1 from "../img/MapaSala1.png";
 import mapaSala2 from "../img/MapaSala2.png";
 import mapaSala3 from "../img/MapaSala3.png";
@@ -73,13 +73,14 @@ export function Nav() {
     range: "",
   });
   const [activeTab, setActiveTab] = useState<TabType>("photo");
-  const [hasSala1, setHasSala1] = useState(false);
-  const [hasSala2, setHasSala2] = useState(false);
-  const [hasSala3, setHasSala3] = useState(false);
   const [roomDataSala1, setRoomDataSala1] = useState<RoomData | null>(null);
   const [roomDataSala2, setRoomDataSala2] = useState<RoomData | null>(null);
   const [roomDataSala3, setRoomDataSala3] = useState<RoomData | null>(null);
   const [activeRoom, setActiveRoom] = useState<RoomId | null>(null);
+  const hasSala1 = roomDataSala1 !== null;
+  const hasSala2 = roomDataSala2 !== null;
+  const hasSala3 = roomDataSala3 !== null;
+
 
   const hasAnyRoom = hasSala1 || hasSala2 || hasSala3;
 
@@ -102,9 +103,8 @@ export function Nav() {
   // Reseta completamente o resultado da busca atual.
   const resetSearchResults = () => {
     setShowImage(false);
-    setHasSala1(false);
-    setHasSala2(false);
-    setHasSala3(false);
+
+    
     setRoomDataSala1(null);
     setRoomDataSala2(null);
     setRoomDataSala3(null);
@@ -274,10 +274,7 @@ export function Nav() {
       setRoomDataSala3(null);
     }
 
-    // true ou false para o HasSalax
-    setHasSala1(Boolean(sala1Entry));
-    setHasSala2(Boolean(sala2Entry));
-    setHasSala3(Boolean(sala3Entry));
+
 
     // Prioridade visual: Sala 3 -> Sala 2 -> Sala 1.
     let defaultRoom: RoomId | null = null;
