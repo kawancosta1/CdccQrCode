@@ -68,10 +68,6 @@ export function Nav() {
   const [showImage, setShowImage] = useState(false);
   const [currentImages, setCurrentImages] = useState<string[]>([]);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [, setShelvesInfo] = useState<{ name: string; range: string }>({
-    name: "",
-    range: "",
-  });
   const [activeTab, setActiveTab] = useState<TabType>("photo");
   const [roomDataSala1, setRoomDataSala1] = useState<RoomData | null>(null);
   const [roomDataSala2, setRoomDataSala2] = useState<RoomData | null>(null);
@@ -325,7 +321,6 @@ export function Nav() {
   const applyRoomSelection = (room: RoomId, roomData: RoomData) => {
     setActiveRoom(room);
     setCurrentImages(roomData.images);
-    setShelvesInfo({ name: roomData.shelf, range: roomData.range });
     setCurrentImageIndex(0);
     setActiveTab("photo");
   };
