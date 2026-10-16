@@ -66,7 +66,6 @@ export function Nav() {
   const [searchValue, setSearchValue] = useState("");
   const [searchError, setSearchError] = useState("");
   const [showImage, setShowImage] = useState(false);
-  const [currentImages, setCurrentImages] = useState<string[]>([]);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [activeTab, setActiveTab] = useState<TabType>("photo");
   const [roomDataSala1, setRoomDataSala1] = useState<RoomData | null>(null);
@@ -90,6 +89,8 @@ export function Nav() {
   if (activeRoom === 3) {
     activeRoomData = roomDataSala3;
   }
+  //agora se o activeRoomData não tiver nada/null, não travar a pagina
+  const currentImages =  activeRoomData?.images ?? [];
 
   let activeMapConfig: { label: string; mapSrc: string; mapAlt: string; arrowClassPrefix: string } | null = null;
   if (activeRoom !== null) {
@@ -104,7 +105,7 @@ export function Nav() {
     setRoomDataSala1(null);
     setRoomDataSala2(null);
     setRoomDataSala3(null);
-    setCurrentImages([]);
+    
     setCurrentImageIndex(0);
     setActiveRoom(null);
   };
@@ -298,7 +299,7 @@ export function Nav() {
     }
 
     if (defaultEntry) {
-      applyRoomSelection(defaultRoom, defaultEntry);
+      applyRoomSelection(defaultRoom);
       setShowImage(true);
 
       setSearchError("");
@@ -318,9 +319,9 @@ export function Nav() {
   };
 
   // Aplica todos os estados necessários ao trocar a sala ativa.
-  const applyRoomSelection = (room: RoomId, roomData: RoomData) => {
+  const applyRoomSelection = (room: RoomId) => {
     setActiveRoom(room);
-    setCurrentImages(roomData.images);
+
     setCurrentImageIndex(0);
     setActiveTab("photo");
   };
@@ -343,17 +344,17 @@ export function Nav() {
 
   const switchActiveRoom = (room: RoomId) => {
     if (room === 1 && roomDataSala1) {
-      applyRoomSelection(1, roomDataSala1);
+      applyRoomSelection(1);
       return;
     }
 
     if (room === 2 && roomDataSala2) {
-      applyRoomSelection(2, roomDataSala2);
+      applyRoomSelection(2);
       return;
     }
 
     if (room === 3 && roomDataSala3) {
-      applyRoomSelection(3, roomDataSala3);
+      applyRoomSelection(3);
     }
   };
 
