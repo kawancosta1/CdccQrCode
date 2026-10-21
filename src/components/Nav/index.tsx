@@ -65,7 +65,6 @@ export function Nav() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchValue, setSearchValue] = useState("");
   const [searchError, setSearchError] = useState("");
-  const [showImage, setShowImage] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [activeTab, setActiveTab] = useState<TabType>("photo");
   const [roomDataSala1, setRoomDataSala1] = useState<RoomData | null>(null);
@@ -75,6 +74,9 @@ export function Nav() {
   const hasSala1 = roomDataSala1 !== null;
   const hasSala2 = roomDataSala2 !== null;
   const hasSala3 = roomDataSala3 !== null;
+
+  const showImage = activeRoom !== null;
+
 
 
   const hasAnyRoom = hasSala1 || hasSala2 || hasSala3;
@@ -99,7 +101,6 @@ export function Nav() {
 
   // Reseta completamente o resultado da busca atual.
   const resetSearchResults = () => {
-    setShowImage(false);
 
     
     setRoomDataSala1(null);
@@ -300,7 +301,7 @@ export function Nav() {
 
     if (defaultEntry) {
       applyRoomSelection(defaultRoom);
-      setShowImage(true);
+  
 
       setSearchError("");
     }
