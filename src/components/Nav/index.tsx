@@ -1,11 +1,13 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { NavLink, Link } from "react-router-dom";
-import { ExternalLink, Menu, Search, X } from "lucide-react";
+import { Accessibility, ExternalLink, Menu, Search, X } from "lucide-react";
+import { useAccessibility } from "../../context/accessibilityStore";
 import { useBookSearchContext } from "../../context/bookSearchStore";
 import logoCdcc from "../img/CdccLogo.webp";
 import style from "./style.module.css";
 
 interface NavSearchFormProps {
+  inputId: string;
   formClassName: string;
   ariaLabel: string;
   value: string;
@@ -17,6 +19,7 @@ interface NavSearchFormProps {
 }
 
 function NavSearchForm({
+  inputId,
   formClassName,
   ariaLabel,
   value,
@@ -30,10 +33,13 @@ function NavSearchForm({
     <form className={formClassName} onSubmit={onSubmit} role="search" aria-label={ariaLabel}>
       <div className={style.searchInputWrapper}>
         <Search size={16} className={style.searchIcon} aria-hidden="true" />
+        <label htmlFor={inputId} className="sr-only">
+          Pesquisar código de classificação Dedalus
+        </label>
         <input
+          id={inputId}
           type="search"
           placeholder="Código Dedalus (ex: 530)"
-          aria-label="Pesquisar código de classificação Dedalus"
           aria-invalid={hasError}
           aria-describedby={hasError ? errorId : undefined}
           className={style.searchInput}
@@ -69,6 +75,7 @@ const INTERNAL_NAV_LINKS = [
  */
 export function Nav() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const { isPanelOpen, activeCount, togglePanel } = useAccessibility();
   const {
     searchValue,
     searchError,
@@ -76,6 +83,15 @@ export function Nav() {
     submitSearch,
     clearSearch,
   } = useBookSearchContext();
+
+  useEffect(() => {
+    if (!menuOpen) return;
+    const handleEsc = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setMenuOpen(false);
+    };
+    window.addEventListener("keydown", handleEsc);
+    return () => window.removeEventListener("keydown", handleEsc);
+  }, [menuOpen]);
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -132,6 +148,7 @@ export function Nav() {
           </Link>
 
           <NavSearchForm
+            inputId="nav-search-desktop"
             formClassName={style.desktopSearchForm}
             ariaLabel="Busca rápida por código Dedalus"
             value={searchValue}
@@ -142,18 +159,58 @@ export function Nav() {
             onSubmit={handleSubmit}
           />
 
-          <div className={style.desktopLinks}>{renderLinks()}</div>
+          <div className={style.desktopLinks}>
+            {renderLinks()}
+            <button
+              type="button"
+              className={style.a11yTriggerBtn}
+              onClick={togglePanel}
+              aria-expanded={isPanelOpen}
+              aria-controls="a11y-drawer"
+              aria-label={`Abrir painel de acessibilidade${
+                activeCount > 0 ? ` (${activeCount} recursos ativos)` : ""
+              }`}
+              title="Acessibilidade (Alt + A)"
+            >
+              <Accessibility size={17} aria-hidden="true" />
+              <span className={style.a11yBtnLabel}>Acessibilidade</span>
+              {activeCount > 0 && (
+                <span className={style.a11yBadge} aria-hidden="true">
+                  {activeCount}
+                </span>
+              )}
+            </button>
+          </div>
 
-          <button
-            type="button"
-            className={style.hamburger}
-            onClick={() => setMenuOpen((prev) => !prev)}
-            aria-label={menuOpen ? "Fechar menu de navegação" : "Abrir menu de navegação"}
-            aria-expanded={menuOpen}
-            aria-controls="mobile-nav-menu"
-          >
-            {menuOpen ? <X size={22} aria-hidden="true" /> : <Menu size={22} aria-hidden="true" />}
-          </button>
+          <div className={style.mobileActionGroup}>
+            <button
+              type="button"
+              className={style.a11yMobileBtn}
+              onClick={togglePanel}
+              aria-expanded={isPanelOpen}
+              aria-controls="a11y-drawer"
+              aria-label={`Acessibilidade${activeCount > 0 ? ` (${activeCount} ativos)` : ""}`}
+              title="Acessibilidade (Alt + A)"
+            >
+              <Accessibility size={20} aria-hidden="true" />
+              {activeCount > 0 && (
+                <span className={style.a11yBadge} aria-hidden="true">
+                  {activeCount}
+                </span>
+              )}
+            </button>
+
+            <button
+              type="button"
+              className={style.hamburger}
+              onClick={() => setMenuOpen((prev) => !prev)}
+              aria-label={menuOpen ? "Fechar menu de navegação" : "Abrir menu de navegação"}
+              aria-expanded={menuOpen}
+              aria-controls="mobile-nav-menu"
+            >
+              {menuOpen ? <X size={22} aria-hidden="true" /> : <Menu size={22} aria-hidden="true" />}
+            </button>
+          </div>
         </div>
 
         {searchError && (
@@ -175,6 +232,7 @@ export function Nav() {
           className={`${style.mobileDrawer} ${menuOpen ? style.mobileDrawerOpen : ""}`}
         >
           <NavSearchForm
+            inputId="nav-search-mobile"
             formClassName={style.mobileSearchForm}
             ariaLabel="Busca rápida mobile"
             value={searchValue}

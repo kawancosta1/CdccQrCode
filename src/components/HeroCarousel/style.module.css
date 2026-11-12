@@ -185,8 +185,31 @@
   gap: 0.5rem;
   padding: 0.375rem 0.625rem;
   border-radius: var(--radius-full);
-  background-color: rgba(15, 16, 22, 0.38);
+  background-color: rgba(15, 16, 22, 0.52);
   backdrop-filter: blur(8px);
+}
+
+.playPauseBtn {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  background-color: rgba(255, 255, 255, 0.14);
+  color: #ffffff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  margin-right: 0.125rem;
+}
+
+.playPauseBtn:hover {
+  background-color: rgba(255, 255, 255, 0.28);
+}
+
+.playPauseBtn:focus-visible {
+  outline: 2px solid #ffffff;
+  outline-offset: 2px;
 }
 
 .indicator {

@@ -143,3 +143,22 @@
     opacity: 1;
   }
 }
+
+/* Codificação dupla (Modo Daltonismo): forma quadrada/estrela para estante ativa */
+:global(html.colorblind-mode) .markerCore {
+  border-radius: 4px;
+  border: 3px solid #ffffff;
+  outline: 2px solid #000000;
+  transform: scale(1.12);
+}
+
+:global(html.colorblind-mode) .secondaryCore {
+  border-radius: 50%;
+  border: 2px dashed var(--color-text-primary);
+}
+
+:global(html.reduced-motion) .pulseRing {
+  animation: none;
+  transform: scale(1.15);
+  opacity: 0.55;
+}

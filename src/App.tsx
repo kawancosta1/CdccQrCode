@@ -5,6 +5,7 @@ import { lazy, Suspense } from "react";
 import { HashRouter, Route, Routes } from "react-router-dom";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { MainTemplate } from "./components/template/MainTemplate";
+import { AccessibilityProvider } from "./context/AccessibilityContext";
 import { BookSearchProvider } from "./context/BookSearchContext";
 import { Home } from "./pages/Home";
 
@@ -30,29 +31,31 @@ const AdminRoutes = lazy(() =>
 export function App() {
   return (
     <HashRouter>
-      <BookSearchProvider>
-        <MainTemplate>
-          <ErrorBoundary>
-            <Suspense
-              fallback={
-                <div role="status" aria-live="polite" className="page-loading-fallback">
-                  Carregando página...
-                </div>
-              }
-            >
-              <Routes>
-                <Route path="/" element={<Home />} />
-                <Route path="/espacoludico" element={<EspacoLudico />} />
-                <Route path="/espacoludico/:jogo" element={<GameRules />} />
-                <Route path="/estantes" element={<Estantes />} />
-                <Route path="/estantes/:sala/:numero" element={<ShelfDetail />} />
-                <Route path="/admin/*" element={<AdminRoutes />} />
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </Suspense>
-          </ErrorBoundary>
-        </MainTemplate>
-      </BookSearchProvider>
+      <AccessibilityProvider>
+        <BookSearchProvider>
+          <MainTemplate>
+            <ErrorBoundary>
+              <Suspense
+                fallback={
+                  <div role="status" aria-live="polite" className="page-loading-fallback">
+                    Carregando página...
+                  </div>
+                }
+              >
+                <Routes>
+                  <Route path="/" element={<Home />} />
+                  <Route path="/espacoludico" element={<EspacoLudico />} />
+                  <Route path="/espacoludico/:jogo" element={<GameRules />} />
+                  <Route path="/estantes" element={<Estantes />} />
+                  <Route path="/estantes/:sala/:numero" element={<ShelfDetail />} />
+                  <Route path="/admin/*" element={<AdminRoutes />} />
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+              </Suspense>
+            </ErrorBoundary>
+          </MainTemplate>
+        </BookSearchProvider>
+      </AccessibilityProvider>
     </HashRouter>
   );
 }

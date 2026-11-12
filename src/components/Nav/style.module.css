@@ -165,6 +165,74 @@
   font-weight: 600;
 }
 
+.a11yTriggerBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  min-height: 40px;
+  padding: 0.45rem 0.75rem;
+  margin-left: var(--space-1);
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  background-color: rgba(255, 255, 255, 0.14);
+  color: var(--color-text-on-brand);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color var(--duration-fast) var(--ease-out);
+}
+
+.a11yTriggerBtn:hover {
+  background-color: rgba(255, 255, 255, 0.26);
+}
+
+.a11yTriggerBtn:focus-visible {
+  outline: 2px solid var(--color-text-on-brand);
+  outline-offset: 2px;
+}
+
+.a11yBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 0.25rem;
+  border-radius: var(--radius-full);
+  background-color: #ffffff;
+  color: var(--color-brand);
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  font-weight: 800;
+}
+
+.mobileActionGroup {
+  display: none;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.a11yMobileBtn {
+  position: relative;
+  width: 44px;
+  height: 44px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: var(--radius-md);
+  background-color: rgba(255, 255, 255, 0.12);
+  color: var(--color-text-on-brand);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.a11yMobileBtn .a11yBadge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+}
+
 .hamburger {
   display: none;
   width: 44px;
@@ -241,6 +309,7 @@
     display: none;
   }
 
+  .mobileActionGroup,
   .hamburger {
     display: inline-flex;
   }

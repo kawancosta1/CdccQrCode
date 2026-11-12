@@ -1,4 +1,5 @@
 import { useBookSearchContext } from "../../../context/bookSearchStore";
+import { AccessibilityDrawer } from "../../AccessibilityDrawer";
 import { Footer } from "../../Footer";
 import { Nav } from "../../Nav";
 import { SearchResultModal } from "../../SearchResultModal";
@@ -31,6 +32,8 @@ export function MainTemplate({ children }: MainTemplateProps) {
       </main>
 
       <Footer />
+
+      <AccessibilityDrawer />
 
       {resultsByRoom && activeRoom !== null && (
         <SearchResultModal

@@ -1,6 +1,16 @@
 import { useEffect, useMemo, useState } from "react";
 import { RotateCcw, FlipHorizontal2, Undo2 } from "lucide-react";
+import { useAccessibility } from "../../context/accessibilityStore";
 import styles from "./ChessTable.module.css";
+
+const PIECE_NAME_PT: Record<PieceType, string> = {
+  p: "Peão",
+  n: "Cavalo",
+  b: "Bispo",
+  r: "Torre",
+  q: "Dama",
+  k: "Rei",
+};
 
 type Color = "w" | "b";
 type PieceType = "p" | "n" | "b" | "r" | "q" | "k";
@@ -277,6 +287,7 @@ function ChessPieceSvg({ piece, className }: { piece: Piece; className?: string 
 }
 
 export function ChessTable() {
+  const { announce, colorblindMode } = useAccessibility();
   const [board, setBoard] = useState<Board>(() => createInitialBoard());
   const [turn, setTurn] = useState<Color>("w");
   const [selected, setSelected] = useState<Pos | null>(null);
@@ -333,6 +344,16 @@ export function ChessTable() {
     setBoard(nextBoard);
     setSelected(null);
     setTurn(enemyColor);
+
+    const moverLabel = moving.color === "w" ? "Brancas" : "Pretas";
+    const statusText = !enemyHasMoves
+      ? givesCheck
+        ? `Xeque-mate! Vitória das ${moverLabel}.`
+        : "Empate por afogamento."
+      : givesCheck
+        ? `Lance ${notation}. Xeque!`
+        : `Lance ${notation}. Vez das ${enemyColor === "w" ? "Brancas" : "Pretas"}.`;
+    announce(statusText);
   };
 
   // Resposta tática do Bot CDCC quando for a vez das Pretas no modo "bot"
@@ -422,6 +443,28 @@ export function ChessTable() {
   const rowIndices = flipped ? [7, 6, 5, 4, 3, 2, 1, 0] : [0, 1, 2, 3, 4, 5, 6, 7];
   const colIndices = flipped ? [7, 6, 5, 4, 3, 2, 1, 0] : [0, 1, 2, 3, 4, 5, 6, 7];
 
+  const handleSquareKeyDown = (
+    e: React.KeyboardEvent<HTMLButtonElement>,
+    visualRowIdx: number,
+    visualColIdx: number,
+  ) => {
+    let dr = 0;
+    let dc = 0;
+    if (e.key === "ArrowUp") dr = -1;
+    else if (e.key === "ArrowDown") dr = 1;
+    else if (e.key === "ArrowLeft") dc = -1;
+    else if (e.key === "ArrowRight") dc = 1;
+    else return;
+
+    e.preventDefault();
+    const nextRow = Math.max(0, Math.min(7, visualRowIdx + dr));
+    const nextCol = Math.max(0, Math.min(7, visualColIdx + dc));
+    const nextEl = document.querySelector<HTMLButtonElement>(
+      `[data-chess-cell="${nextRow}-${nextCol}"]`,
+    );
+    nextEl?.focus();
+  };
+
   return (
     <section className={styles.tableSection} aria-label="Mesa interativa de Xadrez">
       <div className={styles.topBar}>
@@ -502,7 +545,9 @@ export function ChessTable() {
                     <button
                       key={squareLabel}
                       type="button"
+                      data-chess-cell={`${visualRowIdx}-${visualColIdx}`}
                       onClick={() => handleSquareClick(r, c)}
+                      onKeyDown={(e) => handleSquareKeyDown(e, visualRowIdx, visualColIdx)}
                       className={[
                         styles.square,
                         isLight ? styles.squareLight : styles.squareDark,
@@ -518,8 +563,8 @@ export function ChessTable() {
                         .join(" ")}
                       aria-label={`Casa ${squareLabel}${
                         piece
-                          ? `, ${piece.color === "w" ? "Branca" : "Preta"} ${piece.type}`
-                          : ""
+                          ? `, ${PIECE_NAME_PT[piece.type]} ${piece.color === "w" ? "Branco" : "Preto"}`
+                          : ", vazia"
                       }${isLegalDest ? " (destino válido)" : ""}`}
                     >
                       {visualColIdx === 0 && <span className={styles.coordRank}>{8 - r}</span>}
@@ -528,8 +573,16 @@ export function ChessTable() {
                       )}
 
                       {piece && <ChessPieceSvg piece={piece} className={styles.pieceSvg} />}
-                      {isLegalDest && !piece && <span className={styles.moveDot} />}
-                      {isLegalDest && piece && <span className={styles.captureRing} />}
+                      {isLegalDest && !piece && (
+                        <span className={styles.moveDot} aria-hidden="true">
+                          {colorblindMode ? "●" : ""}
+                        </span>
+                      )}
+                      {isLegalDest && piece && (
+                        <span className={styles.captureRing} aria-hidden="true">
+                          {colorblindMode ? "◆" : ""}
+                        </span>
+                      )}
                     </button>
                   );
                 }),

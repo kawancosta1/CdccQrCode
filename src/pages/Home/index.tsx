@@ -347,6 +347,17 @@ export function Home() {
             </div>
           )}
 
+          {/* Anúncio dinâmico para leitores de tela sobre resultados ou sugestões */}
+          <div className="sr-only" role="status" aria-live="polite" aria-atomic="true">
+            {resultsByRoom
+              ? `Resultados encontrados para o código ${searchValue} em ${
+                  Object.keys(resultsByRoom).length
+                } sala(s).`
+              : autocompleteSuggestions.length > 0
+                ? `${autocompleteSuggestions.length} sugestões de códigos compatíveis disponíveis.`
+                : ""}
+          </div>
+
           <div className={styles.examplesRow}>
             <span className={styles.examplesLabel}>Exemplos rápidos:</span>
             <div className={styles.examplesList}>

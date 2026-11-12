@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
+import { ArrowRight, ChevronLeft, ChevronRight, Pause, Play } from "lucide-react";
+import { useAccessibility } from "../../context/accessibilityStore";
 import style from "./style.module.css";
 
 export interface HeroSlide {
@@ -32,25 +33,13 @@ export function HeroCarousel({ slides, autoPlayMs = 6000 }: HeroCarouselProps) {
   const [trackIndex, setTrackIndex] = useState(total > 1 ? 1 : 0);
   const [isTransitionEnabled, setIsTransitionEnabled] = useState(true);
   const [isPaused, setIsPaused] = useState(false);
+  const [isUserPaused, setIsUserPaused] = useState(false);
   const [dragOffset, setDragOffset] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const [interactionTick, setInteractionTick] = useState(0);
-  const [prefersReducedMotion, setPrefersReducedMotion] = useState(() =>
-    typeof window !== "undefined"
-      ? window.matchMedia("(prefers-reduced-motion: reduce)").matches
-      : false,
-  );
+  const { reducedMotion } = useAccessibility();
 
   const dragStartXRef = useRef<number | null>(null);
-
-  useEffect(() => {
-    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const onChange = (e: MediaQueryListEvent) => {
-      setPrefersReducedMotion(e.matches);
-    };
-    mq.addEventListener("change", onChange);
-    return () => mq.removeEventListener("change", onChange);
-  }, []);
 
   const activeIndex =
     total <= 1 ? 0 : (trackIndex - 1 + total) % total;
@@ -76,9 +65,9 @@ export function HeroCarousel({ slides, autoPlayMs = 6000 }: HeroCarouselProps) {
     setInteractionTick((t) => t + 1);
   };
 
-  // Autoplay com reinício após interação manual e pausa em hover/foco/drag.
+  // Autoplay com reinício após interação manual e pausa em hover/foco/drag/reducedMotion.
   useEffect(() => {
-    if (total <= 1 || isPaused || isDragging || prefersReducedMotion) {
+    if (total <= 1 || isPaused || isUserPaused || isDragging || reducedMotion) {
       return;
     }
 
@@ -88,7 +77,7 @@ export function HeroCarousel({ slides, autoPlayMs = 6000 }: HeroCarouselProps) {
     }, autoPlayMs);
 
     return () => window.clearInterval(id);
-  }, [total, isPaused, isDragging, prefersReducedMotion, autoPlayMs, interactionTick]);
+  }, [total, isPaused, isUserPaused, isDragging, reducedMotion, autoPlayMs, interactionTick]);
 
   const handleTransitionEnd = () => {
     if (total <= 1) return;
@@ -241,6 +230,15 @@ export function HeroCarousel({ slides, autoPlayMs = 6000 }: HeroCarouselProps) {
             </button>
 
             <div className={style.indicators} role="tablist" aria-label="Selecionar banner">
+              <button
+                type="button"
+                className={style.playPauseBtn}
+                onClick={() => setIsUserPaused((prev) => !prev)}
+                aria-pressed={isUserPaused}
+                aria-label={isUserPaused ? "Retomar rotação automática do carrossel" : "Pausar rotação automática do carrossel"}
+              >
+                {isUserPaused ? <Play size={12} aria-hidden="true" /> : <Pause size={12} aria-hidden="true" />}
+              </button>
               {slides.map((slide, idx) => (
                 <button
                   key={slide.id}

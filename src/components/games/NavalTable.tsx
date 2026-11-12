@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { Compass, Crosshair, RotateCcw, Shuffle } from "lucide-react";
+import { useAccessibility } from "../../context/accessibilityStore";
 import styles from "./NavalTable.module.css";
 
 interface ShipTemplate {
@@ -63,6 +64,7 @@ function generateRandomFleet(): PlacedShip[] {
 }
 
 export function NavalTable() {
+  const { announce, colorblindMode } = useAccessibility();
   const [playerFleet, setPlayerFleet] = useState<PlacedShip[]>(() => generateRandomFleet());
   const [enemyFleet, setEnemyFleet] = useState<PlacedShip[]>(() => generateRandomFleet());
   const [playerShots, setPlayerShots] = useState<Set<string>>(() => new Set());
@@ -209,6 +211,29 @@ export function NavalTable() {
     setTelemetry("Nova operação iniciada com frota posicionada taticamente.");
   };
 
+  const handleGridKeyDown = (
+    e: React.KeyboardEvent<HTMLButtonElement>,
+    prefix: "atk" | "def",
+    r: number,
+    c: number,
+  ) => {
+    let dr = 0;
+    let dc = 0;
+    if (e.key === "ArrowUp") dr = -1;
+    else if (e.key === "ArrowDown") dr = 1;
+    else if (e.key === "ArrowLeft") dc = -1;
+    else if (e.key === "ArrowRight") dc = 1;
+    else return;
+
+    e.preventDefault();
+    const nr = Math.max(0, Math.min(9, r + dr));
+    const nc = Math.max(0, Math.min(9, c + dc));
+    const nextEl = document.querySelector<HTMLButtonElement>(
+      `[data-naval-cell="${prefix}-${nr}-${nc}"]`,
+    );
+    nextEl?.focus();
+  };
+
   return (
     <section className={styles.tableSection} aria-label="Mesa tática de Batalha Naval">
       <div className={styles.topBar}>
@@ -329,8 +354,20 @@ export function NavalTable() {
                     <button
                       key={`atk-${r}-${c}`}
                       type="button"
+                      data-naval-cell={`atk-${r}-${c}`}
                       disabled={placingMode || fired || gameOver}
-                      onClick={() => handleFireAtEnemy(r, c)}
+                      onClick={() => {
+                        handleFireAtEnemy(r, c);
+                        const hitShip = enemyFleet.find((s) =>
+                          s.coords.some(([sr, sc]) => sr === r && sc === c),
+                        );
+                        announce(
+                          hitShip
+                            ? `Tiro em ${rowLabel}${colNum}: Acerto confirmado!`
+                            : `Tiro em ${rowLabel}${colNum}: Água.`,
+                        );
+                      }}
+                      onKeyDown={(e) => handleGridKeyDown(e, "atk", r, c)}
                       className={[
                         styles.seaCell,
                         !placingMode && !fired && !gameOver ? styles.seaCellInteractive : "",
@@ -349,7 +386,15 @@ export function NavalTable() {
                               : ""
                       }`}
                     >
-                      {fired && !isHit && <span className={styles.waterPeg} />}
+                      {fired && !isHit && (
+                        colorblindMode ? (
+                          <span aria-hidden="true" style={{ fontSize: "0.75rem", fontWeight: 800 }}>
+                            ~
+                          </span>
+                        ) : (
+                          <span className={styles.waterPeg} />
+                        )
+                      )}
                       {isHit && (
                         <svg viewBox="0 0 24 24" className={styles.hitMarker} fill="none" stroke="currentColor" strokeWidth="2.6">
                           <circle cx="12" cy="12" r="7" />

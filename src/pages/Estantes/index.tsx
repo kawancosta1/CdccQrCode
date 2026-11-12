@@ -55,6 +55,12 @@ export function Estantes() {
         </div>
       </div>
 
+      <div className="sr-only" role="status" aria-live="polite" aria-atomic="true">
+        Exibindo {visibleRooms.length}{" "}
+        {visibleRooms.length === 1 ? "sala" : "salas"} com{" "}
+        {visibleRooms.reduce((acc, r) => acc + r.shelfNumbers.length, 0)} estantes disponíveis.
+      </div>
+
       <div className={style.roomsList}>
         {visibleRooms.map((room) => (
           <section key={room.id} className={style.roomSection} aria-labelledby={`room-${room.id}`}>

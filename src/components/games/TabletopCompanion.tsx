@@ -1,15 +1,20 @@
 import { useState } from "react";
 import { Dices, Minus, Plus, RotateCcw } from "lucide-react";
+import { useAccessibility } from "../../context/accessibilityStore";
 
 export function TabletopCompanion({ gameName }: { gameName: string }) {
+  const { announce } = useAccessibility();
   const [dieA, setDieA] = useState(6);
   const [dieB, setDieB] = useState(5);
   const [scores, setScores] = useState([0, 0, 0, 0]);
   const [turn, setTurn] = useState(0);
 
   const rollDice = () => {
-    setDieA(Math.floor(Math.random() * 6) + 1);
-    setDieB(Math.floor(Math.random() * 6) + 1);
+    const a = Math.floor(Math.random() * 6) + 1;
+    const b = Math.floor(Math.random() * 6) + 1;
+    setDieA(a);
+    setDieB(b);
+    announce(`Dados rolados: ${a} e ${b}, total ${a + b}`);
   };
 
   const updateScore = (idx: number, delta: number) => {

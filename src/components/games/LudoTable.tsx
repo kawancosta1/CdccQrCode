@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Dices, RotateCcw } from "lucide-react";
+import { useAccessibility } from "../../context/accessibilityStore";
 import styles from "./LudoTable.module.css";
 
 type LudoColor = "red" | "green" | "yellow" | "blue";
@@ -21,11 +22,12 @@ const COLORS: LudoColor[] = ["red", "green", "yellow", "blue"];
 
 const COLOR_META: Record<
   LudoColor,
-  { name: string; hex: string; startIdx: number; cellClass: string; pawnClass: string }
+  { name: string; hex: string; shape: string; startIdx: number; cellClass: string; pawnClass: string }
 > = {
   red: {
     name: "Vermelho Terracota",
     hex: "#c84b31",
+    shape: "▲",
     startIdx: 0,
     cellClass: styles.cellRed,
     pawnClass: styles.pawnRed,
@@ -33,6 +35,7 @@ const COLOR_META: Record<
   green: {
     name: "Verde Floresta",
     hex: "#2d7d56",
+    shape: "■",
     startIdx: 13,
     cellClass: styles.cellGreen,
     pawnClass: styles.pawnGreen,
@@ -40,6 +43,7 @@ const COLOR_META: Record<
   yellow: {
     name: "Amarelo Ocre",
     hex: "#d99b26",
+    shape: "●",
     startIdx: 26,
     cellClass: styles.cellYellow,
     pawnClass: styles.pawnYellow,
@@ -47,6 +51,7 @@ const COLOR_META: Record<
   blue: {
     name: "Azul Marítimo",
     hex: "#2b5b84",
+    shape: "◆",
     startIdx: 39,
     cellClass: styles.cellBlue,
     pawnClass: styles.pawnBlue,
@@ -153,6 +158,7 @@ function DieSvg({ value }: { value: number }) {
 }
 
 export function LudoTable() {
+  const { announce } = useAccessibility();
   const [pawns, setPawns] = useState<Pawn[]>(() => createInitialPawns());
   const [turnIdx, setTurnIdx] = useState(0);
   const [dice, setDice] = useState<number | null>(null);
@@ -245,17 +251,17 @@ export function LudoTable() {
 
       const valid = pawns.filter((p) => p.color === currentColor && canMovePawn(p, rolled));
       if (valid.length === 0) {
-        setStatusMessage(
-          `${COLOR_META[currentColor].name} tirou ${rolled}, mas não há movimentos possíveis.`,
-        );
+        const msg = `${COLOR_META[currentColor].name} tirou ${rolled}, mas não há movimentos possíveis.`;
+        setStatusMessage(msg);
+        announce(msg);
         window.setTimeout(() => {
           setDice(null);
           setTurnIdx((prev) => (prev + 1) % 4);
         }, 700);
       } else {
-        setStatusMessage(
-          `${COLOR_META[currentColor].name} tirou ${rolled}! Selecione um peão destacado.`,
-        );
+        const msg = `${COLOR_META[currentColor].name} tirou ${rolled}! Selecione um peão destacado.`;
+        setStatusMessage(msg);
+        announce(msg);
       }
     }, 180);
   };
@@ -374,7 +380,11 @@ export function LudoTable() {
                     .filter(Boolean)
                     .join(" ")}
                   aria-label={`Peão ${COLOR_META[pawn.color].name} ${pawn.id + 1}`}
-                />
+                >
+                  <span aria-hidden="true" style={{ fontSize: "0.62rem", color: "#fff", lineHeight: 1 }}>
+                    {COLOR_META[pawn.color].shape}
+                  </span>
+                </button>
               );
             })}
           </div>
@@ -423,7 +433,11 @@ export function LudoTable() {
                       .filter(Boolean)
                       .join(" ")}
                     aria-label={`Retirar peão ${COLOR_META[color].name} ${pawn.id + 1} da base`}
-                  />
+                  >
+                    <span aria-hidden="true" style={{ fontSize: "0.68rem", color: "#fff", lineHeight: 1 }}>
+                      {COLOR_META[color].shape}
+                    </span>
+                  </button>
                 )}
               </div>
             );

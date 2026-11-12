@@ -35,6 +35,11 @@
   --color-warning: #b45309;
   --color-warning-bg: #fffbeb;
 
+  /* Focus Ring */
+  --focus-ring-color: #8a3354;
+  --focus-ring-width: 2px;
+  --focus-ring-offset: 2px;
+
   /* Font Families */
   --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
@@ -76,4 +81,77 @@
   --duration-fast: 160ms;
   --duration-base: 240ms;
   --duration-drawer: 340ms;
+}
+
+/* ==========================================================================
+   Modo Alto Contraste Escuro (WCAG AAA)
+   ========================================================================== */
+html.high-contrast,
+html.high-contrast-dark {
+  --color-brand: #ffd60a;
+  --color-brand-hover: #ffea70;
+  --color-brand-active: #e6be00;
+  --color-brand-soft: #1e222d;
+  --color-brand-border: #ffd60a;
+  --color-brand-text: #ffd60a;
+
+  --color-accent: #38bdf8;
+  --color-accent-soft: #0f172a;
+
+  --color-bg: #05070a;
+  --color-surface: #0d1117;
+  --color-surface-subtle: #161b22;
+  --color-surface-hover: #21262d;
+
+  --color-border: #8b949e;
+  --color-border-strong: #ffffff;
+
+  --color-text-primary: #ffffff;
+  --color-text-secondary: #f0f6fc;
+  --color-text-muted: #d0d7de;
+  --color-text-on-brand: #05070a;
+
+  --color-danger: #ff7b72;
+  --color-danger-bg: #2d0f12;
+  --color-danger-border: #ff7b72;
+  --color-success: #56d364;
+  --color-success-bg: #0f291a;
+  --color-warning: #e3b341;
+  --color-warning-bg: #2b2109;
+
+  --focus-ring-color: #ffd60a;
+  --focus-ring-width: 3px;
+  --focus-ring-offset: 3px;
+}
+
+/* ==========================================================================
+   Modo Alto Contraste Claro (WCAG AAA)
+   ========================================================================== */
+html.high-contrast-light {
+  --color-brand: #590d22;
+  --color-brand-hover: #3b0816;
+  --color-brand-active: #24040d;
+  --color-brand-soft: #fff0f3;
+  --color-brand-border: #000000;
+  --color-brand-text: #3b0816;
+
+  --color-accent: #003060;
+  --color-accent-soft: #e6f0ff;
+
+  --color-bg: #ffffff;
+  --color-surface: #ffffff;
+  --color-surface-subtle: #f4f4f6;
+  --color-surface-hover: #e4e4e9;
+
+  --color-border: #000000;
+  --color-border-strong: #000000;
+
+  --color-text-primary: #000000;
+  --color-text-secondary: #111111;
+  --color-text-muted: #222222;
+  --color-text-on-brand: #ffffff;
+
+  --focus-ring-color: #000000;
+  --focus-ring-width: 3px;
+  --focus-ring-offset: 3px;
 }

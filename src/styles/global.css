@@ -49,27 +49,79 @@ a {
 
 /* Accessible Focus Ring */
 :focus-visible {
-  outline: 2px solid var(--color-brand);
-  outline-offset: 2px;
+  outline: var(--focus-ring-width, 2px) solid var(--focus-ring-color, var(--color-brand));
+  outline-offset: var(--focus-ring-offset, 2px);
+}
+
+/* Destaque de Foco Reforçado */
+html.enhanced-focus :focus-visible {
+  outline: 3px solid var(--focus-ring-color, #d97706) !important;
+  outline-offset: 3px !important;
+  box-shadow: 0 0 0 6px rgba(217, 119, 6, 0.28) !important;
+}
+
+html.high-contrast.enhanced-focus :focus-visible {
+  outline: 3px solid var(--focus-ring-color) !important;
+  outline-offset: 3px !important;
+  box-shadow: 0 0 0 6px rgba(255, 214, 10, 0.35) !important;
+}
+
+/* Alto Contraste: Sublinhar links e reforçar bordas */
+html.high-contrast a {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* Leitura Facilitada / Dislexia (WCAG 1.4.12 Text Spacing) */
+html.dyslexic-spacing body {
+  font-family: "Atkinson Hyperlegible", "Lexend", "Verdana", "Trebuchet MS", var(--font-sans);
+  letter-spacing: 0.045em;
+  word-spacing: 0.12em;
+  line-height: 1.75;
+}
+
+html.dyslexic-spacing p,
+html.dyslexic-spacing li,
+html.dyslexic-spacing span,
+html.dyslexic-spacing button,
+html.dyslexic-spacing input {
+  letter-spacing: 0.04em;
+  line-height: 1.65;
+}
+
+/* Régua Guia de Leitura Horizontal */
+.a11y-reading-guide-bar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  height: 36px;
+  transform: translateY(-50%);
+  pointer-events: none;
+  z-index: 900;
+  background-color: rgba(255, 214, 10, 0.16);
+  border-top: 2px solid var(--color-brand);
+  border-bottom: 2px solid var(--color-brand);
 }
 
 /* Skip to content link */
 .skip-link {
-  position: absolute;
-  top: -100px;
+  position: fixed;
+  top: -120px;
   left: 1rem;
   z-index: 9999;
-  padding: 0.625rem 1rem;
+  padding: 0.75rem 1.25rem;
   background-color: var(--color-brand);
   color: var(--color-text-on-brand);
+  border: 2px solid var(--color-border-strong);
   border-radius: var(--radius-md);
-  font-weight: 600;
+  font-weight: 700;
   text-decoration: none;
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--shadow-lg);
   transition: top var(--duration-fast) var(--ease-out);
 }
 
-.skip-link:focus {
+.skip-link:focus,
+.skip-link:focus-visible {
   top: 1rem;
 }
 
@@ -95,6 +147,10 @@ a {
   flex: 1;
 }
 
+.app-main:focus {
+  outline: none;
+}
+
 .page-loading-fallback {
   text-align: center;
   padding: 3rem 1rem;
@@ -109,8 +165,31 @@ a {
   *,
   *::before,
   *::after {
-    animation-duration: 0.18s !important;
+    animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
-    transition-duration: 0.16s !important;
+    transition-duration: 0.01ms !important;
   }
+}
+
+html.reduced-motion {
+  scroll-behavior: auto;
+}
+
+html.reduced-motion *,
+html.reduced-motion *::before,
+html.reduced-motion *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+}
+
+/* ==========================================================================
+   Widget VLibras (Oculto quando desativado, z-index seguro quando ativado)
+   ========================================================================== */
+html:not(.vlibras-enabled) div[vw] {
+  display: none !important;
+}
+
+html.vlibras-enabled div[vw] {
+  z-index: 800 !important;
 }
