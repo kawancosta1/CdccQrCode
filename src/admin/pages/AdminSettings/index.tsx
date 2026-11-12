@@ -1,8 +1,10 @@
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import type { BookInput } from "../../api/contracts";
 import { useAdminAuth } from "../../context/adminAuthStore";
 import { adminServices } from "../../services/adminServices";
 import { ADMIN_ROLES, PermissionService, ROLE_METADATA } from "../../services/permissionService";
+import { deleteAdminUser, getAdminUsers, saveAdminUser } from "../../../services/mappingService";
+import type { AdminUserRecord } from "../../../types/content";
 import styles from "../../styles/admin.module.css";
 
 const SAMPLE_IMPORT_JSON = `[
@@ -22,6 +24,14 @@ export function AdminSettings() {
   const [importPayload, setImportPayload] = useState(SAMPLE_IMPORT_JSON);
   const [error, setError] = useState<string | null>(null);
   const [feedback, setFeedback] = useState<string | null>(null);
+  const [adminUsers, setAdminUsers] = useState<AdminUserRecord[]>([]);
+  const [newUserEmail, setNewUserEmail] = useState("");
+  const [newUserName, setNewUserName] = useState("");
+  const [newUserRole, setNewUserRole] = useState<AdminUserRecord["role"]>("level_2");
+
+  useEffect(() => {
+    getAdminUsers().then(setAdminUsers).catch(() => {});
+  }, []);
 
   if (!user) return null;
 
@@ -143,8 +153,101 @@ export function AdminSettings() {
       )}
 
       {canManageSettings && (
-        <div className={styles.panelCard}>
-          <h2 className={styles.panelTitle}>Matriz de Permissões RBAC</h2>
+        <>
+          <div className={styles.panelCard}>
+            <h2 className={styles.panelTitle}>Usuários Autorizados (RBAC)</h2>
+            <form
+              onSubmit={async (e) => {
+                e.preventDefault();
+                if (!newUserEmail.trim()) return;
+                await saveAdminUser({
+                  id: "",
+                  email: newUserEmail,
+                  displayName: newUserName || newUserEmail,
+                  role: newUserRole,
+                  ativo: true,
+                });
+                setNewUserEmail("");
+                setNewUserName("");
+                setAdminUsers(await getAdminUsers());
+                setFeedback("Usuário administrativo salvo com sucesso.");
+              }}
+              style={{ display: "flex", flexWrap: "wrap", gap: "0.65rem", marginBottom: "1rem" }}
+            >
+              <input
+                type="email"
+                required
+                placeholder="email@usp.br"
+                value={newUserEmail}
+                onChange={(e) => setNewUserEmail(e.target.value)}
+                className={styles.input}
+                style={{ flex: "1 1 200px" }}
+              />
+              <input
+                type="text"
+                placeholder="Nome completo"
+                value={newUserName}
+                onChange={(e) => setNewUserName(e.target.value)}
+                className={styles.input}
+                style={{ flex: "1 1 180px" }}
+              />
+              <select
+                value={newUserRole}
+                onChange={(e) => setNewUserRole(e.target.value as AdminUserRecord["role"])}
+                className={styles.select}
+                style={{ width: "auto" }}
+              >
+                <option value="super_admin">Super Admin</option>
+                <option value="level_3">Nível 3 (Gestor)</option>
+                <option value="level_2">Nível 2 (Editor)</option>
+                <option value="level_1">Nível 1 (Operador)</option>
+              </select>
+              <button type="submit" className={styles.primaryBtn}>
+                Adicionar Usuário
+              </button>
+            </form>
+
+            <div className={styles.tableWrap}>
+              <table className={styles.table}>
+                <thead>
+                  <tr>
+                    <th>Nome</th>
+                    <th>E-mail</th>
+                    <th>Perfil</th>
+                    <th>Ação</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {adminUsers.map((u) => (
+                    <tr key={u.id}>
+                      <td>
+                        <strong>{u.displayName}</strong>
+                      </td>
+                      <td>{u.email}</td>
+                      <td>
+                        <span className={styles.codePill}>{u.role}</span>
+                      </td>
+                      <td>
+                        <button
+                          type="button"
+                          className={styles.secondaryBtn}
+                          onClick={async () => {
+                            await deleteAdminUser(u.id);
+                            setAdminUsers(await getAdminUsers());
+                          }}
+                        >
+                          Remover
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div className={styles.panelCard}>
+            <h2 className={styles.panelTitle}>Matriz de Permissões RBAC</h2>
           <div className={styles.tableWrap}>
             <table className={styles.table}>
               <thead>
@@ -173,7 +276,8 @@ export function AdminSettings() {
               </tbody>
             </table>
           </div>
-        </div>
+          </div>
+        </>
       )}
     </section>
   );

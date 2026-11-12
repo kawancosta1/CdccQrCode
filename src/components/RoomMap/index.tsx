@@ -1,5 +1,9 @@
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { ROOM_CONFIG, type RoomId } from "../../config/rooms";
+import { useSiteConfig } from "../../context/siteConfigStore";
+import { getMarkerOverrides } from "../../services/mappingService";
+import type { DynamicMarkerOverride } from "../../types/content";
 import style from "./style.module.css";
 
 interface RoomMapProps {
@@ -15,6 +19,21 @@ interface RoomMapProps {
  */
 export function RoomMap({ roomId, shelves, imageClassName, interactive = false }: RoomMapProps) {
   const room = ROOM_CONFIG[roomId];
+  const { getImageSrc } = useSiteConfig();
+  const [overrides, setOverrides] = useState<DynamicMarkerOverride[]>([]);
+
+  useEffect(() => {
+    let active = true;
+    getMarkerOverrides()
+      .then((list) => {
+        if (active) setOverrides(list.filter((o) => o.roomId === roomId));
+      })
+      .catch(() => {});
+    return () => {
+      active = false;
+    };
+  }, [roomId]);
+
   const activeSet = new Set(shelves.map((s) => s.toUpperCase()));
 
   const markerKeys = interactive
@@ -35,13 +54,18 @@ export function RoomMap({ roomId, shelves, imageClassName, interactive = false }
           : `Visão geral do mapa da ${room.label}.`}
       </div>
       <img
-        src={room.mapSrc}
+        src={getImageSrc(`mapa_sala_${roomId}`, room.mapSrc)}
         alt={room.mapAlt}
         className={`${style.mapImg} ${imageClassName ?? ""}`}
         decoding="async"
       />
       {markerKeys.map((shelfKey) => {
-        const pos = room.shelfMarkers[shelfKey];
+        const override = overrides.find(
+          (o) => o.shelfKey.toUpperCase() === shelfKey.toUpperCase()
+        );
+        const pos = override
+          ? { top: override.top, left: override.left, right: undefined, centered: true }
+          : room.shelfMarkers[shelfKey];
         if (!pos) return null;
 
         const isActive = activeSet.has(shelfKey.toUpperCase());

@@ -13,7 +13,12 @@ describe("PermissionService (RBAC)", () => {
     assert.equal(PermissionService.hasPermission("super_admin", "books.delete"), true);
     assert.equal(PermissionService.hasPermission("super_admin", "carousel.manage"), true);
     assert.equal(PermissionService.hasPermission("super_admin", "games.manage"), true);
-    assert.equal(ROLE_PERMISSIONS.super_admin.length, 20);
+    assert.equal(PermissionService.hasPermission("super_admin", "pages.manage"), true);
+    assert.equal(PermissionService.hasPermission("super_admin", "appearance.manage"), true);
+    assert.equal(PermissionService.hasPermission("super_admin", "qrcodes.manage"), true);
+    assert.equal(PermissionService.hasPermission("super_admin", "mapping.manage"), true);
+    assert.equal(PermissionService.hasPermission("super_admin", "users.manage"), true);
+    assert.equal(ROLE_PERMISSIONS.super_admin.length, 25);
   });
 
   it("restringe Nível 1 (Operador) a operações somente leitura", () => {

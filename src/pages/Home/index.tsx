@@ -9,9 +9,11 @@ import {
   Copy,
   ExternalLink,
   Gamepad2,
+  GraduationCap,
   Library,
   Maximize2,
   Search,
+  Sparkles,
   X,
 } from "lucide-react";
 import { HeroCarousel, type HeroSlide } from "../../components/HeroCarousel";
@@ -21,6 +23,7 @@ import dedalus5 from "../../components/img/Dedalus5.webp";
 import dedalus6 from "../../components/img/Dedalus6.webp";
 import BentinhoPensando from "../../components/img/Mascote/pensando.webp";
 import { useBookSearchContext } from "../../context/bookSearchStore";
+import { useSiteConfig } from "../../context/siteConfigStore";
 import { CarouselService, DEFAULT_CAROUSEL_SLIDES } from "../../services/carouselService";
 import type { CarouselSlide } from "../../types/content";
 import styles from "./style.module.css";
@@ -161,6 +164,10 @@ const TUTORIAL_PHASES: TutorialPhase[] = [
 ];
 
 export function Home() {
+  const { config, getImageSrc } = useSiteConfig();
+  const homeCfg = config.homeConfig;
+  const exampleCodes =
+    homeCfg.exampleCodes.length > 0 ? homeCfg.exampleCodes : EXAMPLE_CODES;
   const [heroSlides, setHeroSlides] = useState<HeroSlide[]>(() =>
     DEFAULT_CAROUSEL_SLIDES.map(toHeroSlide),
   );
@@ -249,17 +256,14 @@ export function Home() {
         <div className={styles.heroInner}>
           <div className={styles.heroBadge}>
             <Library size={15} aria-hidden="true" />
-            <span>Biblioteca do CDCC • USP São Carlos</span>
+            <span>{homeCfg.heroBadge}</span>
           </div>
 
           <h1 id="hero-heading" className={styles.heroTitle}>
-            Encontre a estante exata do seu livro
+            {homeCfg.heroTitle}
           </h1>
 
-          <p className={styles.heroSubtitle}>
-            Informe o código de classificação do Dedalus para visualizar a sala, o mapa de
-            localização e a foto da estante.
-          </p>
+          <p className={styles.heroSubtitle}>{homeCfg.heroSubtitle}</p>
 
           <form
             className={styles.heroSearchForm}
@@ -277,7 +281,7 @@ export function Home() {
                 ref={primaryInputRef}
                 type="search"
                 className={styles.heroInput}
-                placeholder="Digite o código Dedalus (ex: 530, 869.3 C500, R)"
+                placeholder={homeCfg.searchPlaceholder}
                 value={searchValue}
                 onChange={(e) => handleSearchChange(e.target.value)}
                 aria-invalid={Boolean(searchError)}
@@ -323,7 +327,7 @@ export function Home() {
             </div>
           ) : (
             <p id="hero-search-hint" className={styles.heroHint}>
-              Dica: utilize apenas o código de classificação (sem o número de tombo).
+              {homeCfg.searchHint}
             </p>
           )}
 
@@ -361,7 +365,7 @@ export function Home() {
           <div className={styles.examplesRow}>
             <span className={styles.examplesLabel}>Exemplos rápidos:</span>
             <div className={styles.examplesList}>
-              {EXAMPLE_CODES.map((item) => (
+              {exampleCodes.map((item) => (
                 <button
                   key={item.code}
                   type="button"
@@ -395,56 +399,60 @@ export function Home() {
       </section>
 
       {/* Atalhos Principais */}
-      <section className={styles.section} aria-label="Acesso rápido">
-        <div className={styles.quickGrid}>
-          <Link to="/estantes" className={styles.quickCard}>
-            <div className={styles.quickIcon}>
-              <BookOpen size={20} aria-hidden="true" />
-            </div>
-            <div>
-              <h2 className={styles.quickTitle}>Explorar Estantes</h2>
-              <p className={styles.quickDesc}>
-                Consulte todas as estantes da Sala 1 e da Sala 2 com fotos e mapas.
-              </p>
-            </div>
-          </Link>
-
-          <a
-            href="https://dedalus.usp.br/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className={styles.quickCard}
-          >
-            <div className={styles.quickIcon}>
-              <ExternalLink size={20} aria-hidden="true" />
-            </div>
-            <div>
-              <h2 className={styles.quickTitle}>Consultar Dedalus USP</h2>
-              <p className={styles.quickDesc}>
-                Ainda não tem o código? Pesquise o título ou autor no catálogo da USP.
-              </p>
-            </div>
-          </a>
-
-          <Link to="/espacoludico" className={styles.quickCard}>
-            <div className={styles.quickIcon}>
-              <Gamepad2 size={20} aria-hidden="true" />
-            </div>
-            <div>
-              <h2 className={styles.quickTitle}>Espaço Lúdico</h2>
-              <p className={styles.quickDesc}>
-                Conheça os jogos de tabuleiro e estratégias disponíveis na biblioteca.
-              </p>
-            </div>
-          </Link>
-        </div>
-      </section>
+      {homeCfg.sectionsVisibility.quickAccess && (
+        <section className={styles.section} aria-label="Acesso rápido">
+          <div className={styles.quickGrid}>
+            {homeCfg.quickCards.map((card) => {
+              const iconEl =
+                card.icon === "graduation" ? (
+                  <GraduationCap size={20} aria-hidden="true" />
+                ) : card.icon === "gamepad" ? (
+                  <Gamepad2 size={20} aria-hidden="true" />
+                ) : card.icon === "external" ? (
+                  <ExternalLink size={20} aria-hidden="true" />
+                ) : card.icon === "sparkles" ? (
+                  <Sparkles size={20} aria-hidden="true" />
+                ) : (
+                  <BookOpen size={20} aria-hidden="true" />
+                );
+              const content = (
+                <>
+                  <div className={styles.quickIcon}>{iconEl}</div>
+                  <div>
+                    <h2 className={styles.quickTitle}>{card.title}</h2>
+                    <p className={styles.quickDesc}>{card.description}</p>
+                  </div>
+                </>
+              );
+              if (card.href) {
+                return (
+                  <a
+                    key={card.id}
+                    href={card.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={styles.quickCard}
+                  >
+                    {content}
+                  </a>
+                );
+              }
+              return (
+                <Link key={card.id} to={card.to || "/estantes"} className={styles.quickCard}>
+                  {content}
+                </Link>
+              );
+            })}
+          </div>
+        </section>
+      )}
 
       {/* Destaques — Hero Carousel */}
-      <HeroCarousel slides={heroSlides} />
+      {homeCfg.sectionsVisibility.carousel && <HeroCarousel slides={heroSlides} />}
 
       {/* Tutorial Editorial do Buscador (3 Fases) */}
-      <section className={styles.section} aria-labelledby="tutorial-heading">
+      {homeCfg.sectionsVisibility.tutorial && (
+        <section className={styles.section} aria-labelledby="tutorial-heading">
         <div className={styles.tutorialHeader}>
           <div className={styles.tutorialHeaderText}>
             <span className={styles.tutorialEyebrow}>Guia de localização</span>
@@ -456,7 +464,7 @@ export function Home() {
             </p>
           </div>
           <img
-            src={BentinhoPensando}
+            src={getImageSrc("bentinho_logo", BentinhoPensando)}
             alt=""
             aria-hidden="true"
             className={styles.mascotHelper}
@@ -604,7 +612,7 @@ export function Home() {
                   className={styles.studioImageBtn}
                   onClick={() =>
                     setLightboxStep({
-                      src: currentPhase.image,
+                      src: getImageSrc(`tutorial_fase_${activePhaseIndex + 1}`, currentPhase.image),
                       alt: currentPhase.imageAlt,
                       title: `Fase ${currentPhase.phaseNumber}: ${currentPhase.title}`,
                     })
@@ -613,7 +621,7 @@ export function Home() {
                 >
                   <img
                     key={currentPhase.id}
-                    src={currentPhase.image}
+                    src={getImageSrc(`tutorial_fase_${activePhaseIndex + 1}`, currentPhase.image)}
                     alt={currentPhase.imageAlt}
                     className={`${styles.studioImg} ${styles.fadeIn}`}
                     loading="lazy"
@@ -674,6 +682,7 @@ export function Home() {
           </div>
         </div>
       </section>
+      )}
 
       {lightboxStep && (
         <ImageLightbox

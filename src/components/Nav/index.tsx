@@ -3,6 +3,9 @@ import { NavLink, Link } from "react-router-dom";
 import { Accessibility, ExternalLink, Menu, Search, X } from "lucide-react";
 import { useAccessibility } from "../../context/accessibilityStore";
 import { useBookSearchContext } from "../../context/bookSearchStore";
+import { useSiteConfig } from "../../context/siteConfigStore";
+import { getCustomPages } from "../../services/pagesService";
+import type { CustomPage } from "../../types/content";
 import logoCdcc from "../img/CdccLogo.webp";
 import style from "./style.module.css";
 
@@ -67,6 +70,7 @@ function NavSearchForm({
 const INTERNAL_NAV_LINKS = [
   { to: "/", label: "Início", end: true },
   { to: "/estantes", label: "Estantes", end: false },
+  { to: "/vestibular", label: "Vestibular", end: false },
   { to: "/espacoludico", label: "Espaço Lúdico", end: false },
 ] as const;
 
@@ -75,6 +79,8 @@ const INTERNAL_NAV_LINKS = [
  */
 export function Nav() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [menuPages, setMenuPages] = useState<CustomPage[]>([]);
+  const { config, getImageSrc } = useSiteConfig();
   const { isPanelOpen, activeCount, togglePanel } = useAccessibility();
   const {
     searchValue,
@@ -83,6 +89,18 @@ export function Nav() {
     submitSearch,
     clearSearch,
   } = useBookSearchContext();
+
+  useEffect(() => {
+    let active = true;
+    getCustomPages(true)
+      .then((pages) => {
+        if (active) setMenuPages(pages.filter((p) => p.mostrarNoMenu));
+      })
+      .catch(() => {});
+    return () => {
+      active = false;
+    };
+  }, []);
 
   useEffect(() => {
     if (!menuOpen) return;
@@ -119,6 +137,16 @@ export function Nav() {
           {item.label}
         </NavLink>
       ))}
+      {menuPages.map((pg) => (
+        <NavLink
+          key={pg.id}
+          to={`/p/${pg.slug}`}
+          className={navLinkClass}
+          onClick={onNavigate}
+        >
+          {pg.titulo}
+        </NavLink>
+      ))}
       <a
         href="https://dedalus.usp.br/"
         target="_blank"
@@ -133,18 +161,52 @@ export function Nav() {
   );
 
   const errorBannerId = "nav-search-error";
+  const resolvedLogo = getImageSrc("bentinho_logo", config.logoUrl || logoCdcc);
 
   return (
     <header className={style.header}>
+      {config.noticeBanner.enabled && config.noticeBanner.text && (
+        <div
+          role="region"
+          aria-label="Aviso importante"
+          style={{
+            backgroundColor: config.noticeBanner.color || "#145399",
+            color: "#ffffff",
+            padding: "0.45rem 1rem",
+            fontSize: "0.84rem",
+            fontWeight: 600,
+            textAlign: "center",
+            display: "flex",
+            flexWrap: "wrap",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: "0.65rem",
+          }}
+        >
+          <span>{config.noticeBanner.text}</span>
+          {config.noticeBanner.linkUrl && (
+            <Link
+              to={config.noticeBanner.linkUrl}
+              style={{
+                color: "#ffffff",
+                textDecoration: "underline",
+                fontWeight: 800,
+              }}
+            >
+              {config.noticeBanner.linkLabel || "Saiba mais"} →
+            </Link>
+          )}
+        </div>
+      )}
       <nav className={style.navBar} aria-label="Navegação principal">
         <div className={style.navInner}>
           <Link
             to="/"
             className={style.brandLink}
             onClick={closeMenu}
-            aria-label="QRCodeCDCC — Página inicial"
+            aria-label={`${config.portalName} — Página inicial`}
           >
-            <img src={logoCdcc} alt="Logo Oficial do CDCC" className={style.logo} />
+            <img src={resolvedLogo} alt={`Logo ${config.portalName}`} className={style.logo} />
           </Link>
 
           <NavSearchForm

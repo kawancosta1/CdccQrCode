@@ -1,14 +1,20 @@
-import { NavLink, Outlet, useNavigate } from "react-router-dom";
+import { Link, NavLink, Outlet, useNavigate } from "react-router-dom";
 import {
   BookOpen,
   Building2,
   ClipboardList,
+  Eye,
+  FileText,
   FolderTree,
   Gamepad2,
+  Home,
   Images,
   LayoutDashboard,
   Layers,
   LogOut,
+  MapPin,
+  Palette,
+  QrCode,
   Settings,
 } from "lucide-react";
 import { useAdminAuth } from "../../context/adminAuthStore";
@@ -26,8 +32,13 @@ interface AdminNavItem {
 
 const ADMIN_NAV_ITEMS: AdminNavItem[] = [
   { to: "/admin", label: "Dashboard", end: true, icon: <LayoutDashboard size={16} aria-hidden="true" /> },
+  { to: "/admin/aparencia", label: "Aparência & Imagens", permission: "appearance.manage", icon: <Palette size={16} aria-hidden="true" /> },
+  { to: "/admin/home-editor", label: "Editor da Home", permission: "appearance.manage", icon: <Home size={16} aria-hidden="true" /> },
+  { to: "/admin/paginas", label: "Páginas & Vestibular", permission: "pages.manage", icon: <FileText size={16} aria-hidden="true" /> },
   { to: "/admin/carrossel", label: "Carrossel Home", permission: "carousel.manage", icon: <Images size={16} aria-hidden="true" /> },
   { to: "/admin/jogos", label: "Jogos Lúdicos", permission: "games.manage", icon: <Gamepad2 size={16} aria-hidden="true" /> },
+  { to: "/admin/qrcodes", label: "Gerador QR Codes", permission: "qrcodes.manage", icon: <QrCode size={16} aria-hidden="true" /> },
+  { to: "/admin/mapeamento", label: "Regras & Mapa 3D", permission: "mapping.manage", icon: <MapPin size={16} aria-hidden="true" /> },
   { to: "/admin/livros", label: "Livros", permission: "books.read", icon: <BookOpen size={16} aria-hidden="true" /> },
   { to: "/admin/estantes", label: "Estantes", permission: "shelves.read", icon: <Layers size={16} aria-hidden="true" /> },
   { to: "/admin/salas", label: "Salas", permission: "rooms.read", icon: <Building2 size={16} aria-hidden="true" /> },
@@ -84,6 +95,17 @@ export function AdminLayout() {
               </select>
             </div>
           )}
+
+          <Link
+            to="/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className={style.secondaryBtn}
+            title="Abrir portal público em nova aba para pré-visualizar alterações"
+          >
+            <Eye size={16} aria-hidden="true" />
+            Ver como visitante
+          </Link>
 
           <button type="button" className={style.secondaryBtn} onClick={handleLogout}>
             <LogOut size={16} aria-hidden="true" />

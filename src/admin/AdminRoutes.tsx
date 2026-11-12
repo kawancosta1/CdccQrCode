@@ -1,3 +1,4 @@
+import { lazy, Suspense } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 import { RequireAdminAuth, RequirePermission } from "./components/AdminGuards";
 import { AdminLayout } from "./components/AdminLayout";
@@ -12,6 +13,12 @@ import { AdminRooms } from "./pages/AdminRooms";
 import { AdminSectors } from "./pages/AdminSectors";
 import { AdminSettings } from "./pages/AdminSettings";
 import { AdminShelves } from "./pages/AdminShelves";
+
+const AdminPages = lazy(() => import("./pages/AdminPages"));
+const AdminAppearance = lazy(() => import("./pages/AdminAppearance"));
+const AdminHomeEditor = lazy(() => import("./pages/AdminHomeEditor"));
+const AdminQrCodes = lazy(() => import("./pages/AdminQrCodes"));
+const AdminMapping = lazy(() => import("./pages/AdminMapping"));
 
 export function AdminRoutes() {
   return (
@@ -79,6 +86,56 @@ export function AdminRoutes() {
             element={
               <RequirePermission permission="audit.read">
                 <AdminAudit />
+              </RequirePermission>
+            }
+          />
+          <Route
+            path="aparencia"
+            element={
+              <RequirePermission permission="appearance.manage">
+                <Suspense fallback={<p>Carregando...</p>}>
+                  <AdminAppearance />
+                </Suspense>
+              </RequirePermission>
+            }
+          />
+          <Route
+            path="home-editor"
+            element={
+              <RequirePermission permission="appearance.manage">
+                <Suspense fallback={<p>Carregando...</p>}>
+                  <AdminHomeEditor />
+                </Suspense>
+              </RequirePermission>
+            }
+          />
+          <Route
+            path="paginas"
+            element={
+              <RequirePermission permission="pages.manage">
+                <Suspense fallback={<p>Carregando...</p>}>
+                  <AdminPages />
+                </Suspense>
+              </RequirePermission>
+            }
+          />
+          <Route
+            path="qrcodes"
+            element={
+              <RequirePermission permission="qrcodes.manage">
+                <Suspense fallback={<p>Carregando...</p>}>
+                  <AdminQrCodes />
+                </Suspense>
+              </RequirePermission>
+            }
+          />
+          <Route
+            path="mapeamento"
+            element={
+              <RequirePermission permission="mapping.manage">
+                <Suspense fallback={<p>Carregando...</p>}>
+                  <AdminMapping />
+                </Suspense>
               </RequirePermission>
             }
           />

@@ -19,6 +19,11 @@ export type Permission =
   | "catalog.manage"
   | "carousel.manage"
   | "games.manage"
+  | "pages.manage"
+  | "appearance.manage"
+  | "qrcodes.manage"
+  | "mapping.manage"
+  | "users.manage"
   | "audit.read"
   | "settings.manage";
 

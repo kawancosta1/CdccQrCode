@@ -30,6 +30,10 @@ interface GameFormState {
   capaUrl: string;
   ordem: number;
   disponivel: boolean;
+  accentColor: string;
+  duration: string;
+  complexity: string;
+  emprStatus: "disponivel" | "emprestado";
   regrasTitulo: string;
   objetivo: string;
   preparacao: string;
@@ -46,6 +50,10 @@ const INITIAL_GAME_FORM: GameFormState = {
   capaUrl: "",
   ordem: 1,
   disponivel: true,
+  accentColor: "#145399",
+  duration: "20–40 min",
+  complexity: "Médio",
+  emprStatus: "disponivel",
   regrasTitulo: "",
   objetivo: "",
   preparacao: "",
@@ -133,6 +141,10 @@ export function AdminGames() {
       capaUrl: game.capaUrl,
       ordem: game.ordem,
       disponivel: game.disponivel,
+      accentColor: game.accentColor || "#145399",
+      duration: game.duration || "20–40 min",
+      complexity: game.complexity || "Médio",
+      emprStatus: game.emprStatus || "disponivel",
       regrasTitulo: game.regrasTitulo || `Regras do ${game.nome}`,
       objetivo: game.objetivo || "",
       preparacao: game.preparacao || "",
@@ -219,6 +231,10 @@ export function AdminGames() {
             capaUrl: formState.capaUrl,
             ordem: Number(formState.ordem) || 1,
             disponivel: formState.disponivel,
+            accentColor: formState.accentColor,
+            duration: formState.duration.trim(),
+            complexity: formState.complexity.trim(),
+            emprStatus: formState.emprStatus,
             regrasTitulo: formState.regrasTitulo.trim(),
             objetivo: formState.objetivo.trim(),
             preparacao: formState.preparacao.trim(),
@@ -239,6 +255,10 @@ export function AdminGames() {
             capaUrl: formState.capaUrl || previewUrl,
             ordem: Number(formState.ordem) || games.length + 1,
             disponivel: formState.disponivel,
+            accentColor: formState.accentColor,
+            duration: formState.duration.trim(),
+            complexity: formState.complexity.trim(),
+            emprStatus: formState.emprStatus,
             regrasTitulo: formState.regrasTitulo.trim(),
             objetivo: formState.objetivo.trim(),
             preparacao: formState.preparacao.trim(),
@@ -658,6 +678,54 @@ export function AdminGames() {
                       placeholder="Ex: 2 jogadores ou 2 a 4 jogadores"
                       value={formState.jogadores}
                       onChange={(e) => setFormState({ ...formState, jogadores: e.target.value })}
+                    />
+                  </div>
+                </div>
+
+                <div className={styles.formGrid}>
+                  <div className={styles.fieldGroup}>
+                    <label className={styles.fieldLabel}>Tempo Médio</label>
+                    <input
+                      type="text"
+                      className={styles.input}
+                      placeholder="Ex: 20–40 min"
+                      value={formState.duration}
+                      onChange={(e) => setFormState({ ...formState, duration: e.target.value })}
+                    />
+                  </div>
+                  <div className={styles.fieldGroup}>
+                    <label className={styles.fieldLabel}>Complexidade</label>
+                    <input
+                      type="text"
+                      className={styles.input}
+                      placeholder="Ex: Médio"
+                      value={formState.complexity}
+                      onChange={(e) => setFormState({ ...formState, complexity: e.target.value })}
+                    />
+                  </div>
+                  <div className={styles.fieldGroup}>
+                    <label className={styles.fieldLabel}>Status na Bancada</label>
+                    <select
+                      className={styles.select}
+                      value={formState.emprStatus}
+                      onChange={(e) =>
+                        setFormState({
+                          ...formState,
+                          emprStatus: e.target.value as "disponivel" | "emprestado",
+                        })
+                      }
+                    >
+                      <option value="disponivel">Na Bancada (Disponível)</option>
+                      <option value="emprestado">Emprestado no Momento</option>
+                    </select>
+                  </div>
+                  <div className={styles.fieldGroup}>
+                    <label className={styles.fieldLabel}>Cor de Destaque do Card</label>
+                    <input
+                      type="color"
+                      value={formState.accentColor}
+                      onChange={(e) => setFormState({ ...formState, accentColor: e.target.value })}
+                      style={{ width: 56, height: 38, border: "1px solid var(--color-border)", borderRadius: 6 }}
                     />
                   </div>
                 </div>

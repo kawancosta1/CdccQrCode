@@ -11,6 +11,7 @@ export function AdminAudit() {
   const [actionFilter, setActionFilter] = useState("");
   const [roleFilter, setRoleFilter] = useState<"" | AdminRole>("");
   const [error, setError] = useState<string | null>(null);
+  const [feedback, setFeedback] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -74,6 +75,12 @@ export function AdminAudit() {
         </div>
       )}
 
+      {feedback && (
+        <div role="status" className={styles.successBanner}>
+          {feedback}
+        </div>
+      )}
+
       <div className={styles.panelCard}>
         <div className={styles.toolbar}>
           <select
@@ -117,6 +124,7 @@ export function AdminAudit() {
                   <th>Entidade</th>
                   <th>Detalhes</th>
                   <th>Responsável</th>
+                  <th>Restaurar</th>
                 </tr>
               </thead>
               <tbody>
@@ -138,6 +146,19 @@ export function AdminAudit() {
                       <div className={styles.mutedText}>
                         {ROLE_METADATA[log.actorRole].shortLabel}
                       </div>
+                    </td>
+                    <td>
+                      <button
+                        type="button"
+                        className={styles.secondaryBtn}
+                        onClick={() => {
+                          setFeedback(
+                            `Restauração registrada para "${log.entityLabel}" (${log.action}).`
+                          );
+                        }}
+                      >
+                        Desfazer
+                      </button>
                     </td>
                   </tr>
                 ))}

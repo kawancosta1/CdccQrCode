@@ -83,8 +83,12 @@ export function EspacoLudico() {
       <div className={styles.gamesGrid}>
         {games.map((game, index) => {
           const sig = getGameVisualSignature(game.slug);
+          const accent = game.accentColor || sig.accentColor;
+          const complexity = game.complexity || sig.complexity;
+          const duration = game.duration || sig.duration;
+          const isEmprestado = game.emprStatus === "emprestado";
           const cardVars = {
-            "--card-accent": sig.accentColor,
+            "--card-accent": accent,
             "--card-soft": sig.accentSoft,
             "--card-border": sig.accentBorder,
             "--card-tint": sig.surfaceTint,
@@ -114,11 +118,16 @@ export function EspacoLudico() {
               <div className={styles.cardBody}>
                 <div className={styles.cardHeaderMeta}>
                   <span className={styles.categoryTag}>{game.categoria}</span>
-                  <span className={styles.complexityTag}>Nível: {sig.complexity}</span>
+                  <span className={styles.complexityTag}>Nível: {complexity}</span>
                 </div>
 
                 <h3 className={styles.gameTitle}>{game.nome}</h3>
-                <p className={styles.gameTagline}>{sig.tagline}</p>
+                <p className={styles.gameTagline}>
+                  {sig.tagline} •{" "}
+                  <strong style={{ color: isEmprestado ? "#b91c1c" : "#15803d" }}>
+                    {isEmprestado ? "Emprestado no momento" : "Na bancada"}
+                  </strong>
+                </p>
                 <p className={styles.gameDesc}>{game.descricao}</p>
 
                 <div className={styles.specsBar} aria-label="Especificações da partida">
@@ -128,7 +137,7 @@ export function EspacoLudico() {
                   </div>
                   <div className={styles.specItem}>
                     <Clock size={14} className={styles.specIcon} aria-hidden="true" />
-                    <span>{sig.duration}</span>
+                    <span>{duration}</span>
                   </div>
                 </div>
 
