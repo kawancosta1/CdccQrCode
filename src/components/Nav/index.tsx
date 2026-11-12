@@ -86,6 +86,8 @@ export function Nav() {
   const {
     searchValue,
     searchError,
+    matchedNameOptions,
+    dedalusSearchUrl,
     handleSearchChange,
     submitSearch,
     clearSearch,
@@ -278,7 +280,58 @@ export function Nav() {
 
         {searchError && (
           <div id={errorBannerId} className={style.errorBanner} role="alert">
-            <span>{searchError}</span>
+            <div style={{ display: "flex", flexDirection: "column", gap: "0.45rem", flex: 1 }}>
+              <span>{searchError}</span>
+              {(matchedNameOptions.length > 0 || searchValue.trim().length >= 2) && (
+                <div style={{ display: "flex", flexWrap: "wrap", gap: "0.35rem" }}>
+                  {matchedNameOptions.map((item) => (
+                    <button
+                      key={item.id}
+                      type="button"
+                      onClick={() => {
+                        submitSearch(item.code);
+                        setMenuOpen(false);
+                      }}
+                      style={{
+                        padding: "0.25rem 0.6rem",
+                        borderRadius: "9999px",
+                        border: "1px solid rgba(255,255,255,0.35)",
+                        background: "rgba(255,255,255,0.14)",
+                        color: "inherit",
+                        fontSize: "0.75rem",
+                        fontWeight: 600,
+                        cursor: "pointer",
+                      }}
+                    >
+                      {item.title} ({item.code})
+                    </button>
+                  ))}
+                  {searchValue.trim().length >= 2 && (
+                    <a
+                      href={dedalusSearchUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: "0.3rem",
+                        padding: "0.25rem 0.6rem",
+                        borderRadius: "9999px",
+                        border: "1px solid rgba(255,255,255,0.45)",
+                        background: "rgba(255,255,255,0.22)",
+                        color: "inherit",
+                        fontSize: "0.75rem",
+                        fontWeight: 600,
+                        textDecoration: "none",
+                      }}
+                    >
+                      <ExternalLink size={12} aria-hidden="true" />
+                      Pesquisar &ldquo;{searchValue.trim()}&rdquo; no Dedalus USP
+                    </a>
+                  )}
+                </div>
+              )}
+            </div>
             <button
               type="button"
               onClick={clearSearch}
