@@ -1,72 +1,252 @@
-.pageHeader {
-  padding-bottom: var(--space-5);
-  border-bottom: 1px solid var(--color-border);
+.showcaseHero {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1.45fr) minmax(260px, 0.85fr);
+  gap: var(--space-6);
+  align-items: center;
+  padding: clamp(1.5rem, 3.5vw, 2.5rem);
+  border-radius: var(--radius-xl);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+
+.heroContent {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.eyebrowRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
 }
 
 .eyebrow {
   display: inline-flex;
   align-items: center;
   gap: 0.375rem;
+  padding: 0.25rem 0.625rem;
+  border-radius: var(--radius-full);
+  background-color: var(--color-brand-soft);
+  border: 1px solid var(--color-brand-border);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-brand-text);
+}
+
+.eyebrowNote {
+  font-family: var(--font-mono);
   font-size: 0.75rem;
   font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--color-brand);
-  margin-bottom: var(--space-2);
+  color: var(--color-text-muted);
 }
 
 .pageTitle {
-  font-size: clamp(1.5rem, 3vw, 2rem);
-  font-weight: 700;
-  letter-spacing: -0.025em;
+  font-size: clamp(1.75rem, 3.5vw, 2.5rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.12;
   color: var(--color-text-primary);
 }
 
 .pageSubtitle {
-  margin-top: var(--space-2);
-  font-size: 0.9375rem;
+  font-size: 1rem;
   color: var(--color-text-secondary);
+  line-height: 1.6;
+  max-width: 58ch;
 }
 
+.heroPills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-top: var(--space-1);
+}
+
+.heroPill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.375rem 0.75rem;
+  border-radius: var(--radius-md);
+  background-color: var(--color-surface-subtle);
+  border: 1px solid var(--color-border);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.heroMascotBox {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-4);
+  border-radius: var(--radius-lg);
+  background-color: var(--color-surface-subtle);
+  border: 1px solid var(--color-border);
+}
+
+.mascotAvatar {
+  width: 76px;
+  height: 76px;
+  object-fit: contain;
+  flex-shrink: 0;
+  filter: drop-shadow(0 6px 10px rgba(15, 23, 42, 0.1));
+}
+
+.mascotQuote {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.mascotLabel {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-brand);
+}
+
+.mascotText {
+  font-size: 0.84375rem;
+  color: var(--color-text-secondary);
+  line-height: 1.45;
+}
+
+/* Catalog Section Header */
+.sectionBar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-2);
+  padding-top: var(--space-2);
+}
+
+.sectionTitle {
+  font-size: 1.125rem;
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  color: var(--color-text-primary);
+}
+
+.sectionHint {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+}
+
+/* Editorial Tabletop Grid */
 .gamesGrid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: var(--space-5);
 }
 
 .gameCard {
+  --card-accent: var(--color-brand);
+  --card-soft: var(--color-brand-soft);
+  --card-border: var(--color-brand-border);
+  --card-tint: var(--color-surface-subtle);
+
+  position: relative;
   background-color: var(--color-surface);
   border: 1px solid var(--color-border);
+  border-top: 4px solid var(--card-accent);
   border-radius: var(--radius-xl);
   overflow: hidden;
   display: flex;
   flex-direction: column;
   box-shadow: var(--shadow-xs);
-  transition: border-color var(--duration-fast) var(--ease-out),
-    box-shadow var(--duration-fast) var(--ease-out);
+  transition: transform var(--duration-base) var(--ease-out),
+    border-color var(--duration-fast) var(--ease-out),
+    box-shadow var(--duration-base) var(--ease-out);
 }
 
-.gameCard:hover {
-  border-color: var(--color-brand-border);
-  box-shadow: var(--shadow-sm);
-}
-
-.imageLink {
-  display: block;
-  background-color: var(--color-surface-subtle);
+.cardStageLink {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-5);
+  background-color: var(--card-tint);
+  border-bottom: 1px solid var(--color-border);
+  text-decoration: none;
   overflow: hidden;
+  min-height: 168px;
+}
+
+.stageEmblemWrap {
+  width: 112px;
+  height: 112px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform var(--duration-base) var(--ease-out);
+}
+
+.stageEmblemSvg {
+  width: 100%;
+  height: 100%;
+  filter: drop-shadow(0 8px 14px rgba(15, 23, 42, 0.14));
+}
+
+.stagePhotoFrame {
+  width: 96px;
+  height: 96px;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  border: 2px solid var(--color-surface);
+  box-shadow: var(--shadow-sm);
+  background-color: var(--color-surface);
+  transition: transform var(--duration-base) var(--ease-out);
 }
 
 .gameImage {
   width: 100%;
-  aspect-ratio: 4 / 3;
+  height: 100%;
   object-fit: cover;
-  transition: transform var(--duration-base) var(--ease-out);
+}
+
+.stageIndexBadge {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.875rem;
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 0.2rem 0.5rem;
+  border-radius: var(--radius-sm);
+  background-color: var(--color-surface);
+  color: var(--card-accent);
+  border: 1px solid var(--card-border);
 }
 
 @media (hover: hover) and (pointer: fine) {
-  .gameCard:hover .gameImage {
-    transform: scale(1.03);
+  .gameCard:hover {
+    transform: translateY(-4px);
+    border-color: var(--card-border);
+    box-shadow: var(--shadow-md);
+  }
+
+  .gameCard:hover .stageEmblemWrap {
+    transform: translateY(-3px) rotate(-3deg) scale(1.04);
+  }
+
+  .gameCard:hover .stagePhotoFrame {
+    transform: translateY(-2px) rotate(2deg);
   }
 }
 
@@ -78,52 +258,183 @@
   flex: 1;
 }
 
-.gameTitle {
-  font-size: 1.25rem;
+.cardHeaderMeta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.categoryTag {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
   font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--card-accent);
+  background-color: var(--card-soft);
+  border: 1px solid var(--card-border);
+  padding: 0.2rem 0.55rem;
+  border-radius: var(--radius-sm);
+}
+
+.complexityTag {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+}
+
+.gameTitle {
+  font-size: 1.35rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
   color: var(--color-text-primary);
 }
 
+.gameTagline {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--card-accent);
+  margin-top: -0.35rem;
+}
+
 .gameDesc {
-  font-size: 0.9375rem;
+  font-size: 0.9rem;
   color: var(--color-text-secondary);
   line-height: 1.55;
   flex: 1;
 }
 
-.rulesLink {
-  align-self: flex-start;
-  min-height: 40px;
-  padding: 0.5rem 0.875rem;
+.specsBar {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-2);
+  padding: 0.625rem 0.75rem;
   border-radius: var(--radius-md);
-  background-color: var(--color-brand-soft);
-  color: var(--color-brand-text);
-  font-size: 0.875rem;
+  background-color: var(--color-surface-subtle);
+  border: 1px solid var(--color-border);
+}
+
+.specItem {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.78125rem;
   font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.specIcon {
+  color: var(--card-accent);
+  flex-shrink: 0;
+}
+
+.cardActions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  padding-top: var(--space-1);
+}
+
+.rulesLink {
+  width: 100%;
+  min-height: 42px;
+  padding: 0.55rem 1rem;
+  border-radius: var(--radius-md);
+  background-color: var(--card-soft);
+  border: 1px solid var(--card-border);
+  color: var(--card-accent);
+  font-size: 0.875rem;
+  font-weight: 700;
   text-decoration: none;
   display: inline-flex;
   align-items: center;
-  gap: 0.375rem;
-  transition: background-color var(--duration-fast) ease,
+  justify-content: space-between;
+  gap: 0.5rem;
+  transition: background-color var(--duration-fast) var(--ease-out),
     transform var(--duration-press) var(--ease-out);
 }
 
-.rulesLink:hover {
-  background-color: var(--color-brand-border);
+@media (hover: hover) and (pointer: fine) {
+  .rulesLink:hover {
+    background-color: var(--card-border);
+  }
 }
 
 .rulesLink:active {
-  transform: scale(0.97);
+  transform: scale(0.98);
 }
 
-@media (max-width: 960px) {
+/* Library Etiquette Footer Strip */
+.loanBanner {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-4);
+  padding: var(--space-5);
+  border-radius: var(--radius-xl);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+}
+
+.loanStep {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+}
+
+.loanStepNum {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.25rem 0.5rem;
+  border-radius: var(--radius-sm);
+  background-color: var(--color-brand-soft);
+  color: var(--color-brand-text);
+  border: 1px solid var(--color-brand-border);
+  flex-shrink: 0;
+}
+
+.loanStepTitle {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin-bottom: 0.15rem;
+}
+
+.loanStepDesc {
+  font-size: 0.8125rem;
+  color: var(--color-text-secondary);
+  line-height: 1.45;
+}
+
+@media (max-width: 980px) {
+  .showcaseHero {
+    grid-template-columns: 1fr;
+  }
+
   .gamesGrid {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .loanBanner {
+    grid-template-columns: 1fr;
   }
 }
 
 @media (max-width: 640px) {
   .gamesGrid {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gameCard,
+  .stageEmblemWrap,
+  .stagePhotoFrame,
+  .rulesLink {
+    transition: none;
   }
 }

@@ -1,0 +1,314 @@
+.tableSection {
+  background-color: #0d2133;
+  color: #e6f2f5;
+  border: 1px solid #244b69;
+  border-radius: var(--radius-xl);
+  padding: clamp(1rem, 2.5vw, 1.75rem);
+  box-shadow: 0 14px 36px rgba(7, 19, 31, 0.32);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.topBar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding-bottom: var(--space-3);
+  border-bottom: 1px solid #1e415c;
+}
+
+.titleGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  color: #4fd1c5;
+}
+
+.tableTitle {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #f2f9fb;
+  letter-spacing: -0.02em;
+}
+
+.topControls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.tacticalBtn {
+  min-height: 38px;
+  padding: 0.45rem 0.85rem;
+  border-radius: var(--radius-md);
+  border: 1px solid #2d5e82;
+  background-color: #15324b;
+  color: #e2f1f5;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  cursor: pointer;
+  transition: background-color var(--duration-fast) ease,
+    border-color var(--duration-fast) ease,
+    transform var(--duration-press) var(--ease-out);
+}
+
+.tacticalBtn:hover {
+  background-color: #1d4363;
+  border-color: #4fd1c5;
+}
+
+.tacticalBtn:active {
+  transform: scale(0.97);
+}
+
+.tacticalBtnPrimary {
+  background-color: #218380;
+  border-color: #4fd1c5;
+  color: #ffffff;
+}
+
+.tacticalBtnPrimary:hover {
+  background-color: #1b6d6b;
+}
+
+.telemetryBanner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-md);
+  background-color: #122b42;
+  border: 1px solid #234c6c;
+  font-size: 0.875rem;
+}
+
+.radarDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: #4fd1c5;
+  box-shadow: 0 0 8px #4fd1c5;
+  display: inline-block;
+  margin-right: 0.5rem;
+}
+
+.gridsContainer {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-5);
+  align-items: start;
+}
+
+.radarCard {
+  background-color: #10273c;
+  border: 1px solid #224968;
+  border-radius: var(--radius-lg);
+  padding: clamp(0.75rem, 2vw, 1.15rem);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.radarHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.radarTitle {
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #8ad6ce;
+}
+
+.radarSubtitle {
+  font-size: 0.75rem;
+  color: #9cb8c9;
+}
+
+.boardMatrix {
+  display: grid;
+  grid-template-columns: 24px repeat(10, 1fr);
+  grid-template-rows: 22px repeat(10, 1fr);
+  aspect-ratio: 11 / 11;
+  width: 100%;
+  max-width: 420px;
+  margin: 0 auto;
+  user-select: none;
+}
+
+.coordCell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  color: #79a6c0;
+}
+
+.seaCell {
+  position: relative;
+  border: 0.5px solid rgba(79, 209, 197, 0.22);
+  background-color: #0b1c2c;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: crosshair;
+  transition: background-color 120ms ease;
+}
+
+.seaCell:focus-visible {
+  outline: 2px solid #4fd1c5;
+  outline-offset: -2px;
+  z-index: 2;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .seaCellInteractive:hover {
+    background-color: rgba(79, 209, 197, 0.2);
+  }
+}
+
+.seaCellShip {
+  background-color: #2c5878;
+  border-color: #63a4c7;
+}
+
+.seaCellHit {
+  background-color: rgba(224, 83, 60, 0.28);
+}
+
+.seaCellSunk {
+  background-color: rgba(185, 28, 28, 0.52);
+  border-color: #f87171;
+}
+
+.seaCellMiss {
+  background-color: rgba(17, 45, 70, 0.9);
+}
+
+.waterPeg {
+  width: 34%;
+  height: 34%;
+  border-radius: 50%;
+  background-color: #63b3ed;
+  box-shadow: 0 0 0 3px rgba(99, 179, 237, 0.22);
+  animation: rippleIn 220ms var(--ease-out);
+}
+
+.hitMarker {
+  width: 68%;
+  height: 68%;
+  color: #ff6b52;
+  animation: popIn 180ms var(--ease-out);
+}
+
+@keyframes rippleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes popIn {
+  from {
+    opacity: 0;
+    transform: scale(0.7);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.fleetPanel {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: var(--space-2);
+}
+
+.shipBadge {
+  background-color: #122b42;
+  border: 1px solid #224968;
+  border-radius: var(--radius-md);
+  padding: 0.55rem 0.65rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.shipBadgeSunk {
+  background-color: rgba(127, 29, 29, 0.35);
+  border-color: #dc2626;
+}
+
+.shipName {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #e2f1f5;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.hullPips {
+  display: flex;
+  gap: 3px;
+}
+
+.hullPip {
+  height: 6px;
+  flex: 1;
+  border-radius: 2px;
+  background-color: #4fd1c5;
+}
+
+.hullPipDamaged {
+  background-color: #ef4444;
+}
+
+@media (max-width: 900px) {
+  .gridsContainer {
+    grid-template-columns: 1fr;
+  }
+
+  .fleetPanel {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .waterPeg,
+  .hitMarker,
+  .tacticalBtn {
+    animation: none;
+    transition: none;
+  }
+}

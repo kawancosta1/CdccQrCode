@@ -1,5 +1,17 @@
+.gamePageWrap {
+  --game-accent: var(--color-brand);
+  --game-soft: var(--color-brand-soft);
+  --game-border: var(--color-brand-border);
+  --game-tint: var(--color-surface-subtle);
+
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
 .breadcrumb {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: var(--space-2);
   font-size: 0.875rem;
@@ -9,8 +21,8 @@
   display: inline-flex;
   align-items: center;
   gap: 0.375rem;
-  color: var(--color-brand);
-  font-weight: 600;
+  color: var(--game-accent);
+  font-weight: 700;
   text-decoration: none;
 }
 
@@ -25,27 +37,51 @@
 
 .breadcrumbCurrent {
   color: var(--color-text-secondary);
-  font-weight: 500;
+  font-weight: 600;
 }
 
 .heroCard {
   background-color: var(--color-surface);
   border: 1px solid var(--color-border);
+  border-top: 4px solid var(--game-accent);
   border-radius: var(--radius-xl);
   padding: clamp(1.25rem, 3vw, 2rem);
   display: grid;
-  grid-template-columns: minmax(0, 320px) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 290px) minmax(0, 1fr);
   gap: var(--space-6);
   align-items: center;
   box-shadow: var(--shadow-xs);
 }
 
-.heroImage {
-  width: 100%;
-  aspect-ratio: 4 / 3;
-  object-fit: cover;
+.heroArtworkStage {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-4);
   border-radius: var(--radius-lg);
-  background-color: var(--color-surface-subtle);
+  background-color: var(--game-tint);
+  border: 1px solid var(--game-border);
+  min-height: 200px;
+}
+
+.heroEmblem {
+  width: 128px;
+  height: 128px;
+  filter: drop-shadow(0 10px 16px rgba(15, 23, 42, 0.14));
+}
+
+.heroPhotoThumb {
+  position: absolute;
+  bottom: 0.75rem;
+  right: 0.75rem;
+  width: 68px;
+  height: 68px;
+  border-radius: var(--radius-md);
+  object-fit: cover;
+  border: 2px solid var(--color-surface);
+  box-shadow: var(--shadow-sm);
+  background-color: var(--color-surface);
 }
 
 .heroBody {
@@ -55,18 +91,26 @@
 }
 
 .eyebrow {
+  font-family: var(--font-mono);
   font-size: 0.75rem;
-  font-weight: 600;
+  font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  color: var(--color-brand);
+  color: var(--game-accent);
 }
 
 .title {
-  font-size: clamp(1.5rem, 3vw, 2rem);
-  font-weight: 700;
+  font-size: clamp(1.5rem, 3vw, 2.15rem);
+  font-weight: 800;
   letter-spacing: -0.025em;
   color: var(--color-text-primary);
+}
+
+.tagline {
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: var(--game-accent);
+  margin-top: -0.35rem;
 }
 
 .description {
@@ -88,11 +132,37 @@
   gap: 0.375rem;
   padding: 0.375rem 0.75rem;
   border-radius: var(--radius-full);
-  background-color: var(--color-brand-soft);
-  border: 1px solid var(--color-brand-border);
-  color: var(--color-brand-text);
+  background-color: var(--game-soft);
+  border: 1px solid var(--game-border);
+  color: var(--game-accent);
   font-size: 0.8125rem;
-  font-weight: 600;
+  font-weight: 700;
+}
+
+/* Section Divider Header */
+.sectionHeader {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  padding-top: var(--space-2);
+}
+
+.sectionHeading {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.2rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--color-text-primary);
+}
+
+.sectionSub {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
 }
 
 .detailsGrid {
@@ -115,8 +185,8 @@
 }
 
 .winCard {
-  background-color: var(--color-brand-soft);
-  border-color: var(--color-brand-border);
+  background-color: var(--game-soft);
+  border-color: var(--game-border);
 }
 
 .cardHeader {
@@ -126,7 +196,7 @@
 }
 
 .cardIcon {
-  color: var(--color-brand);
+  color: var(--game-accent);
   flex-shrink: 0;
 }
 
@@ -144,8 +214,8 @@
 
 .rulesList {
   list-style: none;
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: var(--space-3);
 }
 
@@ -156,15 +226,16 @@
   padding: var(--space-3);
   border-radius: var(--radius-md);
   background-color: var(--color-surface-subtle);
+  border: 1px solid var(--color-border);
 }
 
 .ruleIndex {
   flex-shrink: 0;
-  width: 26px;
-  height: 26px;
-  border-radius: var(--radius-full);
-  background-color: var(--color-brand);
-  color: var(--color-text-on-brand);
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-sm);
+  background-color: var(--game-accent);
+  color: #ffffff;
   font-family: var(--font-mono);
   font-size: 0.75rem;
   font-weight: 700;
@@ -174,7 +245,7 @@
 }
 
 .ruleText {
-  font-size: 0.9375rem;
+  font-size: 0.9rem;
   color: var(--color-text-primary);
   line-height: 1.55;
 }
@@ -203,28 +274,46 @@
   align-items: center;
   justify-content: space-between;
   gap: var(--space-3);
-  min-height: 52px;
-  padding: var(--space-4);
+  min-height: 64px;
+  padding: var(--space-3) var(--space-4);
   background-color: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
   text-decoration: none;
-  transition: border-color var(--duration-fast) var(--ease-out),
+  transition: transform var(--duration-fast) var(--ease-out),
+    border-color var(--duration-fast) var(--ease-out),
     background-color var(--duration-fast) var(--ease-out);
 }
 
-.otherCard:hover {
-  border-color: var(--color-brand-border);
-  background-color: var(--color-brand-soft);
+@media (hover: hover) and (pointer: fine) {
+  .otherCard:hover {
+    transform: translateY(-2px);
+    border-color: var(--game-border);
+    background-color: var(--game-soft);
+  }
+}
+
+.otherCardLeft {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.otherEmblem {
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
 }
 
 .otherName {
-  font-weight: 600;
+  display: block;
+  font-weight: 700;
   color: var(--color-text-primary);
 }
 
 .otherMeta {
-  font-size: 0.8125rem;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
   color: var(--color-text-secondary);
 }
 
@@ -277,7 +366,14 @@
   }
 
   .detailsGrid,
+  .rulesList,
   .otherGrid {
     grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .otherCard {
+    transition: none;
   }
 }
