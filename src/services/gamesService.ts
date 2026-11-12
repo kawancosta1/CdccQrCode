@@ -8,9 +8,9 @@ import {
   query,
   updateDoc,
 } from "firebase/firestore";
-import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
-import { getFirebaseStorageInstance, getFirestoreDb } from "../lib/firebase.ts";
+import { getFirestoreDb } from "../lib/firebase.ts";
 import type { GameItem } from "../types/content.ts";
+import { uploadCmsImage } from "./siteConfigService.ts";
 
 const batalhaNaval = new URL("../components/img/Ludico/batalhaNaval.webp", import.meta.url).href;
 const ludo = new URL("../components/img/Ludico/ludo.webp", import.meta.url).href;
@@ -320,26 +320,7 @@ export const GamesService = {
   },
 
   async uploadCover(file: File): Promise<string> {
-    const storage = getFirebaseStorageInstance();
-    if (storage) {
-      try {
-        const ext = file.name.split(".").pop() || "webp";
-        const cleanName = file.name.replace(/[^a-zA-Z0-9.-]/g, "_");
-        const path = `games/${Date.now()}_${cleanName}.${ext}`;
-        const fileRef = ref(storage, path);
-        await uploadBytes(fileRef, file);
-        return await getDownloadURL(fileRef);
-      } catch (err) {
-        console.warn("Falha no upload da capa para o Firebase Storage. Usando data URL:", err);
-      }
-    }
-
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => resolve(reader.result as string);
-      reader.onerror = (e) => reject(e);
-      reader.readAsDataURL(file);
-    });
+    return uploadCmsImage(file, "games");
   },
 
   async resetToDefaults(): Promise<void> {

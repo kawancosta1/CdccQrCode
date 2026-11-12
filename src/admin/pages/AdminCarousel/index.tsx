@@ -193,6 +193,7 @@ export function AdminCarousel() {
       const objectUrl = URL.createObjectURL(file);
       setPreviewUrl(objectUrl);
     }
+    e.target.value = "";
   };
 
   const handleSaveSlide = async (e: React.FormEvent) => {
@@ -681,19 +682,45 @@ export function AdminCarousel() {
                     onClick={() => document.getElementById(fileInputId)?.click()}
                   >
                     {previewUrl ? (
-                      <img
-                        src={previewUrl}
-                        alt="Pré-visualização do slide"
-                        className={styles.dropzonePreview}
-                      />
+                      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "0.75rem", width: "100%" }}>
+                        <img
+                          src={previewUrl}
+                          alt="Pré-visualização do slide"
+                          className={styles.dropzonePreview}
+                        />
+                        <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap", justifyContent: "center" }}>
+                          <button
+                            type="button"
+                            className={styles.smallBtn}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              document.getElementById(fileInputId)?.click();
+                            }}
+                          >
+                            <Upload size={14} /> Trocar imagem (WebP automático)
+                          </button>
+                          <button
+                            type="button"
+                            className={styles.smallDangerBtn}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSelectedFile(null);
+                              setPreviewUrl("");
+                              setFormState((prev) => ({ ...prev, imagemUrl: "" }));
+                            }}
+                          >
+                            <X size={14} /> Remover
+                          </button>
+                        </div>
+                      </div>
                     ) : (
                       <>
                         <ImageIcon size={32} style={{ color: "var(--color-text-secondary)" }} />
                         <span style={{ fontWeight: 600, fontSize: "0.875rem" }}>
-                          Clique para selecionar ou arraste uma imagem (WebP, JPG, PNG)
+                          Clique para selecionar uma imagem (WebP, JPG, PNG)
                         </span>
                         <span className={styles.dropzoneHelp}>
-                          Recomendado: 1920x800 ou proporção widescreen (16:9)
+                          Recomendado: 1920x800 ou proporção widescreen (16:9) — convertida automaticamente para WebP
                         </span>
                       </>
                     )}
@@ -714,8 +741,10 @@ export function AdminCarousel() {
                       placeholder="Ou cole uma URL direta de imagem (https://...)"
                       value={formState.imagemUrl}
                       onChange={(e) => {
-                        setFormState({ ...formState, imagemUrl: e.target.value });
-                        if (e.target.value) setPreviewUrl(e.target.value);
+                        const val = e.target.value;
+                        setSelectedFile(null);
+                        setFormState({ ...formState, imagemUrl: val });
+                        setPreviewUrl(val);
                       }}
                     />
                   </div>

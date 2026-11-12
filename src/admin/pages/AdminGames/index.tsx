@@ -163,6 +163,7 @@ export function AdminGames() {
       const objectUrl = URL.createObjectURL(file);
       setPreviewUrl(objectUrl);
     }
+    e.target.value = "";
   };
 
   const handleNameChange = (name: string) => {
@@ -581,20 +582,46 @@ export function AdminGames() {
                     onClick={() => document.getElementById(fileInputId)?.click()}
                   >
                     {previewUrl ? (
-                      <img
-                        src={previewUrl}
-                        alt="Prévia da capa"
-                        className={styles.dropzonePreview}
-                        style={{ maxHeight: "150px" }}
-                      />
+                      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "0.75rem", width: "100%" }}>
+                        <img
+                          src={previewUrl}
+                          alt="Prévia da capa"
+                          className={styles.dropzonePreview}
+                          style={{ maxHeight: "160px" }}
+                        />
+                        <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap", justifyContent: "center" }}>
+                          <button
+                            type="button"
+                            className={styles.smallBtn}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              document.getElementById(fileInputId)?.click();
+                            }}
+                          >
+                            <Upload size={14} /> Trocar foto da capa (WebP automático)
+                          </button>
+                          <button
+                            type="button"
+                            className={styles.smallDangerBtn}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSelectedFile(null);
+                              setPreviewUrl("");
+                              setFormState((prev) => ({ ...prev, capaUrl: "" }));
+                            }}
+                          >
+                            <X size={14} /> Remover
+                          </button>
+                        </div>
+                      </div>
                     ) : (
                       <>
                         <ImageIcon size={30} style={{ color: "var(--color-text-secondary)" }} />
                         <span style={{ fontWeight: 600, fontSize: "0.875rem" }}>
-                          Selecione uma imagem de capa (WebP, JPG, PNG)
+                          Clique para selecionar uma foto de capa (WebP, JPG, PNG)
                         </span>
                         <span className={styles.dropzoneHelp}>
-                          Será enviada ao Firebase Storage ou mantida em cache local
+                          Convertida automaticamente para WebP e salva no Storage ou cache local
                         </span>
                       </>
                     )}
@@ -615,8 +642,10 @@ export function AdminGames() {
                     placeholder="Ou cole a URL direta da imagem (https://...)"
                     value={formState.capaUrl}
                     onChange={(e) => {
-                      setFormState({ ...formState, capaUrl: e.target.value });
-                      if (e.target.value) setPreviewUrl(e.target.value);
+                      const val = e.target.value;
+                      setSelectedFile(null);
+                      setFormState({ ...formState, capaUrl: val });
+                      setPreviewUrl(val);
                     }}
                   />
                 </div>

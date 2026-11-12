@@ -8,9 +8,9 @@ import {
   query,
   updateDoc,
 } from "firebase/firestore";
-import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
-import { getFirebaseStorageInstance, getFirestoreDb } from "../lib/firebase.ts";
+import { getFirestoreDb } from "../lib/firebase.ts";
 import type { CarouselSlide } from "../types/content.ts";
+import { uploadCmsImage } from "./siteConfigService.ts";
 
 const arvoreImg = new URL("../components/img/Carrousel/arvore.webp", import.meta.url).href;
 const espacoLudicoImg = new URL("../components/img/Carrousel/espacoLudico1.webp", import.meta.url).href;
@@ -292,27 +292,7 @@ export const CarouselService = {
   },
 
   async uploadImage(file: File): Promise<string> {
-    const storage = getFirebaseStorageInstance();
-    if (storage) {
-      try {
-        const ext = file.name.split(".").pop() || "webp";
-        const cleanName = file.name.replace(/[^a-zA-Z0-9.-]/g, "_");
-        const path = `carousel/${Date.now()}_${cleanName}.${ext}`;
-        const fileRef = ref(storage, path);
-        await uploadBytes(fileRef, file);
-        return await getDownloadURL(fileRef);
-      } catch (err) {
-        console.warn("Falha no upload para o Firebase Storage. Usando data URL:", err);
-      }
-    }
-
-    // Fallback: Converte para Base64 Data URL para permitir preview e persistência local
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => resolve(reader.result as string);
-      reader.onerror = (e) => reject(e);
-      reader.readAsDataURL(file);
-    });
+    return uploadCmsImage(file, "carousel");
   },
 
   async resetToDefaults(): Promise<void> {
