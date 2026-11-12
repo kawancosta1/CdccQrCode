@@ -1,41 +1,41 @@
-import est1_A from '../components/img/sala3/Estante1/A.png'
-import est1_B from '../components/img/sala3/Estante1/B.png'
-import est1_C from '../components/img/sala3/Estante1/C.png'
+import est1_A from '../components/img/sala3/Estante1/A.webp'
+import est1_B from '../components/img/sala3/Estante1/B.webp'
+import est1_C from '../components/img/sala3/Estante1/C.webp'
 
 // Estante 2
 
-import est2_C from '../components/img/sala3/Estante2/C.png'
-import est2_D from '../components/img/sala3/Estante2/D.png'
-import est2_E from '../components/img/sala3/Estante2/E.png'
-import est2_F from '../components/img/sala3/Estante2/F.png'
-import est2_G from '../components/img/sala3/Estante2/G.png'
+import est2_C from '../components/img/sala3/Estante2/C.webp'
+import est2_D from '../components/img/sala3/Estante2/D.webp'
+import est2_E from '../components/img/sala3/Estante2/E.webp'
+import est2_F from '../components/img/sala3/Estante2/F.webp'
+import est2_G from '../components/img/sala3/Estante2/G.webp'
 
 // Estante 3
-import est3_H from '../components/img/sala3/Estante3/H.png'
-import est3_I from '../components/img/sala3/Estante3/I.png'
-import est3_J from '../components/img/sala3/Estante3/J.png'
-import est3_K from '../components/img/sala3/Estante3/K.png'
-import est3_L from '../components/img/sala3/Estante3/L.png'
+import est3_H from '../components/img/sala3/Estante3/H.webp'
+import est3_I from '../components/img/sala3/Estante3/I.webp'
+import est3_J from '../components/img/sala3/Estante3/J.webp'
+import est3_K from '../components/img/sala3/Estante3/K.webp'
+import est3_L from '../components/img/sala3/Estante3/L.webp'
 
 // Estante 4
 
-import est4_M from '../components/img/sala3/Estante4/M.png'
-import est4_N from '../components/img/sala3/Estante4/N.png'
-import est4_O from '../components/img/sala3/Estante4/O.png'
-import est4_P from '../components/img/sala3/Estante4/P.png'
-import est4_Q from '../components/img/sala3/Estante4/Q.png'
-import est4_R from '../components/img/sala3/Estante4/R.png'
+import est4_M from '../components/img/sala3/Estante4/M.webp'
+import est4_N from '../components/img/sala3/Estante4/N.webp'
+import est4_O from '../components/img/sala3/Estante4/O.webp'
+import est4_P from '../components/img/sala3/Estante4/P.webp'
+import est4_Q from '../components/img/sala3/Estante4/Q.webp'
+import est4_R from '../components/img/sala3/Estante4/R.webp'
 // Estante 5
 
-import est5_R from '../components/img/sala3/Estante5/R.png'
-import est5_S from '../components/img/sala3/Estante5/S.png'
-import est5_T from '../components/img/sala3/Estante5/T.png'
-import est5_V from '../components/img/sala3/Estante5/V.png'
-import est5_W from '../components/img/sala3/Estante5/W.png'
-import est5_Y from '../components/img/sala3/Estante5/Y.png'
-import est5_Z from '../components/img/sala3/Estante5/Z.png'
+import est5_R from '../components/img/sala3/Estante5/R.webp'
+import est5_S from '../components/img/sala3/Estante5/S.webp'
+import est5_T from '../components/img/sala3/Estante5/T.webp'
+import est5_V from '../components/img/sala3/Estante5/V.webp'
+import est5_W from '../components/img/sala3/Estante5/W.webp'
+import est5_Y from '../components/img/sala3/Estante5/Y.webp'
+import est5_Z from '../components/img/sala3/Estante5/Z.webp'
 
-// é parecido com uma classe, mas não é, pois não tem método e comportamento, é apenas um objeto/receita
+
 export interface ImageData {
   images: string[]
   shelf: string

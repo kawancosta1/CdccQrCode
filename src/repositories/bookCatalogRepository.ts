@@ -35,4 +35,9 @@ export const staticBookCatalogRepository: BookCatalogRepository = {
   getSala1RangeEntries(): Sala1RangeEntry[] {
     return Object.values(imageDatabaseSala1) as Sala1RangeEntry[];
   },
+
+  getRoomCodes(roomId: RoomId): string[] {
+    const database = ROOM_DATABASES[roomId];
+    return database ? Object.keys(database) : [];
+  },
 };

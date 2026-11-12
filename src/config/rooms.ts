@@ -1,7 +1,7 @@
 import { ROOM_IDS, ROOM_PRIORITY, type RoomId } from "./roomConstants.ts";
-import mapaSala1 from "../components/img/MapaSala1.png";
-import mapaSala2 from "../components/img/MapaSala2.png";
-import mapaSala3 from "../components/img/MapaSala3.png";
+import mapaSala1 from "../components/img/MapaSala1.webp";
+import mapaSala2 from "../components/img/MapaSala2.webp";
+import mapaSala3 from "../components/img/MapaSala3.webp";
 
 export { ROOM_IDS, ROOM_PRIORITY, type RoomId };
 
@@ -16,6 +16,7 @@ export interface RoomConfig {
   id: RoomId;
   slug: string;
   label: string;
+  areaLabel: string;
   mapSrc: string;
   mapAlt: string;
   shelfNumbers: number[];
@@ -29,6 +30,7 @@ export const ROOM_CONFIG: Record<RoomId, RoomConfig> = {
     id: 1,
     slug: "sala1",
     label: "Sala 1",
+    areaLabel: "Ciências e Literatura (469–930)",
     mapSrc: mapaSala1,
     mapAlt: "Mapa da Sala 1",
     shelfNumbers: Array.from({ length: 25 }, (_, i) => i + 1),
@@ -67,6 +69,7 @@ export const ROOM_CONFIG: Record<RoomId, RoomConfig> = {
     id: 2,
     slug: "sala2",
     label: "Sala 2",
+    areaLabel: "Acervo Geral e Referência (001–469, R)",
     mapSrc: mapaSala2,
     mapAlt: "Mapa da Sala 2",
     shelfNumbers: Array.from({ length: 12 }, (_, i) => i + 1),
@@ -94,12 +97,56 @@ export const ROOM_CONFIG: Record<RoomId, RoomConfig> = {
     id: 3,
     slug: "sala3",
     label: "Sala 3",
+    areaLabel: "Espaço Lúdico e Literatura (809.89282 A–Z)",
     mapSrc: mapaSala3,
     mapAlt: "Mapa da Sala 3",
-    shelfNumbers: [],
-    shelfMarkers: {},
+    shelfNumbers: [1, 2, 3, 4, 5],
+    shelfMarkers: {
+      "1": { top: "48%", left: "11.5%", centered: true },
+      "2": { top: "40%", left: "36%", centered: true },
+      "3": { top: "31.5%", left: "11.5%", centered: true },
+      "4": { top: "23%", left: "36%", centered: true },
+      "5": { top: "15%", left: "11.5%", centered: true },
+    },
   },
 };
+
+function describeMapPosition(pos: ShelfMarkerPosition): string {
+  const topPct = Number.parseFloat(pos.top);
+  const vertical =
+    topPct <= 33 ? "na parte superior" : topPct >= 67 ? "na parte inferior" : "na região central";
+
+  if (pos.left) {
+    const leftPct = Number.parseFloat(pos.left);
+    const horizontal =
+      leftPct <= 35 ? "à esquerda" : leftPct >= 65 ? "à direita" : "no centro";
+    return `${vertical}, ${horizontal} do mapa`;
+  }
+
+  if (pos.right) {
+    const rightPct = Number.parseFloat(pos.right);
+    const horizontal =
+      rightPct <= 35 ? "à direita" : rightPct >= 65 ? "à esquerda" : "no centro";
+    return `${vertical}, ${horizontal} do mapa`;
+  }
+
+  return `${vertical} do mapa`;
+}
+
+/**
+ * Gera descrição textual acessível com a posição da(s) estante(s) no mapa da sala.
+ */
+export function getShelfDirectionText(roomId: RoomId, shelves: string[]): string {
+  const room = ROOM_CONFIG[roomId];
+  const shelfLabel = shelves.length > 1 ? `Estantes ${shelves.join(" e ")}` : `Estante ${shelves[0]}`;
+  const firstPos = room.shelfMarkers[shelves[0]];
+
+  if (!firstPos) {
+    return `${room.label} (${room.areaLabel}), ${shelfLabel}.`;
+  }
+
+  return `${room.label} (${room.areaLabel}): ${shelfLabel} localizada ${describeMapPosition(firstPos)}.`;
+}
 
 /** Resolve um slug de rota (ex: "sala1") para o RoomId correspondente. */
 export function getRoomIdBySlug(slug: string | undefined): RoomId | null {

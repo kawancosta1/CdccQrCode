@@ -6,6 +6,8 @@ import {
   normalizeSearchValue,
   parse8693Cutter,
   searchBooksByCode,
+  suggestMatchingCodes,
+  suggestNearestCodes,
 } from "../src/domain/searchParser.ts";
 import type { BookCatalogRepository, RoomData, Sala1RangeEntry } from "../src/types/catalog.ts";
 
@@ -32,6 +34,16 @@ function createMockRepository(): BookCatalogRepository {
       cutterNumberStart: 524,
       cutterPrefixEnd: "A",
       cutterNumberEnd: 777,
+    },
+    "869.3 C": {
+      images: ["s1-869-c-broad.png"],
+      shelf: "Estante 5",
+      range: "869.3 A - 869.3 E",
+      codeBase: "869.3",
+      cutterPrefixStart: "C",
+      cutterNumberStart: 156,
+      cutterPrefixEnd: "C",
+      cutterNumberEnd: 972,
     },
     "869.3 C180-C543": {
       images: ["s1-869-c.png"],
@@ -86,6 +98,9 @@ function createMockRepository(): BookCatalogRepository {
     },
     getSala1RangeEntries() {
       return Object.values(sala1);
+    },
+    getRoomCodes(roomId) {
+      return Object.keys(dbByRoom[roomId] ?? {});
     },
   };
 }
@@ -151,14 +166,22 @@ describe("searchBooksByCode", () => {
   it("localiza 869.3 por faixa de cutter apenas na Sala 1", () => {
     const insideRange = searchBooksByCode("869.3 C300", repo);
     assert.equal(insideRange[1]?.shelf, "Estante 5");
+    assert.deepEqual(insideRange[1]?.images, ["s1-869-c.png"]);
     assert.equal(insideRange[2], undefined);
     assert.equal(insideRange[3], undefined);
+
+    const broadFallback = searchBooksByCode("869.3 C600", repo);
+    assert.deepEqual(broadFallback[1]?.images, ["s1-869-c-broad.png"]);
 
     const exactBoundary = searchBooksByCode("869.3 A524", repo);
     assert.equal(exactBoundary[1]?.shelf, "Estante 5");
 
     const gapBetweenRanges = searchBooksByCode("869.3 A400", repo);
     assert.deepEqual(gapBetweenRanges, {});
+  });
+
+  it("retorna null em getDefaultRoom quando não há resultados", () => {
+    assert.equal(getDefaultRoom({}), null);
   });
 
   it("localiza 869.3 com letra única por chave direta", () => {
@@ -198,5 +221,23 @@ describe("extractShelves", () => {
   it("retorna ['1'] como fallback quando não há estante válida", () => {
     assert.deepEqual(extractShelves(null), ["1"]);
     assert.deepEqual(extractShelves({ images: [], shelf: "Sem info", range: "" }), ["1"]);
+  });
+});
+
+describe("suggestMatchingCodes e suggestNearestCodes", () => {
+  const repo = createMockRepository();
+
+  it("sugere códigos compatíveis priorizando correspondência por prefixo", () => {
+    assert.deepEqual(suggestMatchingCodes("869", repo, 3), [
+      "869.3 A",
+      "869.3 A524-777",
+      "869.3 C",
+    ]);
+    assert.deepEqual(suggestMatchingCodes("   ", repo), []);
+  });
+
+  it("sugere códigos numericamente próximos quando a busca exata falha", () => {
+    const nearest = suggestNearestCodes("505", repo, 2);
+    assert.ok(nearest.includes("500"));
   });
 });

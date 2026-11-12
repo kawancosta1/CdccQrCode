@@ -1,18 +1,18 @@
 .container {
- 
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  
+  width: 100%;
+  max-width: var(--container-max);
   margin: 0 auto;
-
+  padding: var(--space-8) var(--space-4);
 }
 
-
-
-.content{
+.content {
+  display: flex;
   flex-direction: column;
-  gap: 3rem;
-    display: flex;
+  gap: var(--space-8);
+}
 
+@media (max-width: 640px) {
+  .container {
+    padding: var(--space-6) var(--space-4);
+  }
 }

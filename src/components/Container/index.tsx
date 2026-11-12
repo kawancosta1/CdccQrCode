@@ -1,22 +1,13 @@
-import style from './style.module.css'
-
+import style from "./style.module.css";
 
 type ContainerProps = {
+  children: React.ReactNode;
+};
 
-    // vai ser o tipo que o react aceita
-  children:React.ReactNode;
-}
-
-export function Container({children} : ContainerProps){
-
-    return <div className={style.container}>
-
-    <div className={style.content}>
-
-    {children}
-
+export function Container({ children }: ContainerProps) {
+  return (
+    <div className={style.container}>
+      <div className={style.content}>{children}</div>
     </div>
-
-    </div>
-
+  );
 }

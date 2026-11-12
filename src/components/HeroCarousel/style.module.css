@@ -1,0 +1,258 @@
+.carouselRoot {
+  width: 100%;
+  max-width: var(--container-max);
+  margin: 0 auto;
+  padding: 0 var(--space-4);
+}
+
+.viewport {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  min-height: 360px;
+  max-height: 540px;
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  background-color: #16181f;
+  box-shadow: var(--shadow-md);
+  touch-action: pan-y;
+  user-select: none;
+}
+
+.track {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  will-change: transform;
+}
+
+.slide {
+  position: relative;
+  flex: 0 0 100%;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.slideImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.scrim {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    rgba(15, 16, 22, 0.86) 0%,
+    rgba(15, 16, 22, 0.62) 48%,
+    rgba(15, 16, 22, 0.18) 100%
+  );
+  pointer-events: none;
+}
+
+.overlayContent {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: flex-start;
+  padding: clamp(1.5rem, 4vw, 3.25rem) clamp(4.75rem, 6.5vw, 5.5rem) 3.75rem;
+  max-width: 660px;
+  color: #ffffff;
+}
+
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.3rem 0.75rem;
+  border-radius: var(--radius-full);
+  background-color: rgba(255, 255, 255, 0.16);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin-bottom: var(--space-3);
+}
+
+.title {
+  font-size: clamp(1.5rem, 3.4vw, 2.625rem);
+  font-weight: 700;
+  line-height: 1.12;
+  letter-spacing: -0.025em;
+  margin-bottom: var(--space-3);
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.35);
+}
+
+.description {
+  font-size: clamp(0.9375rem, 1.4vw, 1.0625rem);
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.9);
+  margin-bottom: var(--space-5);
+  max-width: 500px;
+}
+
+.ctaButton {
+  min-height: 44px;
+  padding: 0.625rem 1.25rem;
+  border-radius: var(--radius-full);
+  background-color: var(--color-brand);
+  color: #ffffff;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+  transition: background-color var(--duration-fast) ease,
+    transform var(--duration-press) var(--ease-out);
+}
+
+.ctaButton:hover {
+  background-color: var(--color-brand-hover);
+}
+
+.ctaButton:active {
+  transform: scale(0.97);
+}
+
+.ctaButton:focus-visible {
+  outline: 2px solid #ffffff;
+  outline-offset: 3px;
+}
+
+.arrowBtn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 4;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-full);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  background-color: rgba(15, 16, 22, 0.45);
+  backdrop-filter: blur(8px);
+  color: #ffffff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  opacity: 0.85;
+  transition: background-color var(--duration-fast) ease,
+    opacity var(--duration-fast) ease,
+    transform var(--duration-press) var(--ease-out);
+}
+
+.arrowPrev {
+  left: var(--space-4);
+}
+
+.arrowNext {
+  right: var(--space-4);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .arrowBtn:hover {
+    background-color: rgba(15, 16, 22, 0.75);
+    opacity: 1;
+  }
+}
+
+.arrowBtn:active {
+  transform: translateY(-50%) scale(0.95);
+}
+
+.arrowBtn:focus-visible {
+  outline: 2px solid #ffffff;
+  outline-offset: 2px;
+}
+
+.indicators {
+  position: absolute;
+  left: 50%;
+  bottom: var(--space-4);
+  transform: translateX(-50%);
+  z-index: 4;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.375rem 0.625rem;
+  border-radius: var(--radius-full);
+  background-color: rgba(15, 16, 22, 0.38);
+  backdrop-filter: blur(8px);
+}
+
+.indicator {
+  width: 10px;
+  height: 6px;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-full);
+  background-color: rgba(255, 255, 255, 0.45);
+  cursor: pointer;
+  transition: width var(--duration-base) var(--ease-out),
+    background-color var(--duration-fast) ease;
+}
+
+.indicator:hover {
+  background-color: rgba(255, 255, 255, 0.8);
+}
+
+.indicatorActive {
+  width: 28px;
+  background-color: #ffffff;
+}
+
+@media (max-width: 768px) {
+  .viewport {
+    aspect-ratio: 4 / 3;
+    min-height: 360px;
+    max-height: 460px;
+  }
+
+  .scrim {
+    background: linear-gradient(
+      0deg,
+      rgba(15, 16, 22, 0.9) 0%,
+      rgba(15, 16, 22, 0.62) 55%,
+      rgba(15, 16, 22, 0.16) 100%
+    );
+  }
+
+  .overlayContent {
+    padding: var(--space-5) var(--space-5) 3.5rem;
+  }
+
+  .arrowBtn {
+    width: 38px;
+    height: 38px;
+    top: var(--space-3);
+    transform: none;
+  }
+
+  .arrowBtn:active {
+    transform: scale(0.95);
+  }
+
+  .arrowPrev {
+    left: auto;
+    right: calc(var(--space-3) + 46px);
+  }
+
+  .arrowNext {
+    right: var(--space-3);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .track {
+    transition-duration: 0.01ms !important;
+  }
+}

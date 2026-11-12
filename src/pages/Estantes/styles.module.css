@@ -1,74 +1,180 @@
+.pageHeader {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding-bottom: var(--space-5);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.pageTitle {
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  color: var(--color-text-primary);
+}
+
+.pageSubtitle {
+  margin-top: var(--space-2);
+  font-size: 0.9375rem;
+  color: var(--color-text-secondary);
+  max-width: 600px;
+}
+
+.filterGroup {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+  padding: 0.25rem;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+.filterBtn {
+  min-height: 38px;
+  padding: 0.375rem 0.875rem;
+  border: none;
+  border-radius: var(--radius-sm);
+  background-color: transparent;
+  color: var(--color-text-secondary);
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color var(--duration-fast) var(--ease-out),
+    color var(--duration-fast) var(--ease-out);
+}
+
+.filterBtn:hover {
+  background-color: var(--color-surface-subtle);
+  color: var(--color-text-primary);
+}
+
+.filterBtnActive {
+  background-color: var(--color-brand);
+  color: var(--color-text-on-brand);
+}
+
+.filterBtnActive:hover {
+  background-color: var(--color-brand-hover);
+  color: var(--color-text-on-brand);
+}
+
+.roomsList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+}
+
+.roomSection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.roomHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.roomTitleWrap {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.roomIcon {
+  color: var(--color-brand);
+}
+
+.roomTitle {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.roomCount {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  background-color: var(--color-surface-subtle);
+  border: 1px solid var(--color-border);
+  padding: 0.25rem 0.625rem;
+  border-radius: var(--radius-full);
+}
+
 .gridEstantes {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: 15px;
-  margin-top: 30px;
-  margin-bottom: 10px;
-  max-width: 800px;
-  margin-left: auto;
-  margin-right: auto;
-  
+  grid-template-columns: repeat(auto-fill, minmax(168px, 1fr));
+  gap: var(--space-3);
 }
 
-.linkEstante {
+.shelfCard {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 52px;
+  padding: 0.75rem var(--space-4);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
   text-decoration: none;
-  color: inherit;
-}
-
-.buttonEstante {
-  padding: 20px;
-  background-color: #f0f0f0;
-  border: 2px solid #ddd;
-  border-radius: 8px;
-  text-align: center;
+  color: var(--color-text-primary);
   font-weight: 600;
-  font-size: 16px;
-  cursor: pointer;
-  transition: all 0.3s ease;
+  font-size: 0.9375rem;
+  box-shadow: var(--shadow-xs);
+  transition: border-color var(--duration-fast) ease,
+    background-color var(--duration-fast) ease,
+    color var(--duration-fast) ease,
+    transform var(--duration-press) var(--ease-out),
+    box-shadow var(--duration-fast) ease;
 }
 
-.buttonEstante:hover {
-  background-color: #e0e0e0;
-  border-color: #007bff;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+.shelfCard:active,
+.filterBtn:active {
+  transform: scale(0.97);
 }
 
-.buttonEstante:active {
-  transform: translateY(0);
-}
-
-@media (max-width: 768px) {
-  .gridEstantes {
-    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-    gap: 12px;
+@media (hover: hover) and (pointer: fine) {
+  .shelfCard:hover {
+    border-color: var(--color-brand-border);
+    background-color: var(--color-brand-soft);
+    color: var(--color-brand-text);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-sm);
   }
 
-  .buttonEstante {
-    padding: 15px;
-    font-size: 14px;
+  .shelfCard:hover .shelfCardArrow {
+    color: var(--color-brand);
+    transform: translate(2px, -2px);
   }
+}
+
+.shelfCardIcon {
+  color: var(--color-brand);
+  display: inline-flex;
+}
+
+.shelfCardLabel {
+  flex: 1;
+}
+
+.shelfCardArrow {
+  color: var(--color-text-muted);
+  transition: transform var(--duration-fast) var(--ease-out), color var(--duration-fast) ease;
 }
 
 @media (max-width: 480px) {
   .gridEstantes {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 10px;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-2);
   }
 
-  .buttonEstante {
-    padding: 12px;
-    font-size: 12px;
+  .shelfCard {
+    padding: 0.75rem var(--space-3);
+    font-size: 0.875rem;
   }
-}
-h1{
-   font-family:"Bungee", sans-serif;
-   margin: 20px;
-   text-align: center;
-}
-p{
-  font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
-   text-align: center;
-   font-size: 1.4rem;
-   font-weight: bolder;
 }

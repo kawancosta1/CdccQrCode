@@ -1,27 +1,145 @@
 .mapWrapper {
   position: relative;
   display: inline-block;
+  max-width: 100%;
+  line-height: 0;
 }
 
-.mapArrow {
+.mapImg {
+  display: block;
+  max-width: 100%;
+  border-radius: var(--radius-md);
+}
+
+.mapMarker {
   position: absolute;
-  width: 10px;
-  height: 10px;
-  background: rgb(238, 255, 0);
-  border-radius: 50%;
-  box-shadow: 0 0 15px rgba(0, 0, 0, 0.8);
-  animation: arrowPulse 1.5s ease-in-out infinite;
   z-index: 10;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  animation: markerAppear 260ms var(--ease-out) both;
 }
 
-@keyframes arrowPulse {
-  0%,
-  100% {
+.pulseRing {
+  position: absolute;
+  width: 34px;
+  height: 34px;
+  border-radius: var(--radius-full);
+  background-color: rgba(138, 51, 84, 0.28);
+  border: 2px solid var(--color-brand);
+  animation: markerPulse 1.8s ease-out 260ms infinite;
+}
+
+.markerCore {
+  position: relative;
+  min-width: 24px;
+  height: 24px;
+  padding: 0 5px;
+  border-radius: var(--radius-full);
+  background-color: var(--color-brand);
+  color: var(--color-text-on-brand);
+  border: 2px solid #ffffff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  font-weight: 700;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.secondaryMarker {
+  position: absolute;
+  z-index: 6;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.secondaryCore {
+  min-width: 20px;
+  height: 20px;
+  padding: 0 4px;
+  border-radius: var(--radius-full);
+  background-color: rgba(255, 255, 255, 0.92);
+  color: var(--color-text-primary);
+  border: 1.5px solid var(--color-border-strong);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.24);
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  font-weight: 700;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform var(--duration-fast) var(--ease-out),
+    background-color var(--duration-fast) var(--ease-out),
+    color var(--duration-fast) var(--ease-out),
+    border-color var(--duration-fast) var(--ease-out);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .secondaryMarker:hover .secondaryCore {
+    transform: scale(1.18);
+    background-color: var(--color-brand);
+    color: var(--color-text-on-brand);
+    border-color: #ffffff;
+  }
+}
+
+.secondaryMarker:focus-visible {
+  outline: 2px solid var(--color-brand);
+  outline-offset: 2px;
+  border-radius: var(--radius-full);
+}
+
+@keyframes markerAppear {
+  from {
+    opacity: 0;
+    transform: scale(0.84);
+  }
+  to {
     opacity: 1;
     transform: scale(1);
   }
-  50% {
-    opacity: 0.7;
-    transform: scale(1.2);
+}
+
+@keyframes markerPulse {
+  0% {
+    transform: scale(0.85);
+    opacity: 0.9;
+  }
+  70% {
+    transform: scale(1.45);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1.45);
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mapMarker {
+    animation: markerFade 180ms ease both;
+  }
+
+  .pulseRing {
+    animation: none;
+    transform: scale(1.15);
+    opacity: 0.55;
+  }
+}
+
+@keyframes markerFade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
   }
 }

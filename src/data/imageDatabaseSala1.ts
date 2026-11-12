@@ -1,217 +1,217 @@
 // Estante 1
-import est1_714_5 from '../components/img/sala1/Estante1/714.5.png'
-import est1_808_83 from '../components/img/sala1/Estante1/808.83.png'
-import est1_808_83872 from '../components/img/sala1/Estante1/808.83872.png'
-import est1_808_83876 from '../components/img/sala1/Estante1/808.83876.png'
-import est1_813 from '../components/img/sala1/Estante1/813.png'
+import est1_714_5 from '../components/img/sala1/Estante1/714.5.webp'
+import est1_808_83 from '../components/img/sala1/Estante1/808.83.webp'
+import est1_808_83872 from '../components/img/sala1/Estante1/808.83872.webp'
+import est1_808_83876 from '../components/img/sala1/Estante1/808.83876.webp'
+import est1_813 from '../components/img/sala1/Estante1/813.webp'
 
 // Estante 2
-import est2_813_variacao from '../components/img/sala1/Estante2/813_variacao.png';
-import est2_813_variacao2 from '../components/img/sala1/Estante2/813_variacao2.png';
-import est2_823 from '../components/img/sala1/Estante2/823.png';
+import est2_813_variacao from '../components/img/sala1/Estante2/813_variacao.webp';
+import est2_813_variacao2 from '../components/img/sala1/Estante2/813_variacao2.webp';
+import est2_823 from '../components/img/sala1/Estante2/823.webp';
 
 // Estante 3
-import est3_828_9934 from '../components/img/sala1/Estante3/828.9934.png';
-import est3_833 from '../components/img/sala1/Estante3/833.png';
-import est3_839_82 from '../components/img/sala1/Estante3/839.82.png';
-import est3_843 from '../components/img/sala1/Estante3/843.png';
-import est3_ir823 from '../components/img/sala1/Estante3/ir823.png';
+import est3_828_9934 from '../components/img/sala1/Estante3/828.9934.webp';
+import est3_833 from '../components/img/sala1/Estante3/833.webp';
+import est3_839_82 from '../components/img/sala1/Estante3/839.82.webp';
+import est3_843 from '../components/img/sala1/Estante3/843.webp';
+import est3_ir823 from '../components/img/sala1/Estante3/ir823.webp';
 
 // Estante 4
-import est4_843_variacao from '../components/img/sala1/Estante4/843_variacao.png';
-import est4_850_852 from '../components/img/sala1/Estante4/850-852.png';
-import est4_853 from '../components/img/sala1/Estante4/853.png';
-import est4_853_01 from '../components/img/sala1/Estante4/853.01.png';
-import est4_863 from '../components/img/sala1/Estante4/863.png';
-import est4_869_1 from '../components/img/sala1/Estante4/869.1.png';
-import est4_CO862_863 from '../components/img/sala1/Estante4/CO862-863.png';
-import est4_Pe863 from '../components/img/sala1/Estante4/Pe863.png';
-import est4_S863 from '../components/img/sala1/Estante4/S863.png';
+import est4_843_variacao from '../components/img/sala1/Estante4/843_variacao.webp';
+import est4_850_852 from '../components/img/sala1/Estante4/850-852.webp';
+import est4_853 from '../components/img/sala1/Estante4/853.webp';
+import est4_853_01 from '../components/img/sala1/Estante4/853.01.webp';
+import est4_863 from '../components/img/sala1/Estante4/863.webp';
+import est4_869_1 from '../components/img/sala1/Estante4/869.1.webp';
+import est4_CO862_863 from '../components/img/sala1/Estante4/CO862-863.webp';
+import est4_Pe863 from '../components/img/sala1/Estante4/Pe863.webp';
+import est4_S863 from '../components/img/sala1/Estante4/S863.webp';
 
 // Estante 5
-import est5_869_3_A368 from '../components/img/sala1/Estante5/869.3_A368.png';
-import est5_869_3_A447 from '../components/img/sala1/Estante5/869.3_A447.png';
-import est5_869_3_A481 from '../components/img/sala1/Estante5/869.3_A481.png';
-import est5_869_3_A524_777 from '../components/img/sala1/Estante5/869.3_A524-777.png';
-import est5_869_3_A848 from '../components/img/sala1/Estante5/869.3_A848.png';
-import est5_869_3_A994 from '../components/img/sala1/Estante5/869.3_A994.png';
-import est5_869_3_B273 from '../components/img/sala1/Estante5/869.3_B273.png';
-import est5_869_3_B277_B917 from '../components/img/sala1/Estante5/869.3_B277-B917.png';
-import est5_869_3_C156 from '../components/img/sala1/Estante5/869.3_C156.png';
-import est5_869_3_C180_C543 from '../components/img/sala1/Estante5/869.3_C180-C543.png';
-import est5_869_3_C672 from '../components/img/sala1/Estante5/869.3_C672.png';
-import est5_869_3_C755_C949 from '../components/img/sala1/Estante5/869.3_C755-C949.png';
-import est5_869_3_C972 from '../components/img/sala1/Estante5/869.3_C972.png';
-import est5_869_3_D192_D942 from '../components/img/sala1/Estante5/869.3_D192-D942.png';
-import est5_869_3_E82 from '../components/img/sala1/Estante5/869.3_E82.png';
+import est5_869_3_A368 from '../components/img/sala1/Estante5/869.3_A368.webp';
+import est5_869_3_A447 from '../components/img/sala1/Estante5/869.3_A447.webp';
+import est5_869_3_A481 from '../components/img/sala1/Estante5/869.3_A481.webp';
+import est5_869_3_A524_777 from '../components/img/sala1/Estante5/869.3_A524-777.webp';
+import est5_869_3_A848 from '../components/img/sala1/Estante5/869.3_A848.webp';
+import est5_869_3_A994 from '../components/img/sala1/Estante5/869.3_A994.webp';
+import est5_869_3_B273 from '../components/img/sala1/Estante5/869.3_B273.webp';
+import est5_869_3_B277_B917 from '../components/img/sala1/Estante5/869.3_B277-B917.webp';
+import est5_869_3_C156 from '../components/img/sala1/Estante5/869.3_C156.webp';
+import est5_869_3_C180_C543 from '../components/img/sala1/Estante5/869.3_C180-C543.webp';
+import est5_869_3_C672 from '../components/img/sala1/Estante5/869.3_C672.webp';
+import est5_869_3_C755_C949 from '../components/img/sala1/Estante5/869.3_C755-C949.webp';
+import est5_869_3_C972 from '../components/img/sala1/Estante5/869.3_C972.webp';
+import est5_869_3_D192_D942 from '../components/img/sala1/Estante5/869.3_D192-D942.webp';
+import est5_869_3_E82 from '../components/img/sala1/Estante5/869.3_E82.webp';
 
 // Estante 6
-import est6_869_3_F from '../components/img/sala1/Estante6/869.3 F.png';
-import est6_869_3_G from '../components/img/sala1/Estante6/869.3 G.png';
-import est6_869_3_H from '../components/img/sala1/Estante6/869.3 H.png';
-import est6_869_3_J from '../components/img/sala1/Estante6/869.3 J.png';
-import est6_869_3_K from '../components/img/sala1/Estante6/869.3 K.png';
-import est6_869_3_L from '../components/img/sala1/Estante6/869.3 L.png';
-import est6_869_3_M from '../components/img/sala1/Estante6/869.3 M.png';
-import est6_869_3_M_variacao from '../components/img/sala1/Estante6/869.3 M_variacao.png';
-import est6_869_3_N from '../components/img/sala1/Estante6/869.3 N.png';
-import est6_869_3_O from '../components/img/sala1/Estante6/869.3 O.png';
-import est6_869_3_P from '../components/img/sala1/Estante6/869.3 P.png';
-import est6_869_3_P_variacao from '../components/img/sala1/Estante6/869.3 P_variacao.png';
-import est6_869_3_Q from '../components/img/sala1/Estante6/869.3 Q.png';
-import est6_869_3_R from '../components/img/sala1/Estante6/869.3 R.png';
+import est6_869_3_F from '../components/img/sala1/Estante6/869.3 F.webp';
+import est6_869_3_G from '../components/img/sala1/Estante6/869.3 G.webp';
+import est6_869_3_H from '../components/img/sala1/Estante6/869.3 H.webp';
+import est6_869_3_J from '../components/img/sala1/Estante6/869.3 J.webp';
+import est6_869_3_K from '../components/img/sala1/Estante6/869.3 K.webp';
+import est6_869_3_L from '../components/img/sala1/Estante6/869.3 L.webp';
+import est6_869_3_M from '../components/img/sala1/Estante6/869.3 M.webp';
+import est6_869_3_M_variacao from '../components/img/sala1/Estante6/869.3 M_variacao.webp';
+import est6_869_3_N from '../components/img/sala1/Estante6/869.3 N.webp';
+import est6_869_3_O from '../components/img/sala1/Estante6/869.3 O.webp';
+import est6_869_3_P from '../components/img/sala1/Estante6/869.3 P.webp';
+import est6_869_3_P_variacao from '../components/img/sala1/Estante6/869.3 P_variacao.webp';
+import est6_869_3_Q from '../components/img/sala1/Estante6/869.3 Q.webp';
+import est6_869_3_R from '../components/img/sala1/Estante6/869.3 R.webp';
 
 // Estante 7
-import est7_869_3_R from '../components/img/sala1/Estante7/869.3 R.png';
-import est7_869_3_S from '../components/img/sala1/Estante7/869.3 S.png';
-import est7_869_3_T from '../components/img/sala1/Estante7/869.3 T.png';
-import est7_869_3_V from '../components/img/sala1/Estante7/869.3 V.png';
-import est7_869_301 from '../components/img/sala1/Estante7/869.301.png';
-import est7_869_308 from '../components/img/sala1/Estante7/869.308.png';
+import est7_869_3_R from '../components/img/sala1/Estante7/869.3 R.webp';
+import est7_869_3_S from '../components/img/sala1/Estante7/869.3 S.webp';
+import est7_869_3_T from '../components/img/sala1/Estante7/869.3 T.webp';
+import est7_869_3_V from '../components/img/sala1/Estante7/869.3 V.webp';
+import est7_869_301 from '../components/img/sala1/Estante7/869.301.webp';
+import est7_869_308 from '../components/img/sala1/Estante7/869.308.webp';
 
 // Estante 8
-import est8_869_6 from '../components/img/sala1/Estante8/869.6.png';
-import est8_869_7 from '../components/img/sala1/Estante8/869.7.png';
-import est8_P869 from '../components/img/sala1/Estante8/P869.png';
-import est8_P869_1 from '../components/img/sala1/Estante8/P869.1.png';
-import est8_P869_3 from '../components/img/sala1/Estante8/P869.3.png';
-import est8_P869_4 from '../components/img/sala1/Estante8/P869.4.png';
+import est8_869_6 from '../components/img/sala1/Estante8/869.6.webp';
+import est8_869_7 from '../components/img/sala1/Estante8/869.7.webp';
+import est8_P869 from '../components/img/sala1/Estante8/P869.webp';
+import est8_P869_1 from '../components/img/sala1/Estante8/P869.1.webp';
+import est8_P869_3 from '../components/img/sala1/Estante8/P869.3.webp';
+import est8_P869_4 from '../components/img/sala1/Estante8/P869.4.webp';
 
 // Estante 9
-import est9_871 from '../components/img/sala1/Estante9/871.png';
-import est9_880 from '../components/img/sala1/Estante9/880.png';
-import est9_891_5 from '../components/img/sala1/Estante9/891.5.png';
-import est9_891_73_891_709 from '../components/img/sala1/Estante9/891.73-891.709.png';
-import est9_891_821___899_153 from '../components/img/sala1/Estante9/891.821 - 899.153.png';
-import est9_P869_variacao from '../components/img/sala1/Estante9/P869_variacao.png';
+import est9_871 from '../components/img/sala1/Estante9/871.webp';
+import est9_880 from '../components/img/sala1/Estante9/880.webp';
+import est9_891_5 from '../components/img/sala1/Estante9/891.5.webp';
+import est9_891_73_891_709 from '../components/img/sala1/Estante9/891.73-891.709.webp';
+import est9_891_821___899_153 from '../components/img/sala1/Estante9/891.821 - 899.153.webp';
+import est9_P869_variacao from '../components/img/sala1/Estante9/P869_variacao.webp';
 
 // Estante 10
-import est10_809_89283_A from '../components/img/sala1/Estante10/809.89283 A.png';
-import est10_809_89283_B from '../components/img/sala1/Estante10/809.89283 B.png';
-import est10_809_89283_C from '../components/img/sala1/Estante10/809.89283 C.png';
+import est10_809_89283_A from '../components/img/sala1/Estante10/809.89283 A.webp';
+import est10_809_89283_B from '../components/img/sala1/Estante10/809.89283 B.webp';
+import est10_809_89283_C from '../components/img/sala1/Estante10/809.89283 C.webp';
 
 // Estante 11
-import est11_809_89283_D from '../components/img/sala1/Estante11/809.89283 D.png';
-import est11_809_89283_E from '../components/img/sala1/Estante11/809.89283 E.png';
-import est11_809_89283_F from '../components/img/sala1/Estante11/809.89283 F.png';
-import est11_809_89283_G from '../components/img/sala1/Estante11/809.89283 G.png';
-import est11_809_89283_H from '../components/img/sala1/Estante11/809.89283 H.png';
-import est11_809_89283_I from '../components/img/sala1/Estante11/809.89283 I.png';
-import est11_809_89283_J from '../components/img/sala1/Estante11/809.89283 J.png';
-import est11_809_89283_K from '../components/img/sala1/Estante11/809.89283 K.png';
+import est11_809_89283_D from '../components/img/sala1/Estante11/809.89283 D.webp';
+import est11_809_89283_E from '../components/img/sala1/Estante11/809.89283 E.webp';
+import est11_809_89283_F from '../components/img/sala1/Estante11/809.89283 F.webp';
+import est11_809_89283_G from '../components/img/sala1/Estante11/809.89283 G.webp';
+import est11_809_89283_H from '../components/img/sala1/Estante11/809.89283 H.webp';
+import est11_809_89283_I from '../components/img/sala1/Estante11/809.89283 I.webp';
+import est11_809_89283_J from '../components/img/sala1/Estante11/809.89283 J.webp';
+import est11_809_89283_K from '../components/img/sala1/Estante11/809.89283 K.webp';
 
 // Estante 12
-import est12_809_89283_L from '../components/img/sala1/Estante12/809.89283 l.png';
-import est12_809_89283_M from '../components/img/sala1/Estante12/809.89283 M.png';
-import est12_809_89283_N from '../components/img/sala1/Estante12/809.89283 N.png';
-import est12_809_89283_P from '../components/img/sala1/Estante12/809.89283 P.png';
-import est12_809_89283_Q from '../components/img/sala1/Estante12/809.89283 Q.png';
-import est12_809_89283_R from '../components/img/sala1/Estante12/809.89283 R.png';
+import est12_809_89283_L from '../components/img/sala1/Estante12/809.89283 l.webp';
+import est12_809_89283_M from '../components/img/sala1/Estante12/809.89283 M.webp';
+import est12_809_89283_N from '../components/img/sala1/Estante12/809.89283 N.webp';
+import est12_809_89283_P from '../components/img/sala1/Estante12/809.89283 P.webp';
+import est12_809_89283_Q from '../components/img/sala1/Estante12/809.89283 Q.webp';
+import est12_809_89283_R from '../components/img/sala1/Estante12/809.89283 R.webp';
 
 // Estante 13
-import est13_809_89283_R_VAR from '../components/img/sala1/Estante13/809.89283 R_VARIACAO.png';
-import est13_809_89283_S from '../components/img/sala1/Estante13/809.89283 S.png';
-import est13_809_89283_T from '../components/img/sala1/Estante13/809.89283 T.png';
-import est13_809_89283_V from '../components/img/sala1/Estante13/809.89283 V.png';
-import est13_809_89283_W from '../components/img/sala1/Estante13/809.89283 W.png';
-import est13_809_89283_Y from '../components/img/sala1/Estante13/809.89283 Y.png';
-import est13_809_89283_Z from '../components/img/sala1/Estante13/809.89283 Z.png';
+import est13_809_89283_R_VAR from '../components/img/sala1/Estante13/809.89283 R_VARIACAO.webp';
+import est13_809_89283_S from '../components/img/sala1/Estante13/809.89283 S.webp';
+import est13_809_89283_T from '../components/img/sala1/Estante13/809.89283 T.webp';
+import est13_809_89283_V from '../components/img/sala1/Estante13/809.89283 V.webp';
+import est13_809_89283_W from '../components/img/sala1/Estante13/809.89283 W.webp';
+import est13_809_89283_Y from '../components/img/sala1/Estante13/809.89283 Y.webp';
+import est13_809_89283_Z from '../components/img/sala1/Estante13/809.89283 Z.webp';
 
 // Estante 14
-import est14_000 from '../components/img/sala1/Estante14/000.png';
-import est14_300_307 from '../components/img/sala1/Estante14/300-307.png';
-import est14_320_330 from '../components/img/sala1/Estante14/320-330.png';
-import est14_333_7 from '../components/img/sala1/Estante14/333.7.png';
-import est14_372 from '../components/img/sala1/Estante14/372.png';
-import est14_398 from '../components/img/sala1/Estante14/398.png';
-import est14_420 from '../components/img/sala1/Estante14/420.png';
-import est14_469 from '../components/img/sala1/Estante14/469.png';
-import est14_469_variacao from '../components/img/sala1/Estante14/469_variacao.png';
-import est14_469_variacao2 from '../components/img/sala1/Estante14/469_variacao2.png';
+import est14_000 from '../components/img/sala1/Estante14/000.webp';
+import est14_300_307 from '../components/img/sala1/Estante14/300-307.webp';
+import est14_320_330 from '../components/img/sala1/Estante14/320-330.webp';
+import est14_333_7 from '../components/img/sala1/Estante14/333.7.webp';
+import est14_372 from '../components/img/sala1/Estante14/372.webp';
+import est14_398 from '../components/img/sala1/Estante14/398.webp';
+import est14_420 from '../components/img/sala1/Estante14/420.webp';
+import est14_469 from '../components/img/sala1/Estante14/469.webp';
+import est14_469_variacao from '../components/img/sala1/Estante14/469_variacao.webp';
+import est14_469_variacao2 from '../components/img/sala1/Estante14/469_variacao2.webp';
 
 // Estante 15
-import est15_469 from '../components/img/sala1/Estante15/469.png';
-import est15_469_l from '../components/img/sala1/Estante15/469.l.png';
-import est15_500 from '../components/img/sala1/Estante15/500.png';
-import est15_500_07 from '../components/img/sala1/Estante15/500.07.png';
-import est15_500_07_variacao from '../components/img/sala1/Estante15/500.07_variacao.png';
+import est15_469 from '../components/img/sala1/Estante15/469.webp';
+import est15_469_l from '../components/img/sala1/Estante15/469.l.webp';
+import est15_500 from '../components/img/sala1/Estante15/500.webp';
+import est15_500_07 from '../components/img/sala1/Estante15/500.07.webp';
+import est15_500_07_variacao from '../components/img/sala1/Estante15/500.07_variacao.webp';
 
 // Estante 16
-import est16_500 from '../components/img/sala1/Estante16/500.png';
-import est16_500_07 from '../components/img/sala1/Estante16/500.07.png';
-import est16_510_07 from '../components/img/sala1/Estante16/510.07.png';
-import est16_510_07_variacao2 from '../components/img/sala1/Estante16/510.07_variacao2.png';
+import est16_500 from '../components/img/sala1/Estante16/500.webp';
+import est16_500_07 from '../components/img/sala1/Estante16/500.07.webp';
+import est16_510_07 from '../components/img/sala1/Estante16/510.07.webp';
+import est16_510_07_variacao2 from '../components/img/sala1/Estante16/510.07_variacao2.webp';
 
 // Estante 17
-import est17_510_07_variacao from '../components/img/sala1/Estante17/510.07_variacao.png';
-import est17_520 from '../components/img/sala1/Estante17/520.png';
-import est17_523_1 from '../components/img/sala1/Estante17/523.1.png';
-import est17_530_07 from '../components/img/sala1/Estante17/530.07.png';
-import est17_530_07_variacao from '../components/img/sala1/Estante17/530.07_variacao.png';
+import est17_510_07_variacao from '../components/img/sala1/Estante17/510.07_variacao.webp';
+import est17_520 from '../components/img/sala1/Estante17/520.webp';
+import est17_523_1 from '../components/img/sala1/Estante17/523.1.webp';
+import est17_530_07 from '../components/img/sala1/Estante17/530.07.webp';
+import est17_530_07_variacao from '../components/img/sala1/Estante17/530.07_variacao.webp';
 
 // Estante 18
-import est18_530_07 from '../components/img/sala1/Estante18/530.07.png';
-import est18_530_07_variacao from '../components/img/sala1/Estante18/530.07_variacao.png';
-import est18_540_07_variacao3 from '../components/img/sala1/Estante18/540.07_variacao3.png';
+import est18_530_07 from '../components/img/sala1/Estante18/530.07.webp';
+import est18_530_07_variacao from '../components/img/sala1/Estante18/530.07_variacao.webp';
+import est18_540_07_variacao3 from '../components/img/sala1/Estante18/540.07_variacao3.webp';
 
 // Estante 19
-import est19_540_07 from '../components/img/sala1/Estante19/540.07.png';
+import est19_540_07 from '../components/img/sala1/Estante19/540.07.webp';
 
 // Estante 20
-import est20_540_07_variacao from '../components/img/sala1/Estante20/540.07_variacao.png';
-import est20_540_07_variacao2 from '../components/img/sala1/Estante20/540.07_variacao2.png';
-import est20_551_5 from '../components/img/sala1/Estante20/551.5.png';
-import est20_551_551_48 from '../components/img/sala1/Estante20/551-551.48.png';
-import est20_567_91 from '../components/img/sala1/Estante20/567.91.png';
+import est20_540_07_variacao from '../components/img/sala1/Estante20/540.07_variacao.webp';
+import est20_540_07_variacao2 from '../components/img/sala1/Estante20/540.07_variacao2.webp';
+import est20_551_5 from '../components/img/sala1/Estante20/551.5.webp';
+import est20_551_551_48 from '../components/img/sala1/Estante20/551-551.48.webp';
+import est20_567_91 from '../components/img/sala1/Estante20/567.91.webp';
 
 // Estante 21
-import est21_574_07 from '../components/img/sala1/Estante21/574.07.png';
-import est21_574_507 from '../components/img/sala1/Estante21/574.507.png';
-import est21_575_1 from '../components/img/sala1/Estante21/575.1.png';
-import est21_581 from '../components/img/sala1/Estante21/581.png';
-import est21_591 from '../components/img/sala1/Estante21/591.png';
-import est21_595_3 from '../components/img/sala1/Estante21/595.3.png';
-import est21_595_4 from '../components/img/sala1/Estante21/595.4.png';
+import est21_574_07 from '../components/img/sala1/Estante21/574.07.webp';
+import est21_574_507 from '../components/img/sala1/Estante21/574.507.webp';
+import est21_575_1 from '../components/img/sala1/Estante21/575.1.webp';
+import est21_581 from '../components/img/sala1/Estante21/581.webp';
+import est21_591 from '../components/img/sala1/Estante21/591.webp';
+import est21_595_3 from '../components/img/sala1/Estante21/595.3.webp';
+import est21_595_4 from '../components/img/sala1/Estante21/595.4.webp';
 
 // Estante 22
-import est22_597_6_597_9 from '../components/img/sala1/Estante22/597.6-597.9.png';
-import est22_598 from '../components/img/sala1/Estante22/598.png';
-import est22_599 from '../components/img/sala1/Estante22/599.png';
-import est22_610 from '../components/img/sala1/Estante22/610.png';
-import est22_611 from '../components/img/sala1/Estante22/611.png';
-import est22_613_9507 from '../components/img/sala1/Estante22/613.9507.png';
-import est22_614 from '../components/img/sala1/Estante22/614.png';
-import est22_616 from '../components/img/sala1/Estante22/616.png';
-import est22_700 from '../components/img/sala1/Estante22/700.png';
-import est22_709 from '../components/img/sala1/Estante22/709.png';
-import est22_796 from '../components/img/sala1/Estante22/796.png';
+import est22_597_6_597_9 from '../components/img/sala1/Estante22/597.6-597.9.webp';
+import est22_598 from '../components/img/sala1/Estante22/598.webp';
+import est22_599 from '../components/img/sala1/Estante22/599.webp';
+import est22_610 from '../components/img/sala1/Estante22/610.webp';
+import est22_611 from '../components/img/sala1/Estante22/611.webp';
+import est22_613_9507 from '../components/img/sala1/Estante22/613.9507.webp';
+import est22_614 from '../components/img/sala1/Estante22/614.webp';
+import est22_616 from '../components/img/sala1/Estante22/616.webp';
+import est22_700 from '../components/img/sala1/Estante22/700.webp';
+import est22_709 from '../components/img/sala1/Estante22/709.webp';
+import est22_796 from '../components/img/sala1/Estante22/796.webp';
 
-import est22_612 from '../components/img/sala1/Estante22/612.png';
-import est22_EF612 from '../components/img/sala1/Estante22/EF612.png';
+import est22_612 from '../components/img/sala1/Estante22/612.webp';
+import est22_EF612 from '../components/img/sala1/Estante22/EF612.webp';
 
 // Estante 23
-import est23_909 from '../components/img/sala1/Estante23/909.png';
-import est23_EF808_4 from '../components/img/sala1/Estante23/EF808.4.png';
-import est23_EF869 from '../components/img/sala1/Estante23/EF869.png';
-import est23_EF869_variacao from '../components/img/sala1/Estante23/EF869_variacao.png';
+import est23_909 from '../components/img/sala1/Estante23/909.webp';
+import est23_EF808_4 from '../components/img/sala1/Estante23/EF808.4.webp';
+import est23_EF869 from '../components/img/sala1/Estante23/EF869.webp';
+import est23_EF869_variacao from '../components/img/sala1/Estante23/EF869_variacao.webp';
 
 // Estante 24
-import est24_910 from '../components/img/sala1/Estante24/910.png';
-import est24_911_914 from '../components/img/sala1/Estante24/911-914.png';
-import est24_915_917 from '../components/img/sala1/Estante24/915-917.png';
-import est24_918_1 from '../components/img/sala1/Estante24/918.1.png';
-import est24_920_928 from '../components/img/sala1/Estante24/920-928.png';
-import est24_930 from '../components/img/sala1/Estante24/930.png';
+import est24_910 from '../components/img/sala1/Estante24/910.webp';
+import est24_911_914 from '../components/img/sala1/Estante24/911-914.webp';
+import est24_915_917 from '../components/img/sala1/Estante24/915-917.webp';
+import est24_918_1 from '../components/img/sala1/Estante24/918.1.webp';
+import est24_920_928 from '../components/img/sala1/Estante24/920-928.webp';
+import est24_930 from '../components/img/sala1/Estante24/930.webp';
 
 // Estante 25
-import est25_940 from '../components/img/sala1/Estante25/940.png';
-import est25_970 from '../components/img/sala1/Estante25/970.png';
-import est25_981 from '../components/img/sala1/Estante25/981.png';
-import est25_981_01 from '../components/img/sala1/Estante25/981.01.png';
-import est25_981_03 from '../components/img/sala1/Estante25/981.03.png';
-import est25_981_04 from '../components/img/sala1/Estante25/981.04.png';
-import est25_981_05_981_001 from '../components/img/sala1/Estante25/981.05-981.001.png';
-import est25_981_13_981_64 from '../components/img/sala1/Estante25/981.13-981.64.png';
+import est25_940 from '../components/img/sala1/Estante25/940.webp';
+import est25_970 from '../components/img/sala1/Estante25/970.webp';
+import est25_981 from '../components/img/sala1/Estante25/981.webp';
+import est25_981_01 from '../components/img/sala1/Estante25/981.01.webp';
+import est25_981_03 from '../components/img/sala1/Estante25/981.03.webp';
+import est25_981_04 from '../components/img/sala1/Estante25/981.04.webp';
+import est25_981_05_981_001 from '../components/img/sala1/Estante25/981.05-981.001.webp';
+import est25_981_13_981_64 from '../components/img/sala1/Estante25/981.13-981.64.webp';
 
 
 // a key da acesso ao objeto, por exemplo key 770 da acesso a estx xyz, é um exemplo

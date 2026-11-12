@@ -23,4 +23,5 @@ export type SearchResultsByRoom = Partial<Record<RoomId, RoomData>>;
 export interface BookCatalogRepository {
   findByRoomAndCode(roomId: RoomId, code: string): RoomData | null;
   getSala1RangeEntries(): Sala1RangeEntry[];
+  getRoomCodes(roomId: RoomId): string[];
 }

@@ -76,12 +76,25 @@ function isInsideCutterRange(
   return true;
 }
 
+function getCutterSpan(
+  startLetter: string,
+  startNumber: number,
+  endLetter: string,
+  endNumber: number,
+): number {
+  const letterDiff = endLetter.charCodeAt(0) - startLetter.charCodeAt(0);
+  return letterDiff * 10000 + (endNumber - startNumber);
+}
+
 function findSala1ByCutterRange(
   rawValue: string,
   repository: BookCatalogRepository,
 ): RoomData | null {
   const parsed = parse8693Cutter(rawValue);
   if (!parsed) return null;
+
+  let bestMatch: RoomData | null = null;
+  let bestSpan = Number.POSITIVE_INFINITY;
 
   for (const entry of repository.getSala1RangeEntries()) {
     if (
@@ -107,11 +120,20 @@ function findSala1ByCutterRange(
         entry.cutterNumberEnd,
       )
     ) {
-      return entry;
+      const span = getCutterSpan(
+        startLetter,
+        entry.cutterNumberStart,
+        endLetter,
+        entry.cutterNumberEnd,
+      );
+      if (span < bestSpan) {
+        bestSpan = span;
+        bestMatch = entry;
+      }
     }
   }
 
-  return null;
+  return bestMatch;
 }
 
 /**
@@ -168,4 +190,85 @@ export function extractShelves(roomData: RoomData | null): string[] {
   );
 
   return matches.length > 0 ? matches : ["1"];
+}
+
+function getAllUniqueCodes(repository: BookCatalogRepository): string[] {
+  const seen = new Set<string>();
+  const codes: string[] = [];
+
+  for (const roomId of ROOM_PRIORITY) {
+    for (const code of repository.getRoomCodes(roomId)) {
+      const normalized = code.trim();
+      if (!normalized || seen.has(normalized)) continue;
+      seen.add(normalized);
+      codes.push(normalized);
+    }
+  }
+
+  return codes;
+}
+
+/**
+ * Sugere códigos existentes no catálogo compatíveis com o texto digitado.
+ */
+export function suggestMatchingCodes(
+  rawInput: string,
+  repository: BookCatalogRepository,
+  limit = 6,
+): string[] {
+  const query = rawInput.trim().toUpperCase();
+  if (!query) return [];
+
+  const allCodes = getAllUniqueCodes(repository);
+  const prefixMatches: string[] = [];
+  const containsMatches: string[] = [];
+
+  for (const code of allCodes) {
+    const upper = code.toUpperCase();
+    if (upper.startsWith(query)) {
+      prefixMatches.push(code);
+    } else if (upper.includes(query)) {
+      containsMatches.push(code);
+    }
+  }
+
+  return [...prefixMatches, ...containsMatches].slice(0, limit);
+}
+
+/**
+ * Sugere códigos numéricos ou de prefixo próximos quando a busca exata não encontra resultados.
+ */
+export function suggestNearestCodes(
+  rawInput: string,
+  repository: BookCatalogRepository,
+  limit = 3,
+): string[] {
+  const query = rawInput.trim().toUpperCase();
+  if (!query) return [];
+
+  const allCodes = getAllUniqueCodes(repository);
+  const numericMatch = query.match(/^(\d+(?:\.\d+)?)/);
+
+  if (numericMatch) {
+    const targetNum = Number(numericMatch[1]);
+    if (!Number.isNaN(targetNum)) {
+      const scored = allCodes
+        .map((code) => {
+          const codeMatch = code.match(/^(\d+(?:\.\d+)?)/);
+          if (!codeMatch) return null;
+          const codeNum = Number(codeMatch[1]);
+          if (Number.isNaN(codeNum)) return null;
+          return { code, diff: Math.abs(codeNum - targetNum) };
+        })
+        .filter((item): item is { code: string; diff: number } => item !== null)
+        .sort((a, b) => a.diff - b.diff);
+
+      if (scored.length > 0) {
+        return scored.slice(0, limit).map((item) => item.code);
+      }
+    }
+  }
+
+  const prefix = query.slice(0, Math.min(3, query.length));
+  return allCodes.filter((code) => code.toUpperCase().startsWith(prefix)).slice(0, limit);
 }
