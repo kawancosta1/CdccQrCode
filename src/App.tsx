@@ -1,44 +1,41 @@
 import "./styles/global.css";
 import "./styles/theme.css";
 
-// ========================================
-// IMPORTAÇÕES DE PÁGINAS
-// ========================================
-import { Home } from "./components/Pages/Home";
-import { Estantes } from "./components/Pages/Estantes";
-import { EstanteSala1 } from "./components/Pages/EstanteSala1";
-import { EstanteSala2 } from "./components/Pages/EstanteSala2";
-import { EspacoLudico } from "./components/Pages/EspacoLudico";
-import { Xadrez} from "./components/Pages/Xadrez"
-import { Ludo} from "./components/Pages/Ludo"
-import { Batalha} from "./components/Pages/Batalha"
-
-// ========================================
-// IMPORTAÇÕES DE LAYOUT
-// ========================================
-import { HashRouter, Routes, Route } from "react-router-dom";
+import { lazy, Suspense } from "react";
+import { HashRouter, Route, Routes } from "react-router-dom";
 import { MainTemplate } from "./components/template/MainTemplate";
+import { Home } from "./pages/Home";
 
-// ========================================
-// CATÁLOGO QR CODE
-// ========================================
-// Sistema de catalogação de estantes com QR codes
-// Suporta Sala 1 e Sala 2
+const Estantes = lazy(() =>
+  import("./pages/Estantes").then((m) => ({ default: m.Estantes })),
+);
+const EspacoLudico = lazy(() =>
+  import("./pages/EspacoLudico").then((m) => ({ default: m.EspacoLudico })),
+);
+const ShelfDetail = lazy(() =>
+  import("./pages/ShelfDetail").then((m) => ({ default: m.ShelfDetail })),
+);
+const GameRules = lazy(() =>
+  import("./pages/GameRules").then((m) => ({ default: m.GameRules })),
+);
+const NotFound = lazy(() =>
+  import("./pages/NotFound").then((m) => ({ default: m.NotFound })),
+);
 
 export function App() {
   return (
     <HashRouter>
       <MainTemplate>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/espacoludico" element={<EspacoLudico />} />
-          <Route path="/estantes" element={<Estantes />} />
-          <Route path="/estantes/sala1/:numero" element={<EstanteSala1 />} />
-          <Route path="/estantes/sala2/:numero" element={<EstanteSala2 />} />
-          <Route path="/espacoludico/xadrez" element={<Xadrez/>} /> 
-          <Route path="/espacoludico/batalha" element={<Batalha/>} /> 
-          <Route path="/espacoludico/ludo" element={<Ludo/>} />   
-        </Routes>
+        <Suspense fallback={<div style={{ textAlign: "center", padding: "40px" }}>Carregando...</div>}>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/espacoludico" element={<EspacoLudico />} />
+            <Route path="/espacoludico/:jogo" element={<GameRules />} />
+            <Route path="/estantes" element={<Estantes />} />
+            <Route path="/estantes/:sala/:numero" element={<ShelfDetail />} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </Suspense>
       </MainTemplate>
     </HashRouter>
   );
