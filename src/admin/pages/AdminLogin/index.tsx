@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Navigate, useLocation, useNavigate } from "react-router-dom";
-import { AlertCircle, CheckCircle2, Eye, EyeOff, Lock, ShieldCheck } from "lucide-react";
+import { CheckCircle2, Eye, EyeOff, Lock, ShieldCheck } from "lucide-react";
 import { isFirebaseConfigured } from "../../../lib/firebase";
 import { useAdminAuth } from "../../context/adminAuthStore";
 import style from "../../styles/admin.module.css";
@@ -67,21 +67,23 @@ export function AdminLogin() {
           <div className={style.devNotice} role="note">
             <Lock size={15} aria-hidden="true" />
             <span>
-              <strong>Modo Desenvolvimento:</strong> autenticação simulada via variáveis{" "}
-              <code>.env.local</code> (usuário padrão: <code>admin</code>).
+              <strong>Modo Desenvolvimento:</strong> autenticação local ativa (usuário{" "}
+              <code>admin</code> / senha <code>cdcc-admin-dev</code>).
             </span>
           </div>
         ) : (
-          <div className={style.warningBanner} role="status">
-            <AlertCircle size={18} aria-hidden="true" />
+          <div className={style.devNotice} role="status">
+            <Lock size={15} aria-hidden="true" />
             <span>
-              Ambiente de produção: configure as variáveis <code>VITE_FIREBASE_*</code> para ativar o Firebase Auth.
+              <strong>Modo Demonstração (Sem SQL/Firebase):</strong> entre com{" "}
+              <code>admin</code> / <code>cdcc-admin-dev</code> para testar o painel. Alterações
+              ficam salvas apenas no seu navegador até conectar Firebase ou SQL.
             </span>
           </div>
         )}
 
         <form onSubmit={handleSubmit} className={style.loginForm} noValidate>
-          <fieldset disabled={!isDevMode && !isOnlineFirebase} className={style.formFieldset}>
+          <fieldset disabled={submitting} className={style.formFieldset}>
             <div className={style.fieldGroup}>
               <label htmlFor="admin-username" className={style.fieldLabel}>
                 Usuário

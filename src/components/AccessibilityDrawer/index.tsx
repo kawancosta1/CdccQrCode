@@ -1,6 +1,5 @@
 import { useEffect, useRef } from "react";
 import {
-  Accessibility,
   Contrast,
   Eye,
   Focus,
@@ -13,6 +12,7 @@ import {
   Type,
   X,
 } from "lucide-react";
+import { UniversalAccessibilityIcon } from "../icons/UniversalAccessibilityIcon";
 import { useAccessibility, type FontScaleOption } from "../../context/accessibilityStore";
 import { useFocusTrap } from "../../hooks/useFocusTrap";
 import style from "./style.module.css";
@@ -95,7 +95,7 @@ export function AccessibilityDrawer() {
         <header className={style.header}>
           <div className={style.headerTitleGroup}>
             <span className={style.eyebrow}>
-              <Accessibility size={14} aria-hidden="true" />
+              <UniversalAccessibilityIcon size={15} />
               Inclusão Digital • WCAG 2.1 AA
             </span>
             <h2 id="a11y-drawer-title" className={style.title}>

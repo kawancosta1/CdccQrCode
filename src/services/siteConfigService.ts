@@ -8,9 +8,9 @@ const DOC_ID = "global";
 const LOCAL_STORAGE_KEY = "qrcodecdcc_site_config_v1";
 
 export const DEFAULT_SITE_CONFIG: SiteConfig = {
-  brandColor: "#145399",
-  accentColor: "#9c471b",
-  bgColor: "#f8fafc",
+  brandColor: "#8a3354",
+  accentColor: "#0f5298",
+  bgColor: "#f7f7f9",
   borderRadiusScale: "default",
   portalName: "Biblioteca CDCC",
   logoUrl: "",
@@ -20,7 +20,7 @@ export const DEFAULT_SITE_CONFIG: SiteConfig = {
   noticeBanner: {
     enabled: false,
     text: "Confira as obras obrigatórias da FUVEST, UNICAMP e UNESP disponíveis na Biblioteca!",
-    color: "#145399",
+    color: "#8a3354",
     linkUrl: "/vestibular",
     linkLabel: "Ver lista",
   },

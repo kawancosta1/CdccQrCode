@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { NavLink, Link } from "react-router-dom";
-import { Accessibility, ExternalLink, Menu, Search, X } from "lucide-react";
+import { ExternalLink, Menu, Search, X } from "lucide-react";
+import { UniversalAccessibilityIcon } from "../icons/UniversalAccessibilityIcon";
 import { useAccessibility } from "../../context/accessibilityStore";
 import { useBookSearchContext } from "../../context/bookSearchStore";
 import { useSiteConfig } from "../../context/siteConfigStore";
@@ -234,7 +235,7 @@ export function Nav() {
               }`}
               title="Acessibilidade (Alt + A)"
             >
-              <Accessibility size={17} aria-hidden="true" />
+              <UniversalAccessibilityIcon size={18} />
               <span className={style.a11yBtnLabel}>Acessibilidade</span>
               {activeCount > 0 && (
                 <span className={style.a11yBadge} aria-hidden="true">
@@ -254,7 +255,7 @@ export function Nav() {
               aria-label={`Acessibilidade${activeCount > 0 ? ` (${activeCount} ativos)` : ""}`}
               title="Acessibilidade (Alt + A)"
             >
-              <Accessibility size={20} aria-hidden="true" />
+              <UniversalAccessibilityIcon size={20} />
               {activeCount > 0 && (
                 <span className={style.a11yBadge} aria-hidden="true">
                   {activeCount}
