@@ -4,7 +4,9 @@ import { AdminLayout } from "./components/AdminLayout";
 import { AdminAuthProvider } from "./context/AdminAuthContext";
 import { AdminAudit } from "./pages/AdminAudit";
 import { AdminBooks } from "./pages/AdminBooks";
+import { AdminCarousel } from "./pages/AdminCarousel";
 import { AdminDashboard } from "./pages/AdminDashboard";
+import { AdminGames } from "./pages/AdminGames";
 import { AdminLogin } from "./pages/AdminLogin";
 import { AdminRooms } from "./pages/AdminRooms";
 import { AdminSectors } from "./pages/AdminSectors";
@@ -24,6 +26,22 @@ export function AdminRoutes() {
           }
         >
           <Route index element={<AdminDashboard />} />
+          <Route
+            path="carrossel"
+            element={
+              <RequirePermission permission="carousel.manage">
+                <AdminCarousel />
+              </RequirePermission>
+            }
+          />
+          <Route
+            path="jogos"
+            element={
+              <RequirePermission permission="games.manage">
+                <AdminGames />
+              </RequirePermission>
+            }
+          />
           <Route
             path="livros"
             element={

@@ -1,4 +1,6 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { onAuthStateChanged } from "firebase/auth";
+import { getFirebaseAuth, isFirebaseConfigured } from "../../lib/firebase";
 import { AuthService } from "../services/authService";
 import { PermissionService } from "../services/permissionService";
 import type { AdminRole, Administrator, Permission } from "../types/admin";
@@ -8,8 +10,28 @@ export function AdminAuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<Administrator | null>(() => AuthService.getSavedSession());
   const isDevMode = AuthService.isDevSimulationEnabled();
 
-  const login = useCallback((username: string, password: string) => {
-    const result = AuthService.login(username, password);
+  useEffect(() => {
+    if (!isFirebaseConfigured()) return;
+    const auth = getFirebaseAuth();
+    if (!auth) return;
+
+    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+      if (firebaseUser) {
+        setUser({
+          id: firebaseUser.uid,
+          username: firebaseUser.email || "admin",
+          displayName: firebaseUser.displayName || firebaseUser.email?.split("@")[0] || "Administrador",
+          role: "super_admin",
+          isSimulated: false,
+        });
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  const login = useCallback(async (username: string, password: string) => {
+    const result = await AuthService.login(username, password);
     if (result.ok) {
       setUser(result.user);
     }
@@ -17,7 +39,7 @@ export function AdminAuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const logout = useCallback(() => {
-    AuthService.logout();
+    void AuthService.logout();
     setUser(null);
   }, []);
 

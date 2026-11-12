@@ -11,7 +11,9 @@ describe("PermissionService (RBAC)", () => {
     assert.equal(PermissionService.hasPermission("super_admin", "audit.read"), true);
     assert.equal(PermissionService.hasPermission("super_admin", "settings.manage"), true);
     assert.equal(PermissionService.hasPermission("super_admin", "books.delete"), true);
-    assert.equal(ROLE_PERMISSIONS.super_admin.length, 18);
+    assert.equal(PermissionService.hasPermission("super_admin", "carousel.manage"), true);
+    assert.equal(PermissionService.hasPermission("super_admin", "games.manage"), true);
+    assert.equal(ROLE_PERMISSIONS.super_admin.length, 20);
   });
 
   it("restringe Nível 1 (Operador) a operações somente leitura", () => {
@@ -23,6 +25,8 @@ describe("PermissionService (RBAC)", () => {
     assert.equal(PermissionService.hasPermission("level_1", "books.update"), false);
     assert.equal(PermissionService.hasPermission("level_1", "books.delete"), false);
     assert.equal(PermissionService.hasPermission("level_1", "shelves.create"), false);
+    assert.equal(PermissionService.hasPermission("level_1", "carousel.manage"), false);
+    assert.equal(PermissionService.hasPermission("level_1", "games.manage"), false);
     assert.equal(PermissionService.hasPermission("level_1", "audit.read"), false);
   });
 
@@ -31,6 +35,8 @@ describe("PermissionService (RBAC)", () => {
     assert.equal(PermissionService.hasPermission("level_2", "books.create"), true);
     assert.equal(PermissionService.hasPermission("level_2", "books.update"), true);
     assert.equal(PermissionService.hasPermission("level_2", "shelves.read"), true);
+    assert.equal(PermissionService.hasPermission("level_2", "carousel.manage"), true);
+    assert.equal(PermissionService.hasPermission("level_2", "games.manage"), true);
 
     assert.equal(PermissionService.hasPermission("level_2", "books.delete"), false);
     assert.equal(PermissionService.hasPermission("level_2", "shelves.create"), false);
@@ -46,6 +52,8 @@ describe("PermissionService (RBAC)", () => {
     assert.equal(PermissionService.hasPermission("level_3", "sectors.manage"), true);
     assert.equal(PermissionService.hasPermission("level_3", "catalog.import"), true);
     assert.equal(PermissionService.hasPermission("level_3", "catalog.export"), true);
+    assert.equal(PermissionService.hasPermission("level_3", "carousel.manage"), true);
+    assert.equal(PermissionService.hasPermission("level_3", "games.manage"), true);
 
     assert.equal(PermissionService.hasPermission("level_3", "audit.read"), false);
     assert.equal(PermissionService.hasPermission("level_3", "settings.manage"), false);

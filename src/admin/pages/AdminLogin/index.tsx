@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Navigate, useLocation, useNavigate } from "react-router-dom";
-import { AlertCircle, Eye, EyeOff, Lock, ShieldCheck } from "lucide-react";
+import { AlertCircle, CheckCircle2, Eye, EyeOff, Lock, ShieldCheck } from "lucide-react";
+import { isFirebaseConfigured } from "../../../lib/firebase";
 import { useAdminAuth } from "../../context/adminAuthStore";
 import style from "../../styles/admin.module.css";
 
@@ -12,7 +13,9 @@ export function AdminLogin() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
+  const [submitting, setSubmitting] = useState(false);
 
+  const isOnlineFirebase = isFirebaseConfigured();
   const rawFrom = (location.state as { from?: string } | null)?.from;
   const redirectTo =
     rawFrom && rawFrom.startsWith("/admin") && rawFrom !== "/admin/login" ? rawFrom : "/admin";
@@ -21,15 +24,20 @@ export function AdminLogin() {
     return <Navigate to={redirectTo} replace />;
   }
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const result = login(username, password);
-    if (!result.ok) {
-      setError(result.error);
-      return;
+    setSubmitting(true);
+    try {
+      const result = await login(username, password);
+      if (!result.ok) {
+        setError(result.error);
+        return;
+      }
+      setError("");
+      navigate(redirectTo, { replace: true });
+    } finally {
+      setSubmitting(false);
     }
-    setError("");
-    navigate(redirectTo, { replace: true });
   };
 
   return (
@@ -48,29 +56,32 @@ export function AdminLogin() {
           </p>
         </div>
 
-        {!isDevMode && (
-          <div className={style.warningBanner} role="status">
-            <AlertCircle size={18} aria-hidden="true" />
+        {isOnlineFirebase ? (
+          <div className={style.devNotice} style={{ borderColor: "#86efac", backgroundColor: "#f0fdf4", color: "#166534" }} role="status">
+            <CheckCircle2 size={16} aria-hidden="true" style={{ color: "#16a34a" }} />
             <span>
-              Ambiente de produção: a autenticação simulada está desativada. Aguardando integração
-              com o backend oficial.
+              <strong>Firebase Auth Ativo:</strong> insira seu e-mail e senha de administrador para autenticar com segurança.
             </span>
           </div>
-        )}
-
-        {isDevMode && (
+        ) : isDevMode ? (
           <div className={style.devNotice} role="note">
             <Lock size={15} aria-hidden="true" />
             <span>
               <strong>Modo Desenvolvimento:</strong> autenticação simulada via variáveis{" "}
-              <code>.env.local</code> (usuário padrão: <code>admin</code>). Não representa segurança
-              real de produção.
+              <code>.env.local</code> (usuário padrão: <code>admin</code>).
+            </span>
+          </div>
+        ) : (
+          <div className={style.warningBanner} role="status">
+            <AlertCircle size={18} aria-hidden="true" />
+            <span>
+              Ambiente de produção: configure as variáveis <code>VITE_FIREBASE_*</code> para ativar o Firebase Auth.
             </span>
           </div>
         )}
 
         <form onSubmit={handleSubmit} className={style.loginForm} noValidate>
-          <fieldset disabled={!isDevMode} className={style.formFieldset}>
+          <fieldset disabled={!isDevMode && !isOnlineFirebase} className={style.formFieldset}>
             <div className={style.fieldGroup}>
               <label htmlFor="admin-username" className={style.fieldLabel}>
                 Usuário
@@ -133,8 +144,8 @@ export function AdminLogin() {
               </div>
             )}
 
-            <button type="submit" className={style.primaryBtnFull}>
-              Entrar no painel
+            <button type="submit" className={style.primaryBtnFull} disabled={submitting}>
+              {submitting ? "Autenticando..." : "Entrar no painel"}
             </button>
           </fieldset>
         </form>

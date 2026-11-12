@@ -64,11 +64,21 @@ export const ROLE_PERMISSIONS: Record<AdminRole, readonly Permission[]> = {
     "catalog.import",
     "catalog.export",
     "catalog.manage",
+    "carousel.manage",
+    "games.manage",
     "audit.read",
     "settings.manage",
   ],
   level_1: ["books.read", "shelves.read", "rooms.read"],
-  level_2: ["books.read", "books.create", "books.update", "shelves.read", "rooms.read"],
+  level_2: [
+    "books.read",
+    "books.create",
+    "books.update",
+    "shelves.read",
+    "rooms.read",
+    "carousel.manage",
+    "games.manage",
+  ],
   level_3: [
     "books.read",
     "books.create",
@@ -86,6 +96,8 @@ export const ROLE_PERMISSIONS: Record<AdminRole, readonly Permission[]> = {
     "catalog.import",
     "catalog.export",
     "catalog.manage",
+    "carousel.manage",
+    "games.manage",
   ],
 };
 

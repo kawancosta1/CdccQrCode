@@ -5,7 +5,7 @@ import type { LoginResult } from "../services/authService";
 export interface AdminAuthContextValue {
   user: Administrator | null;
   isDevMode: boolean;
-  login: (username: string, password: string) => LoginResult;
+  login: (username: string, password: string) => Promise<LoginResult>;
   logout: () => void;
   simulateRole: (role: AdminRole) => void;
   hasPermission: (permission: Permission) => boolean;

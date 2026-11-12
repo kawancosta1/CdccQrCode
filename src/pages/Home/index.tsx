@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import {
   ArrowRight,
@@ -16,16 +16,13 @@ import {
 } from "lucide-react";
 import { HeroCarousel, type HeroSlide } from "../../components/HeroCarousel";
 import { ImageLightbox } from "../../components/ImageLightbox";
-import arvoreImg from "../../components/img/Carrousel/arvore.webp";
-import espacoLudicoImg from "../../components/img/Carrousel/espacoLudico1.webp";
-import guiaMangaImg from "../../components/img/Carrousel/guia_manga.webp";
-import sala1EspacoImg from "../../components/img/Carrousel/sala1Espaco.webp";
-import vestibularImg from "../../components/img/Carrousel/vestibular1.webp";
 import dedalus4 from "../../components/img/Dedalus4.webp";
 import dedalus5 from "../../components/img/Dedalus5.webp";
 import dedalus6 from "../../components/img/Dedalus6.webp";
 import BentinhoPensando from "../../components/img/Mascote/pensando.webp";
 import { useBookSearchContext } from "../../context/bookSearchStore";
+import { CarouselService, DEFAULT_CAROUSEL_SLIDES } from "../../services/carouselService";
+import type { CarouselSlide } from "../../types/content";
 import styles from "./style.module.css";
 
 const EXAMPLE_CODES = [
@@ -35,68 +32,21 @@ const EXAMPLE_CODES = [
   { code: "R", label: "R (Referência)" },
 ];
 
-const HERO_SLIDES: HeroSlide[] = [
-  {
-    id: "sala-biblioteca",
-    eyebrow: "Biblioteca CDCC • USP",
-    title: "Ciência, leitura e descoberta em um só espaço",
-    description:
-      "Explore o acervo da Sala 1 e da Sala 2 com localização exata das estantes pelo código Dedalus.",
-    ctaLabel: "Explorar estantes",
-    to: "/estantes",
-    image: sala1EspacoImg,
-    imageAlt: "Vista da Sala 1 da Biblioteca do CDCC com mesas de estudo e estantes",
-    objectPosition: "center 45%",
-  },
-  {
-    id: "espaco-ludico",
-    eyebrow: "Espaço Lúdico",
-    title: "Jogos de estratégia para aprender e se divertir",
-    description:
-      "Xadrez, Ludo, Batalha Naval e livros infantojuvenis em um ambiente pensado para a convivência.",
-    ctaLabel: "Conheça os jogos",
-    to: "/espacoludico",
-    image: espacoLudicoImg,
-    imageAlt: "Espaço Lúdico da Biblioteca do CDCC com tabuleiros de xadrez, ludo e batalha naval",
-    objectPosition: "center 55%",
-  },
-  {
-    id: "vestibular",
-    eyebrow: "Acervo de Vestibular",
-    title: "Leituras obrigatórias para Fuvest e Unicamp",
-    description:
-      "Encontre rapidamente os clássicos e obras cobradas nos principais vestibulares.",
-    ctaLabel: "Consultar Dedalus",
-    href: "https://dedalus.usp.br/F",
-    image: vestibularImg,
-    imageAlt: "Estante de leitura obrigatória para vestibulares na Biblioteca do CDCC",
-    objectPosition: "center 40%",
-  },
-  {
-    id: "guia-manga",
-    eyebrow: "Divulgação Científica",
-    title: "Guias Mangá e Audiolivros de Ciência",
-    description:
-      "Aprenda física, cálculo, estatística e tecnologia de forma visual e acessível.",
-    ctaLabel: "Ver estantes",
-    to: "/estantes",
-    image: guiaMangaImg,
-    imageAlt: "Estante com coleção Guias Mangá de ciências e seção de audiolivros",
-    objectPosition: "center 45%",
-  },
-  {
-    id: "novidades-quadrinhos",
-    eyebrow: "Novidades e HQs",
-    title: "Lançamentos, quadrinhos e leitura jovem",
-    description:
-      "Confira as novidades em destaque na entrada da biblioteca e nossa estante de quadrinhos.",
-    ctaLabel: "Explorar acervo",
-    to: "/estantes",
-    image: arvoreImg,
-    imageAlt: "Área de novidades da biblioteca e estante de quadrinhos do CDCC",
-    objectPosition: "center 45%",
-  },
-];
+function toHeroSlide(slide: CarouselSlide): HeroSlide {
+  const isExternal =
+    slide.linkDestino.startsWith("http://") || slide.linkDestino.startsWith("https://");
+  return {
+    id: slide.id,
+    eyebrow: slide.eyebrow || "Biblioteca CDCC • USP",
+    title: slide.titulo,
+    description: slide.descricao || "",
+    ctaLabel: slide.textoBotao || "Explorar",
+    ...(isExternal ? { href: slide.linkDestino } : { to: slide.linkDestino }),
+    image: slide.imagemUrl,
+    imageAlt: slide.imagemAlt || slide.titulo,
+    objectPosition: slide.posicaoObjeto || "center 45%",
+  };
+}
 
 interface TutorialPhase {
   id: string;
@@ -211,11 +161,30 @@ const TUTORIAL_PHASES: TutorialPhase[] = [
 ];
 
 export function Home() {
+  const [heroSlides, setHeroSlides] = useState<HeroSlide[]>(() =>
+    DEFAULT_CAROUSEL_SLIDES.map(toHeroSlide),
+  );
   const [lightboxStep, setLightboxStep] = useState<{ src: string; alt: string; title: string } | null>(
     null,
   );
   const [activePhaseIndex, setActivePhaseIndex] = useState(0);
   const [copiedCode, setCopiedCode] = useState(false);
+
+  useEffect(() => {
+    let isMounted = true;
+    CarouselService.getActive()
+      .then((slides) => {
+        if (isMounted && slides.length > 0) {
+          setHeroSlides(slides.map(toHeroSlide));
+        }
+      })
+      .catch((err) => {
+        console.warn("Falha ao carregar carrossel dinâmico:", err);
+      });
+    return () => {
+      isMounted = false;
+    };
+  }, []);
   const {
     searchValue,
     searchError,
@@ -461,7 +430,7 @@ export function Home() {
       </section>
 
       {/* Destaques — Hero Carousel */}
-      <HeroCarousel slides={HERO_SLIDES} />
+      <HeroCarousel slides={heroSlides} />
 
       {/* Tutorial Editorial do Buscador (3 Fases) */}
       <section className={styles.section} aria-labelledby="tutorial-heading">

@@ -1,0 +1,27 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Carrossel da Home:
+    // - Leitura pública para qualquer visitante do site (Home).
+    // - Criação, atualização e exclusão restritas a administradores autenticados.
+    match /carrossel_home/{slideId} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+
+    // Jogos do Espaço Lúdico:
+    // - Leitura pública para visualização no site (/espacoludico e regras).
+    // - Gestão restrita a administradores autenticados via Firebase Auth.
+    match /jogos/{jogoId} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+
+    // Coleções administrativas gerais (livros, estantes, salas, auditoria, configurações)
+    match /{document=**} {
+      allow read, write: if request.auth != null;
+    }
+  }
+}

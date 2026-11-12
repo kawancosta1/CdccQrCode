@@ -4,6 +4,8 @@ import {
   Building2,
   ClipboardList,
   FolderTree,
+  Gamepad2,
+  Images,
   LayoutDashboard,
   Layers,
   LogOut,
@@ -24,6 +26,8 @@ interface AdminNavItem {
 
 const ADMIN_NAV_ITEMS: AdminNavItem[] = [
   { to: "/admin", label: "Dashboard", end: true, icon: <LayoutDashboard size={16} aria-hidden="true" /> },
+  { to: "/admin/carrossel", label: "Carrossel Home", permission: "carousel.manage", icon: <Images size={16} aria-hidden="true" /> },
+  { to: "/admin/jogos", label: "Jogos Lúdicos", permission: "games.manage", icon: <Gamepad2 size={16} aria-hidden="true" /> },
   { to: "/admin/livros", label: "Livros", permission: "books.read", icon: <BookOpen size={16} aria-hidden="true" /> },
   { to: "/admin/estantes", label: "Estantes", permission: "shelves.read", icon: <Layers size={16} aria-hidden="true" /> },
   { to: "/admin/salas", label: "Salas", permission: "rooms.read", icon: <Building2 size={16} aria-hidden="true" /> },

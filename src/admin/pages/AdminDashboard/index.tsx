@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAdminAuth } from "../../context/adminAuthStore";
 import { adminServices } from "../../services/adminServices";
+import { CarouselService } from "../../../services/carouselService";
+import { GamesService } from "../../../services/gamesService";
 import { PermissionService, ROLE_METADATA } from "../../services/permissionService";
 import type { AdminDashboardSummary, AuditLog } from "../../types/admin";
 import styles from "../../styles/admin.module.css";
@@ -10,6 +12,8 @@ export function AdminDashboard() {
   const { user, hasPermission } = useAdminAuth();
   const [summary, setSummary] = useState<AdminDashboardSummary | null>(null);
   const [recentLogs, setRecentLogs] = useState<AuditLog[]>([]);
+  const [carouselCount, setCarouselCount] = useState<number | null>(null);
+  const [gamesCount, setGamesCount] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const canReadAudit = hasPermission("audit.read");
@@ -19,9 +23,16 @@ export function AdminDashboard() {
 
     async function loadDashboard() {
       try {
-        const nextSummary = await adminServices.CatalogService.getDashboardSummary();
+        const [nextSummary, slides, games] = await Promise.all([
+          adminServices.CatalogService.getDashboardSummary(),
+          CarouselService.getAll().catch(() => []),
+          GamesService.getAll().catch(() => []),
+        ]);
+
         if (cancelled) return;
         setSummary(nextSummary);
+        setCarouselCount(slides.length);
+        setGamesCount(games.length);
 
         if (canReadAudit && user) {
           const logs = await adminServices.AuditService.list(user);
@@ -78,6 +89,16 @@ export function AdminDashboard() {
 
       <div className={styles.statsGrid}>
         <article className={styles.statCard}>
+          <span className={styles.statLabel}>Slides no Carrossel</span>
+          <strong className={styles.statValue}>
+            {carouselCount !== null ? carouselCount : "—"}
+          </strong>
+        </article>
+        <article className={styles.statCard}>
+          <span className={styles.statLabel}>Jogos no Espaço Lúdico</span>
+          <strong className={styles.statValue}>{gamesCount !== null ? gamesCount : "—"}</strong>
+        </article>
+        <article className={styles.statCard}>
           <span className={styles.statLabel}>Livros no catálogo</span>
           <strong className={styles.statValue}>{summary ? summary.booksCount : "—"}</strong>
         </article>
@@ -85,19 +106,21 @@ export function AdminDashboard() {
           <span className={styles.statLabel}>Estantes cadastradas</span>
           <strong className={styles.statValue}>{summary ? summary.shelvesCount : "—"}</strong>
         </article>
-        <article className={styles.statCard}>
-          <span className={styles.statLabel}>Salas</span>
-          <strong className={styles.statValue}>{summary ? summary.roomsCount : "—"}</strong>
-        </article>
-        <article className={styles.statCard}>
-          <span className={styles.statLabel}>Setores temáticos</span>
-          <strong className={styles.statValue}>{summary ? summary.sectorsCount : "—"}</strong>
-        </article>
       </div>
 
       <div className={styles.panelCard}>
         <h2 className={styles.panelTitle}>Atalhos disponíveis para o seu perfil</h2>
         <div className={styles.quickActions}>
+          {hasPermission("carousel.manage") && (
+            <Link to="/admin/carrossel" className={styles.primaryBtn}>
+              Gerenciar Carrossel
+            </Link>
+          )}
+          {hasPermission("games.manage") && (
+            <Link to="/admin/jogos" className={styles.primaryBtn}>
+              Gerenciar Jogos
+            </Link>
+          )}
           {hasPermission("books.read") && (
             <Link to="/admin/livros" className={styles.secondaryBtn}>
               Gerenciar Livros

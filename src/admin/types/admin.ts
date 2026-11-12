@@ -17,6 +17,8 @@ export type Permission =
   | "catalog.import"
   | "catalog.export"
   | "catalog.manage"
+  | "carousel.manage"
+  | "games.manage"
   | "audit.read"
   | "settings.manage";
 
