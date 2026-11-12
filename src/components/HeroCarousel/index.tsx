@@ -15,17 +15,35 @@ export interface HeroSlide {
   image: string;
   imageAlt: string;
   objectPosition?: string;
+  overlayOpacity?: number;
+  textAlign?: "left" | "center" | "right";
+  accentColor?: string;
+  openInNewTab?: boolean;
+  hideButton?: boolean;
 }
 
 interface HeroCarouselProps {
   slides: HeroSlide[];
   autoPlayMs?: number;
+  autoPlayEnabled?: boolean;
+  showArrows?: boolean;
+  showDots?: boolean;
+  showPauseButton?: boolean;
+  heightMode?: "compact" | "default" | "tall";
 }
 
 /**
  * Carrossel Hero com reprodução automática, loop infinito, gestos de arrastar e indicadores inferiores.
  */
-export function HeroCarousel({ slides, autoPlayMs = 6000 }: HeroCarouselProps) {
+export function HeroCarousel({
+  slides,
+  autoPlayMs = 6000,
+  autoPlayEnabled = true,
+  showArrows = true,
+  showDots = true,
+  showPauseButton = true,
+  heightMode = "default",
+}: HeroCarouselProps) {
   const total = slides.length;
   // Track possui clone do último slide no início e clone do primeiro no fim para loop infinito contínuo.
   const extendedSlides = total > 1 ? [slides[total - 1], ...slides, slides[0]] : slides;
@@ -67,7 +85,7 @@ export function HeroCarousel({ slides, autoPlayMs = 6000 }: HeroCarouselProps) {
 
   // Autoplay com reinício após interação manual e pausa em hover/foco/drag/reducedMotion.
   useEffect(() => {
-    if (total <= 1 || isPaused || isUserPaused || isDragging || reducedMotion) {
+    if (!autoPlayEnabled || total <= 1 || isPaused || isUserPaused || isDragging || reducedMotion) {
       return;
     }
 
@@ -77,7 +95,7 @@ export function HeroCarousel({ slides, autoPlayMs = 6000 }: HeroCarouselProps) {
     }, autoPlayMs);
 
     return () => window.clearInterval(id);
-  }, [total, isPaused, isUserPaused, isDragging, reducedMotion, autoPlayMs, interactionTick]);
+  }, [autoPlayEnabled, total, isPaused, isUserPaused, isDragging, reducedMotion, autoPlayMs, interactionTick]);
 
   const handleTransitionEnd = () => {
     if (total <= 1) return;
@@ -145,6 +163,10 @@ export function HeroCarousel({ slides, autoPlayMs = 6000 }: HeroCarouselProps) {
     >
       <div
         className={style.viewport}
+        style={{
+          minHeight:
+            heightMode === "compact" ? "260px" : heightMode === "tall" ? "440px" : undefined,
+        }}
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
         onPointerUp={finishDrag}
@@ -176,34 +198,65 @@ export function HeroCarousel({ slides, autoPlayMs = 6000 }: HeroCarouselProps) {
                 draggable={false}
               />
 
-              <div className={style.scrim} aria-hidden="true" />
+              <div
+                className={style.scrim}
+                aria-hidden="true"
+                style={
+                  slide.overlayOpacity !== undefined
+                    ? { opacity: Math.min(1, Math.max(0.1, slide.overlayOpacity / 100)) }
+                    : undefined
+                }
+              />
 
-              <div className={style.overlayContent}>
+              <div
+                className={style.overlayContent}
+                style={{
+                  textAlign: slide.textAlign ?? "left",
+                  alignItems:
+                    slide.textAlign === "center"
+                      ? "center"
+                      : slide.textAlign === "right"
+                        ? "flex-end"
+                        : "flex-start",
+                }}
+              >
                 <span className={style.eyebrow}>{slide.eyebrow}</span>
                 <h2 className={style.title}>{slide.title}</h2>
                 <p className={style.description}>{slide.description}</p>
 
-                {slide.href ? (
-                  <a
-                    href={slide.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className={style.ctaButton}
-                    tabIndex={idx === trackIndex ? 0 : -1}
-                  >
-                    <span>{slide.ctaLabel}</span>
-                    <ArrowRight size={17} aria-hidden="true" />
-                  </a>
-                ) : (
-                  <Link
-                    to={slide.to ?? "/"}
-                    className={style.ctaButton}
-                    tabIndex={idx === trackIndex ? 0 : -1}
-                  >
-                    <span>{slide.ctaLabel}</span>
-                    <ArrowRight size={17} aria-hidden="true" />
-                  </Link>
-                )}
+                {!slide.hideButton &&
+                  (slide.href ? (
+                    <a
+                      href={slide.href}
+                      target={slide.openInNewTab === false ? undefined : "_blank"}
+                      rel={slide.openInNewTab === false ? undefined : "noopener noreferrer"}
+                      className={style.ctaButton}
+                      style={
+                        slide.accentColor
+                          ? { backgroundColor: slide.accentColor, borderColor: slide.accentColor }
+                          : undefined
+                      }
+                      tabIndex={idx === trackIndex ? 0 : -1}
+                    >
+                      <span>{slide.ctaLabel}</span>
+                      <ArrowRight size={17} aria-hidden="true" />
+                    </a>
+                  ) : (
+                    <Link
+                      to={slide.to ?? "/"}
+                      target={slide.openInNewTab ? "_blank" : undefined}
+                      className={style.ctaButton}
+                      style={
+                        slide.accentColor
+                          ? { backgroundColor: slide.accentColor, borderColor: slide.accentColor }
+                          : undefined
+                      }
+                      tabIndex={idx === trackIndex ? 0 : -1}
+                    >
+                      <span>{slide.ctaLabel}</span>
+                      <ArrowRight size={17} aria-hidden="true" />
+                    </Link>
+                  ))}
               </div>
             </div>
           ))}
@@ -211,48 +264,57 @@ export function HeroCarousel({ slides, autoPlayMs = 6000 }: HeroCarouselProps) {
 
         {total > 1 && (
           <>
-            <button
-              type="button"
-              className={`${style.arrowBtn} ${style.arrowPrev}`}
-              onClick={goPrev}
-              aria-label="Banner anterior"
-            >
-              <ChevronLeft size={22} aria-hidden="true" />
-            </button>
-
-            <button
-              type="button"
-              className={`${style.arrowBtn} ${style.arrowNext}`}
-              onClick={goNext}
-              aria-label="Próximo banner"
-            >
-              <ChevronRight size={22} aria-hidden="true" />
-            </button>
-
-            <div className={style.indicators} role="tablist" aria-label="Selecionar banner">
-              <button
-                type="button"
-                className={style.playPauseBtn}
-                onClick={() => setIsUserPaused((prev) => !prev)}
-                aria-pressed={isUserPaused}
-                aria-label={isUserPaused ? "Retomar rotação automática do carrossel" : "Pausar rotação automática do carrossel"}
-              >
-                {isUserPaused ? <Play size={12} aria-hidden="true" /> : <Pause size={12} aria-hidden="true" />}
-              </button>
-              {slides.map((slide, idx) => (
+            {showArrows && (
+              <>
                 <button
-                  key={slide.id}
                   type="button"
-                  role="tab"
-                  aria-selected={idx === activeIndex}
-                  aria-label={`Ir para banner ${idx + 1}: ${slide.title}`}
-                  className={`${style.indicator} ${
-                    idx === activeIndex ? style.indicatorActive : ""
-                  }`}
-                  onClick={() => goToSlide(idx)}
-                />
-              ))}
-            </div>
+                  className={`${style.arrowBtn} ${style.arrowPrev}`}
+                  onClick={goPrev}
+                  aria-label="Banner anterior"
+                >
+                  <ChevronLeft size={22} aria-hidden="true" />
+                </button>
+
+                <button
+                  type="button"
+                  className={`${style.arrowBtn} ${style.arrowNext}`}
+                  onClick={goNext}
+                  aria-label="Próximo banner"
+                >
+                  <ChevronRight size={22} aria-hidden="true" />
+                </button>
+              </>
+            )}
+
+            {(showDots || showPauseButton) && (
+              <div className={style.indicators} role="tablist" aria-label="Selecionar banner">
+                {showPauseButton && autoPlayEnabled && (
+                  <button
+                    type="button"
+                    className={style.playPauseBtn}
+                    onClick={() => setIsUserPaused((prev) => !prev)}
+                    aria-pressed={isUserPaused}
+                    aria-label={isUserPaused ? "Retomar rotação automática do carrossel" : "Pausar rotação automática do carrossel"}
+                  >
+                    {isUserPaused ? <Play size={12} aria-hidden="true" /> : <Pause size={12} aria-hidden="true" />}
+                  </button>
+                )}
+                {showDots &&
+                  slides.map((slide, idx) => (
+                    <button
+                      key={slide.id}
+                      type="button"
+                      role="tab"
+                      aria-selected={idx === activeIndex}
+                      aria-label={`Ir para banner ${idx + 1}: ${slide.title}`}
+                      className={`${style.indicator} ${
+                        idx === activeIndex ? style.indicatorActive : ""
+                      }`}
+                      onClick={() => goToSlide(idx)}
+                    />
+                  ))}
+              </div>
+            )}
           </>
         )}
       </div>

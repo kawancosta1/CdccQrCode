@@ -10,6 +10,11 @@ export interface CarouselSlide {
   textoBotao?: string;
   imagemAlt?: string;
   posicaoObjeto?: string;
+  overlayOpacity?: number;
+  textAlign?: "left" | "center" | "right";
+  accentColor?: string;
+  openInNewTab?: boolean;
+  hideButton?: boolean;
   criadoEm?: string;
   atualizadoEm?: string;
 }
@@ -99,6 +104,14 @@ export interface SiteConfig {
       quickAccess: boolean;
       carousel: boolean;
       tutorial: boolean;
+    };
+    carouselConfig?: {
+      autoPlayEnabled: boolean;
+      autoPlaySeconds: number;
+      showArrows: boolean;
+      showDots: boolean;
+      showPauseButton: boolean;
+      heightMode: "compact" | "default" | "tall";
     };
   };
   atualizadoEm?: string;

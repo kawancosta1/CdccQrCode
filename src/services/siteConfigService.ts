@@ -123,6 +123,14 @@ export const DEFAULT_SITE_CONFIG: SiteConfig = {
       carousel: true,
       tutorial: true,
     },
+    carouselConfig: {
+      autoPlayEnabled: true,
+      autoPlaySeconds: 6,
+      showArrows: true,
+      showDots: true,
+      showPauseButton: true,
+      heightMode: "default",
+    },
   },
 };
 
@@ -207,6 +215,15 @@ export function mergeWithDefaultSiteConfig(partial?: Partial<SiteConfig> | null)
       sectionsVisibility: {
         ...DEFAULT_SITE_CONFIG.homeConfig.sectionsVisibility,
         ...(partial.homeConfig?.sectionsVisibility ?? {}),
+      },
+      carouselConfig: {
+        autoPlayEnabled: true,
+        autoPlaySeconds: 6,
+        showArrows: true,
+        showDots: true,
+        showPauseButton: true,
+        heightMode: "default",
+        ...(partial.homeConfig?.carouselConfig ?? {}),
       },
     },
   };

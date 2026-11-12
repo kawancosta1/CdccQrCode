@@ -3,15 +3,18 @@ import {
   ArrowDown,
   ArrowUp,
   CheckCircle2,
+  Copy,
   ExternalLink,
   ImageIcon,
   Pencil,
   Plus,
   RefreshCw,
+  SlidersHorizontal,
   Trash2,
   Upload,
   X,
 } from "lucide-react";
+import { useSiteConfig } from "../../../context/siteConfigStore.ts";
 import { isFirebaseConfigured } from "../../../lib/firebase.ts";
 import { CarouselService } from "../../../services/carouselService.ts";
 import type { CarouselSlide } from "../../../types/content.ts";
@@ -27,6 +30,11 @@ interface FormState {
   textoBotao: string;
   imagemUrl: string;
   posicaoObjeto: string;
+  overlayOpacity: number;
+  textAlign: "left" | "center" | "right";
+  accentColor: string;
+  openInNewTab: boolean;
+  hideButton: boolean;
   ordem: number;
   ativo: boolean;
 }
@@ -39,6 +47,11 @@ const INITIAL_FORM: FormState = {
   textoBotao: "Explorar acervo",
   imagemUrl: "",
   posicaoObjeto: "center 45%",
+  overlayOpacity: 65,
+  textAlign: "left",
+  accentColor: "",
+  openInNewTab: false,
+  hideButton: false,
   ordem: 1,
   ativo: true,
 };
@@ -59,6 +72,28 @@ export function AdminCarousel() {
   const fileInputId = useId();
   const isOnlineFirebase = isFirebaseConfigured();
   const { user } = useAdminAuth();
+  const { config, updateConfig } = useSiteConfig();
+  const carouselCfg = config.homeConfig.carouselConfig ?? {
+    autoPlayEnabled: true,
+    autoPlaySeconds: 6,
+    showArrows: true,
+    showDots: true,
+    showPauseButton: true,
+    heightMode: "default" as const,
+  };
+
+  const updateCarouselSetting = async (
+    patch: Partial<NonNullable<typeof config.homeConfig.carouselConfig>>
+  ) => {
+    await updateConfig({
+      ...config,
+      homeConfig: {
+        ...config.homeConfig,
+        carouselConfig: { ...carouselCfg, ...patch },
+      },
+    });
+    showToast("Opções globais do carrossel atualizadas!");
+  };
 
   // Revoga ObjectURLs temporárias para evitar vazamento de memória
   useEffect(() => {
@@ -113,12 +148,42 @@ export function AdminCarousel() {
       textoBotao: slide.textoBotao || "Explorar",
       imagemUrl: slide.imagemUrl,
       posicaoObjeto: slide.posicaoObjeto || "center 45%",
+      overlayOpacity: slide.overlayOpacity ?? 65,
+      textAlign: slide.textAlign ?? "left",
+      accentColor: slide.accentColor || "",
+      openInNewTab: Boolean(slide.openInNewTab),
+      hideButton: Boolean(slide.hideButton),
       ordem: slide.ordem,
       ativo: slide.ativo,
     });
     setSelectedFile(null);
     setPreviewUrl(slide.imagemUrl);
     setIsModalOpen(true);
+  };
+
+  const handleDuplicateSlide = async (slide: CarouselSlide) => {
+    try {
+      await CarouselService.create({
+        titulo: `${slide.titulo} (Cópia)`,
+        eyebrow: slide.eyebrow || "",
+        descricao: slide.descricao || "",
+        linkDestino: slide.linkDestino,
+        textoBotao: slide.textoBotao || "Explorar",
+        imagemUrl: slide.imagemUrl,
+        posicaoObjeto: slide.posicaoObjeto || "center 45%",
+        overlayOpacity: slide.overlayOpacity ?? 65,
+        textAlign: slide.textAlign ?? "left",
+        accentColor: slide.accentColor || "",
+        openInNewTab: Boolean(slide.openInNewTab),
+        hideButton: Boolean(slide.hideButton),
+        ordem: slides.length + 1,
+        ativo: false,
+      });
+      await loadSlides();
+      showToast("Slide duplicado como rascunho!");
+    } catch (err) {
+      alert("Erro ao duplicar slide: " + String(err));
+    }
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -158,6 +223,11 @@ export function AdminCarousel() {
             textoBotao: formState.textoBotao.trim(),
             imagemUrl: formState.imagemUrl,
             posicaoObjeto: formState.posicaoObjeto,
+            overlayOpacity: formState.overlayOpacity,
+            textAlign: formState.textAlign,
+            accentColor: formState.accentColor || undefined,
+            openInNewTab: formState.openInNewTab,
+            hideButton: formState.hideButton,
             ordem: Number(formState.ordem) || 1,
             ativo: formState.ativo,
           },
@@ -174,6 +244,11 @@ export function AdminCarousel() {
             textoBotao: formState.textoBotao.trim(),
             imagemUrl: formState.imagemUrl || previewUrl,
             posicaoObjeto: formState.posicaoObjeto,
+            overlayOpacity: formState.overlayOpacity,
+            textAlign: formState.textAlign,
+            accentColor: formState.accentColor || undefined,
+            openInNewTab: formState.openInNewTab,
+            hideButton: formState.hideButton,
             ordem: Number(formState.ordem) || slides.length + 1,
             ativo: formState.ativo,
           },
@@ -314,6 +389,94 @@ export function AdminCarousel() {
         </div>
       </div>
 
+      {/* Opções Globais do Carrossel */}
+      <div className={styles.panelCard} style={{ marginBottom: "1rem" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.75rem" }}>
+          <SlidersHorizontal size={17} style={{ color: "var(--color-brand)" }} />
+          <strong style={{ fontSize: "0.95rem" }}>Opções de Comportamento &amp; Exibição do Carrossel</strong>
+        </div>
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(190px, 1fr))",
+            gap: "0.85rem",
+            alignItems: "center",
+          }}
+        >
+          <label className={styles.toggleSwitch}>
+            <input
+              type="checkbox"
+              className={styles.toggleCheckbox}
+              checked={carouselCfg.autoPlayEnabled}
+              onChange={(e) => void updateCarouselSetting({ autoPlayEnabled: e.target.checked })}
+            />
+            <span>Rotação automática (Autoplay)</span>
+          </label>
+
+          <label className={styles.fieldGroup} style={{ margin: 0 }}>
+            <span className={styles.fieldLabel}>Intervalo (segundos)</span>
+            <select
+              className={styles.select}
+              value={carouselCfg.autoPlaySeconds}
+              onChange={(e) => void updateCarouselSetting({ autoPlaySeconds: Number(e.target.value) })}
+            >
+              <option value={3}>3 segundos (Rápido)</option>
+              <option value={5}>5 segundos</option>
+              <option value={6}>6 segundos (Padrão)</option>
+              <option value={8}>8 segundos</option>
+              <option value={10}>10 segundos (Lento)</option>
+            </select>
+          </label>
+
+          <label className={styles.fieldGroup} style={{ margin: 0 }}>
+            <span className={styles.fieldLabel}>Altura do Carrossel</span>
+            <select
+              className={styles.select}
+              value={carouselCfg.heightMode}
+              onChange={(e) =>
+                void updateCarouselSetting({
+                  heightMode: e.target.value as "compact" | "default" | "tall",
+                })
+              }
+            >
+              <option value="compact">Compacto (260px)</option>
+              <option value="default">Padrão CDCC</option>
+              <option value="tall">Destaque Amplo (440px)</option>
+            </select>
+          </label>
+
+          <label className={styles.toggleSwitch}>
+            <input
+              type="checkbox"
+              className={styles.toggleCheckbox}
+              checked={carouselCfg.showArrows}
+              onChange={(e) => void updateCarouselSetting({ showArrows: e.target.checked })}
+            />
+            <span>Exibir setas laterais</span>
+          </label>
+
+          <label className={styles.toggleSwitch}>
+            <input
+              type="checkbox"
+              className={styles.toggleCheckbox}
+              checked={carouselCfg.showDots}
+              onChange={(e) => void updateCarouselSetting({ showDots: e.target.checked })}
+            />
+            <span>Exibir indicadores (bolinhas)</span>
+          </label>
+
+          <label className={styles.toggleSwitch}>
+            <input
+              type="checkbox"
+              className={styles.toggleCheckbox}
+              checked={carouselCfg.showPauseButton}
+              onChange={(e) => void updateCarouselSetting({ showPauseButton: e.target.checked })}
+            />
+            <span>Exibir botão Pausar/Play</span>
+          </label>
+        </div>
+      </div>
+
       {/* Tabela de Alta Densidade */}
       <div className={styles.panelCard}>
         <div className={styles.toolbar}>
@@ -451,6 +614,15 @@ export function AdminCarousel() {
 
                       <td style={{ textAlign: "right" }}>
                         <div className={styles.rowActions} style={{ justifyContent: "flex-end" }}>
+                          <button
+                            type="button"
+                            className={styles.smallBtn}
+                            onClick={() => void handleDuplicateSlide(slide)}
+                            title="Duplicar slide"
+                            aria-label={`Duplicar ${slide.titulo}`}
+                          >
+                            <Copy size={14} />
+                          </button>
                           <button
                             type="button"
                             className={styles.smallBtn}
@@ -636,6 +808,22 @@ export function AdminCarousel() {
                       type="button"
                       className={styles.badgeTag}
                       style={{ cursor: "pointer" }}
+                      onClick={() => setFormState({ ...formState, linkDestino: "/vestibular" })}
+                    >
+                      /vestibular
+                    </button>
+                    <button
+                      type="button"
+                      className={styles.badgeTag}
+                      style={{ cursor: "pointer" }}
+                      onClick={() => setFormState({ ...formState, linkDestino: "/p/guia-calouros" })}
+                    >
+                      /p/guia-calouros
+                    </button>
+                    <button
+                      type="button"
+                      className={styles.badgeTag}
+                      style={{ cursor: "pointer" }}
                       onClick={() =>
                         setFormState({ ...formState, linkDestino: "https://dedalus.usp.br/F" })
                       }
@@ -666,6 +854,127 @@ export function AdminCarousel() {
                         onChange={(e) => setFormState({ ...formState, ativo: e.target.checked })}
                       />
                       <span>Publicar imediatamente no carrossel da Home</span>
+                    </label>
+                  </div>
+                </div>
+
+                {/* Opções Visuais e de Comportamento do Slide */}
+                <div
+                  style={{
+                    borderTop: "1px solid var(--color-border)",
+                    paddingTop: "1rem",
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "0.85rem",
+                  }}
+                >
+                  <strong style={{ fontSize: "0.88rem", color: "var(--color-text-primary)" }}>
+                    Opções Visuais &amp; Comportamento do Slide
+                  </strong>
+
+                  <div className={styles.formGrid}>
+                    <div className={styles.fieldGroup}>
+                      <label className={styles.fieldLabel}>Enquadramento da Imagem</label>
+                      <select
+                        className={styles.select}
+                        value={formState.posicaoObjeto}
+                        onChange={(e) =>
+                          setFormState({ ...formState, posicaoObjeto: e.target.value })
+                        }
+                      >
+                        <option value="center 25%">Topo (ideal para rostos/pessoas)</option>
+                        <option value="center 45%">Equilibrado (Padrão CDCC)</option>
+                        <option value="center center">Centralizado</option>
+                        <option value="center 75%">Inferior</option>
+                      </select>
+                    </div>
+
+                    <div className={styles.fieldGroup}>
+                      <label className={styles.fieldLabel}>Alinhamento do Texto</label>
+                      <select
+                        className={styles.select}
+                        value={formState.textAlign}
+                        onChange={(e) =>
+                          setFormState({
+                            ...formState,
+                            textAlign: e.target.value as "left" | "center" | "right",
+                          })
+                        }
+                      >
+                        <option value="left">Esquerda (Padrão)</option>
+                        <option value="center">Centralizado</option>
+                        <option value="right">Direita</option>
+                      </select>
+                    </div>
+
+                    <div className={styles.fieldGroup}>
+                      <label className={styles.fieldLabel}>
+                        Escurecimento do Fundo ({formState.overlayOpacity}%)
+                      </label>
+                      <input
+                        type="range"
+                        min={15}
+                        max={90}
+                        step={5}
+                        value={formState.overlayOpacity}
+                        onChange={(e) =>
+                          setFormState({ ...formState, overlayOpacity: Number(e.target.value) })
+                        }
+                      />
+                    </div>
+
+                    <div className={styles.fieldGroup}>
+                      <label className={styles.fieldLabel}>Cor do Botão CTA (opcional)</label>
+                      <div style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
+                        <input
+                          type="color"
+                          value={formState.accentColor || "#145399"}
+                          onChange={(e) =>
+                            setFormState({ ...formState, accentColor: e.target.value })
+                          }
+                          style={{
+                            width: 44,
+                            height: 36,
+                            border: "1px solid var(--color-border)",
+                            borderRadius: 6,
+                          }}
+                        />
+                        {formState.accentColor && (
+                          <button
+                            type="button"
+                            className={styles.smallBtn}
+                            onClick={() => setFormState({ ...formState, accentColor: "" })}
+                          >
+                            Usar padrão
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: "1.25rem" }}>
+                    <label className={styles.toggleSwitch}>
+                      <input
+                        type="checkbox"
+                        className={styles.toggleCheckbox}
+                        checked={formState.openInNewTab}
+                        onChange={(e) =>
+                          setFormState({ ...formState, openInNewTab: e.target.checked })
+                        }
+                      />
+                      <span>Abrir link em nova aba</span>
+                    </label>
+
+                    <label className={styles.toggleSwitch}>
+                      <input
+                        type="checkbox"
+                        className={styles.toggleCheckbox}
+                        checked={formState.hideButton}
+                        onChange={(e) =>
+                          setFormState({ ...formState, hideButton: e.target.checked })
+                        }
+                      />
+                      <span>Ocultar botão CTA (somente banner)</span>
                     </label>
                   </div>
                 </div>

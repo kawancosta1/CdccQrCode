@@ -48,6 +48,11 @@ function toHeroSlide(slide: CarouselSlide): HeroSlide {
     image: slide.imagemUrl,
     imageAlt: slide.imagemAlt || slide.titulo,
     objectPosition: slide.posicaoObjeto || "center 45%",
+    overlayOpacity: slide.overlayOpacity,
+    textAlign: slide.textAlign,
+    accentColor: slide.accentColor,
+    openInNewTab: slide.openInNewTab,
+    hideButton: slide.hideButton,
   };
 }
 
@@ -448,7 +453,17 @@ export function Home() {
       )}
 
       {/* Destaques — Hero Carousel */}
-      {homeCfg.sectionsVisibility.carousel && <HeroCarousel slides={heroSlides} />}
+      {homeCfg.sectionsVisibility.carousel && (
+        <HeroCarousel
+          slides={heroSlides}
+          autoPlayEnabled={homeCfg.carouselConfig?.autoPlayEnabled ?? true}
+          autoPlayMs={(homeCfg.carouselConfig?.autoPlaySeconds ?? 6) * 1000}
+          showArrows={homeCfg.carouselConfig?.showArrows ?? true}
+          showDots={homeCfg.carouselConfig?.showDots ?? true}
+          showPauseButton={homeCfg.carouselConfig?.showPauseButton ?? true}
+          heightMode={homeCfg.carouselConfig?.heightMode ?? "default"}
+        />
+      )}
 
       {/* Tutorial Editorial do Buscador (3 Fases) */}
       {homeCfg.sectionsVisibility.tutorial && (
