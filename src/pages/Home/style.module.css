@@ -462,17 +462,29 @@
   background-color: var(--color-brand);
 }
 
-/* Guide Section */
-.guideHeader {
+/* Tutorial Section (Linear / Apple-inspired Interactive Master-Detail) */
+.tutorialHeader {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
   gap: var(--space-4);
-  margin-bottom: var(--space-5);
+  margin-bottom: var(--space-6);
 }
 
-.guideHeaderText {
+.tutorialHeaderText {
   min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.tutorialEyebrow {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-brand);
 }
 
 .mascotHelper {
@@ -482,104 +494,410 @@
   flex-shrink: 0;
 }
 
-.stepsGrid {
-  list-style: none;
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--space-5);
+.mobileStepper {
+  display: none;
 }
 
-.stepCard {
+.mobileStepChip {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.45rem 0.85rem;
+  border-radius: var(--radius-full);
   background-color: var(--color-surface);
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  padding: var(--space-5);
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-3);
+  font-size: 0.8125rem;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all var(--duration-fast) var(--ease-out);
+}
+
+.mobileStepMono {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--color-brand);
+}
+
+.mobileStepChipActive {
+  background-color: var(--color-brand-soft);
+  border-color: var(--color-brand-border);
+  color: var(--color-brand-text);
+  font-weight: 600;
   box-shadow: var(--shadow-xs);
 }
 
-.stepTop {
+.tutorialWorkspace {
+  display: grid;
+  grid-template-columns: minmax(320px, 420px) minmax(0, 1fr);
+  gap: var(--space-6);
+  align-items: start;
+}
+
+.tutorialNavList {
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
 }
 
-.stepNumber {
-  align-self: flex-start;
-  padding: 0.2rem 0.625rem;
-  border-radius: var(--radius-full);
+.tutorialStepCard {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  text-align: left;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+  transition: background-color var(--duration-fast) var(--ease-out),
+    border-color var(--duration-fast) var(--ease-out),
+    box-shadow var(--duration-fast) var(--ease-out);
+}
+
+.tutorialStepCard:hover {
+  background-color: var(--color-surface-subtle);
+  border-color: var(--color-border-strong);
+}
+
+.tutorialStepCardActive {
   background-color: var(--color-brand-soft);
+  border-color: var(--color-brand-border);
+  box-shadow: var(--shadow-xs);
+}
+
+.activePillIndicator {
+  position: absolute;
+  left: 0;
+  top: var(--space-3);
+  bottom: var(--space-3);
+  width: 3px;
+  border-radius: 0 var(--radius-full) var(--radius-full) 0;
+  background-color: var(--color-brand);
+}
+
+.stepIndexBadge {
+  flex-shrink: 0;
+  width: 34px;
+  height: 34px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--color-surface-subtle);
+  border: 1px solid var(--color-border);
+  transition: all var(--duration-fast) var(--ease-out);
+}
+
+.stepIndexMono {
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: var(--color-text-secondary);
+}
+
+.tutorialStepCardActive .stepIndexBadge {
+  background-color: var(--color-brand);
+  border-color: var(--color-brand);
+}
+
+.tutorialStepCardActive .stepIndexMono {
+  color: #ffffff;
+}
+
+.stepNavBody {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.stepNavTitle {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  letter-spacing: -0.01em;
+}
+
+.tutorialStepCardActive .stepNavTitle {
   color: var(--color-brand-text);
+}
+
+.stepNavDesc {
+  font-size: 0.8125rem;
+  color: var(--color-text-secondary);
+  line-height: 1.4;
+}
+
+.tutorialPreviewArea {
+  position: sticky;
+  top: calc(var(--nav-height) + var(--space-4));
+  display: flex;
+  flex-direction: column;
+}
+
+.browserFrame {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.browserHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--color-border);
+  background-color: var(--color-surface-subtle);
+}
+
+.windowControls {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.windowDot {
+  width: 9px;
+  height: 9px;
+  border-radius: var(--radius-full);
+  background-color: var(--color-border-strong);
+  display: inline-block;
+}
+
+.browserAddress {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 0.2rem 0.65rem;
+  border-radius: var(--radius-full);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
   font-size: 0.75rem;
+  color: var(--color-text-secondary);
+}
+
+.addressBadge {
+  font-family: var(--font-mono);
+  font-weight: 600;
+  color: var(--color-brand);
+}
+
+.addressStep {
+  font-size: 0.6875rem;
+  color: var(--color-text-muted);
+}
+
+.browserZoomBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.25rem 0.55rem;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  background-color: var(--color-surface);
+  color: var(--color-text-secondary);
+  font-size: 0.75rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--duration-fast) var(--ease-out);
+}
+
+.browserZoomBtn:hover {
+  background-color: var(--color-surface-hover);
+  color: var(--color-text-primary);
+  border-color: var(--color-border-strong);
+}
+
+.browserMedia {
+  position: relative;
+  background-color: #0b0f19;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  min-height: 280px;
+  max-height: 440px;
+}
+
+.browserImageBtn {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border: none;
+  background: transparent;
+  cursor: zoom-in;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-3);
+}
+
+.browserImg {
+  max-width: 100%;
+  max-height: 400px;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  border-radius: var(--radius-sm);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+}
+
+.imageZoomOverlay {
+  position: absolute;
+  right: var(--space-4);
+  bottom: var(--space-4);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.35rem 0.65rem;
+  border-radius: var(--radius-full);
+  background-color: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(8px);
+  color: #ffffff;
+  font-size: 0.75rem;
+  font-weight: 500;
+  opacity: 0;
+  transition: opacity var(--duration-fast) var(--ease-out);
+  pointer-events: none;
+}
+
+.browserImageBtn:hover .imageZoomOverlay {
+  opacity: 1;
+}
+
+.browserFooter {
+  padding: var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  border-top: 1px solid var(--color-border);
+  background-color: var(--color-surface);
+}
+
+.browserFooterDetails {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.previewStepTitle {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  letter-spacing: -0.015em;
+}
+
+.previewMonoStep {
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+  color: var(--color-brand);
   font-weight: 700;
 }
 
-.stepTitle {
-  font-size: 1rem;
-  font-weight: 600;
-  color: var(--color-text-primary);
-}
-
-.stepContent {
+.previewStepDetails {
   font-size: 0.875rem;
   color: var(--color-text-secondary);
   line-height: 1.5;
 }
 
-.inlineLink {
-  color: var(--color-brand);
-  font-weight: 600;
-  text-decoration: underline;
-  text-underline-offset: 2px;
-}
-
-.stepImageWrap {
-  margin-top: auto;
+.browserFooterActions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
   padding-top: var(--space-3);
   border-top: 1px solid var(--color-border);
 }
 
-.stepImageBtn {
-  position: relative;
-  display: block;
-  width: 100%;
-  padding: 0;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  background-color: var(--color-surface-subtle);
-  overflow: hidden;
-  cursor: zoom-in;
-}
-
-.stepImageBtn:hover .stepZoomTag {
-  opacity: 1;
-}
-
-.stepImage {
-  width: 100%;
-  height: auto;
-  max-height: 360px;
-  object-fit: contain;
-  display: block;
-}
-
-.stepZoomTag {
-  position: absolute;
-  right: var(--space-2);
-  bottom: var(--space-2);
+.stepActionBtn {
   display: inline-flex;
   align-items: center;
-  gap: 0.25rem;
-  padding: 0.25rem 0.5rem;
+  gap: 0.45rem;
+  min-height: 38px;
+  padding: 0.4rem 0.85rem;
   border-radius: var(--radius-md);
-  background-color: rgba(20, 21, 26, 0.78);
+  background-color: var(--color-brand-soft);
+  border: 1px solid var(--color-brand-border);
+  color: var(--color-brand-text);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all var(--duration-fast) var(--ease-out);
+}
+
+.stepActionBtn:hover {
+  background-color: var(--color-brand);
   color: #ffffff;
+  border-color: var(--color-brand);
+}
+
+.stepperNav {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-left: auto;
+}
+
+.stepperBtn {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  background-color: var(--color-surface);
+  color: var(--color-text-primary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all var(--duration-fast) var(--ease-out);
+}
+
+.stepperBtn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.stepperBtn:not(:disabled):hover {
+  background-color: var(--color-surface-subtle);
+  border-color: var(--color-border-strong);
+}
+
+.stepperCount {
+  font-family: var(--font-mono);
   font-size: 0.75rem;
   font-weight: 600;
-  opacity: 0.85;
-  transition: opacity var(--duration-fast) var(--ease-out);
+  color: var(--color-text-muted);
+  padding: 0 0.25rem;
+}
+
+.fadeIn {
+  animation: fadeInCross 200ms var(--ease-out);
+}
+
+@keyframes fadeInCross {
+  from {
+    opacity: 0.35;
+    transform: scale(0.99);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 .slideEnter {
@@ -622,7 +940,8 @@
 @media (prefers-reduced-motion: reduce) {
   .quickCard,
   .slideEnter,
-  .heroError {
+  .heroError,
+  .fadeIn {
     animation-name: reduceFade;
   }
 }
@@ -637,9 +956,31 @@
 }
 
 @media (max-width: 960px) {
-  .quickGrid,
-  .stepsGrid {
+  .quickGrid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .tutorialWorkspace {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-4);
+  }
+
+  .mobileStepper {
+    display: flex;
+    overflow-x: auto;
+    gap: var(--space-2);
+    padding-bottom: var(--space-3);
+    margin-bottom: var(--space-2);
+    scrollbar-width: thin;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .tutorialNavList {
+    display: none;
+  }
+
+  .tutorialPreviewArea {
+    position: static;
   }
 }
 
@@ -656,9 +997,29 @@
     width: 100%;
   }
 
-  .quickGrid,
-  .stepsGrid {
+  .quickGrid {
     grid-template-columns: minmax(0, 1fr);
+  }
+
+  .browserMedia {
+    min-height: 220px;
+    max-height: 300px;
+  }
+
+  .browserFooterActions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .stepActionBtn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .stepperNav {
+    margin-left: 0;
+    width: 100%;
+    justify-content: space-between;
   }
 
   .carouselFooter {

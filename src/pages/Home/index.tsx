@@ -1,7 +1,10 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import {
+  ArrowRight,
   BookOpen,
+  ChevronLeft,
+  ChevronRight,
   ExternalLink,
   Gamepad2,
   Library,
@@ -96,61 +99,100 @@ const HERO_SLIDES: HeroSlide[] = [
   },
 ];
 
-const DEDALUS_STEPS = [
+interface TutorialStep {
+  id: string;
+  stepNumber: string;
+  title: string;
+  shortDesc: string;
+  details: string;
+  src: string;
+  alt: string;
+  badge: string;
+  action?: {
+    label: string;
+    href?: string;
+    code?: string;
+  };
+}
+
+const TUTORIAL_STEPS: TutorialStep[] = [
   {
-    step: 1,
+    id: "step-1",
+    stepNumber: "01",
+    title: "Acesse o Catálogo Dedalus",
+    shortDesc: "Inicie a pesquisa no catálogo integrado da USP.",
+    details:
+      "Abra o portal do Dedalus e selecione Catálogo Geral para consultar obras catalogadas em todo o sistema integrado de bibliotecas da universidade.",
     src: dedalus,
-    alt: "Passo 1: Acessar o Dedalus e selecionar Catálogo Geral",
-    title: "Acesse o Dedalus USP",
-    content: (
-      <>
-        Acesse o{" "}
-        <a
-          href="https://dedalus.usp.br/"
-          className={styles.inlineLink}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Dedalus
-        </a>{" "}
-        e clique em &quot;Catálogo Geral&quot; para selecionar a unidade.
-      </>
-    ),
+    alt: "Página inicial do Dedalus USP com a opção Catálogo Geral destacada",
+    badge: "dedalus.usp.br",
+    action: {
+      label: "Abrir Dedalus USP",
+      href: "https://dedalus.usp.br/",
+    },
   },
   {
-    step: 2,
+    id: "step-2",
+    stepNumber: "02",
+    title: "Pesquise por título ou autor",
+    shortDesc: "Localize a obra pelo nome, autor ou assunto.",
+    details:
+      "Digite o termo de busca no campo principal do Dedalus para listar os exemplares disponíveis no acervo.",
     src: dedalus2,
-    alt: "Passo 2: Pesquisar pelo título do livro ou autor",
-    title: "Busque o livro ou autor",
-    content: "Após selecionar a unidade, pesquise pelo título da obra ou pelo nome do autor.",
+    alt: "Formulário de pesquisa do Dedalus com exemplo de busca",
+    badge: "Busca bibliográfica",
   },
   {
-    step: 3,
-    src: dedalus3,
-    alt: "Passo 3: Verificar se a unidade é o CDCC",
+    id: "step-3",
+    stepNumber: "03",
     title: "Confirme a unidade CDCC",
-    content: "Nos resultados da busca, selecione o livro desejado e confira se a unidade é o CDCC.",
+    shortDesc: "Verifique se o exemplar pertence à biblioteca de São Carlos.",
+    details:
+      "Na listagem de resultados, abra o livro desejado e confira se a biblioteca indicada é a Unidade CDCC.",
+    src: dedalus3,
+    alt: "Lista de resultados com a unidade CDCC selecionada",
+    badge: "Unidade CDCC",
   },
   {
-    step: 4,
-    src: dedalus4,
-    alt: "Passo 4: Copiar o código de classificação na página do livro",
+    id: "step-4",
+    stepNumber: "04",
     title: "Copie o código de classificação",
-    content: "Na ficha do livro, localize e copie o código de classificação (ex: 530 ou 869.3 C500).",
+    shortDesc: "Identifique a numeração CDU na ficha catalográfica.",
+    details:
+      "Localize o código de classificação (ex: 530 ou 869.3 C500). Você só precisa dessa sequência, sem o tombo.",
+    src: dedalus4,
+    alt: "Ficha do livro com o código de classificação destacado",
+    badge: "Código CDU",
+    action: {
+      label: "Experimentar código 530",
+      code: "530",
+    },
   },
   {
-    step: 5,
+    id: "step-5",
+    stepNumber: "05",
+    title: "Insira no buscador do QRCodeCDCC",
+    shortDesc: "Cole o código na barra no topo desta página.",
+    details:
+      "Nosso sistema normaliza o código automaticamente e indica exatamente a sala e a estante correspondentes.",
     src: dedalus5,
-    alt: "Passo 5: Inserir o código na barra de pesquisa do QRCodeCDCC",
-    title: "Cole no QRCodeCDCC",
-    content: "Digite ou cole o código na barra de pesquisa acima e clique em Localizar livro.",
+    alt: "Barra de busca do QRCodeCDCC recebendo o código",
+    badge: "QRCodeCDCC",
+    action: {
+      label: "Testar código 869.3 C500",
+      code: "869.3 C500",
+    },
   },
   {
-    step: 6,
-    src: dedalus6,
-    alt: "Passo 6: Visualizar a estante, a foto e o mapa da sala",
+    id: "step-6",
+    stepNumber: "06",
     title: "Siga o mapa até a estante",
-    content: "O resultado mostra a sala, o ponto exato no mapa e a foto da estante onde o livro está.",
+    shortDesc: "Consulte o mapa interativo e a foto real da estante.",
+    details:
+      "O resultado destaca a localização exata da estante na planta da sala e exibe a fotografia do móvel para orientar seus passos.",
+    src: dedalus6,
+    alt: "Visualização do mapa da sala e foto da estante física",
+    badge: "Localização física",
   },
 ];
 
@@ -158,6 +200,7 @@ export function Home() {
   const [lightboxStep, setLightboxStep] = useState<{ src: string; alt: string; title: string } | null>(
     null,
   );
+  const [activeStepIndex, setActiveStepIndex] = useState(0);
   const {
     searchValue,
     searchError,
@@ -170,6 +213,33 @@ export function Home() {
     clearSearch,
     primaryInputRef,
   } = useBookSearchContext();
+
+  const currentStep = TUTORIAL_STEPS[activeStepIndex];
+
+  const handleStepKeyDown = (e: React.KeyboardEvent, index: number) => {
+    if (e.key === "ArrowDown" || e.key === "ArrowRight") {
+      e.preventDefault();
+      const next = (index + 1) % TUTORIAL_STEPS.length;
+      setActiveStepIndex(next);
+    } else if (e.key === "ArrowUp" || e.key === "ArrowLeft") {
+      e.preventDefault();
+      const prev = (index - 1 + TUTORIAL_STEPS.length) % TUTORIAL_STEPS.length;
+      setActiveStepIndex(prev);
+    } else if (e.key === "Home") {
+      e.preventDefault();
+      setActiveStepIndex(0);
+    } else if (e.key === "End") {
+      e.preventDefault();
+      setActiveStepIndex(TUTORIAL_STEPS.length - 1);
+    }
+  };
+
+  const handleActionClick = (code?: string) => {
+    if (!code) return;
+    submitSearch(code);
+    primaryInputRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+    primaryInputRef.current?.focus();
+  };
 
   const handleHeroSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -370,15 +440,16 @@ export function Home() {
       {/* Destaques — Hero Carousel */}
       <HeroCarousel slides={HERO_SLIDES} />
 
-      {/* Guia Passo a Passo */}
-      <section className={styles.section} aria-labelledby="guide-heading">
-        <div className={styles.guideHeader}>
-          <div className={styles.guideHeaderText}>
-            <h2 id="guide-heading" className={styles.sectionTitle}>
-              Como encontrar um livro passo a passo
+      {/* Tutorial Interativo do Buscador */}
+      <section className={styles.section} aria-labelledby="tutorial-heading">
+        <div className={styles.tutorialHeader}>
+          <div className={styles.tutorialHeaderText}>
+            <span className={styles.tutorialEyebrow}>Fluxo de localização</span>
+            <h2 id="tutorial-heading" className={styles.sectionTitle}>
+              Do catálogo Dedalus à estante em 6 passos
             </h2>
             <p className={styles.sectionSubtitle}>
-              Siga estas 6 etapas para ir do catálogo Dedalus até a estante correta no CDCC.
+              Como transformar a ficha bibliográfica da USP na localização física do exemplar no CDCC.
             </p>
           </div>
           <img
@@ -389,43 +460,195 @@ export function Home() {
           />
         </div>
 
-        <ol className={styles.stepsGrid}>
-          {DEDALUS_STEPS.map((item) => (
-            <li key={item.step} className={styles.stepCard}>
-              <div className={styles.stepTop}>
-                <span className={styles.stepNumber}>Passo {item.step}</span>
-                <h3 className={styles.stepTitle}>{item.title}</h3>
-              </div>
-              <p className={styles.stepContent}>{item.content}</p>
-              <div className={styles.stepImageWrap}>
+        {/* Seletor rápido para telas menores */}
+        <div
+          className={styles.mobileStepper}
+          role="tablist"
+          aria-label="Etapas para encontrar um livro (mobile)"
+        >
+          {TUTORIAL_STEPS.map((step, idx) => {
+            const isActive = activeStepIndex === idx;
+            return (
+              <button
+                key={step.id}
+                type="button"
+                role="tab"
+                aria-selected={isActive}
+                aria-controls={`tutorial-panel-${step.id}`}
+                className={`${styles.mobileStepChip} ${isActive ? styles.mobileStepChipActive : ""}`}
+                onClick={() => setActiveStepIndex(idx)}
+              >
+                <span className={styles.mobileStepMono}>{step.stepNumber}</span>
+                <span className={styles.mobileStepText}>{step.title}</span>
+              </button>
+            );
+          })}
+        </div>
+
+        <div className={styles.tutorialWorkspace}>
+          {/* Coluna 1: Lista navegável com indicador progressivo */}
+          <div
+            className={styles.tutorialNavList}
+            role="tablist"
+            aria-label="Etapas do tutorial para localizar livros"
+          >
+            {TUTORIAL_STEPS.map((step, index) => {
+              const isActive = activeStepIndex === index;
+              return (
+                <button
+                  key={step.id}
+                  id={`tutorial-tab-${step.id}`}
+                  role="tab"
+                  aria-selected={isActive}
+                  aria-controls={`tutorial-panel-${step.id}`}
+                  tabIndex={isActive ? 0 : -1}
+                  type="button"
+                  className={`${styles.tutorialStepCard} ${
+                    isActive ? styles.tutorialStepCardActive : ""
+                  }`}
+                  onClick={() => setActiveStepIndex(index)}
+                  onKeyDown={(e) => handleStepKeyDown(e, index)}
+                >
+                  <div className={styles.stepIndexBadge}>
+                    <span className={styles.stepIndexMono}>{step.stepNumber}</span>
+                  </div>
+                  <div className={styles.stepNavBody}>
+                    <strong className={styles.stepNavTitle}>{step.title}</strong>
+                    <p className={styles.stepNavDesc}>{step.shortDesc}</p>
+                  </div>
+                  {isActive && <div className={styles.activePillIndicator} aria-hidden="true" />}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Coluna 2: Preview contextual em frame limpo */}
+          <div
+            id={`tutorial-panel-${currentStep.id}`}
+            role="tabpanel"
+            aria-labelledby={`tutorial-tab-${currentStep.id}`}
+            className={styles.tutorialPreviewArea}
+          >
+            <div className={styles.browserFrame}>
+              <div className={styles.browserHeader}>
+                <div className={styles.windowControls} aria-hidden="true">
+                  <span className={styles.windowDot} />
+                  <span className={styles.windowDot} />
+                  <span className={styles.windowDot} />
+                </div>
+                <div className={styles.browserAddress}>
+                  <span className={styles.addressBadge}>{currentStep.badge}</span>
+                  <span className={styles.addressStep}>
+                    Etapa {currentStep.stepNumber} de 0{TUTORIAL_STEPS.length}
+                  </span>
+                </div>
                 <button
                   type="button"
-                  className={styles.stepImageBtn}
+                  className={styles.browserZoomBtn}
                   onClick={() =>
                     setLightboxStep({
-                      src: item.src,
-                      alt: item.alt,
-                      title: `Passo ${item.step}: ${item.title}`,
+                      src: currentStep.src,
+                      alt: currentStep.alt,
+                      title: `Passo ${currentStep.stepNumber}: ${currentStep.title}`,
                     })
                   }
-                  aria-label={`Ampliar imagem do Passo ${item.step}: ${item.title}`}
+                  aria-label={`Ampliar captura da etapa ${currentStep.stepNumber}: ${currentStep.title}`}
+                >
+                  <Maximize2 size={15} aria-hidden="true" />
+                  <span className={styles.zoomText}>Ampliar</span>
+                </button>
+              </div>
+
+              <div className={styles.browserMedia}>
+                <button
+                  type="button"
+                  className={styles.browserImageBtn}
+                  onClick={() =>
+                    setLightboxStep({
+                      src: currentStep.src,
+                      alt: currentStep.alt,
+                      title: `Passo ${currentStep.stepNumber}: ${currentStep.title}`,
+                    })
+                  }
+                  aria-label={`Ampliar captura da etapa ${currentStep.stepNumber}: ${currentStep.title}`}
                 >
                   <img
-                    src={item.src}
-                    alt={item.alt}
-                    className={styles.stepImage}
+                    key={currentStep.id}
+                    src={currentStep.src}
+                    alt={currentStep.alt}
+                    className={`${styles.browserImg} ${styles.fadeIn}`}
                     loading="lazy"
                     decoding="async"
                   />
-                  <span className={styles.stepZoomTag} aria-hidden="true">
+                  <span className={styles.imageZoomOverlay} aria-hidden="true">
                     <Maximize2 size={14} />
-                    Ampliar
+                    Clique para tela cheia
                   </span>
                 </button>
               </div>
-            </li>
-          ))}
-        </ol>
+
+              <div className={styles.browserFooter}>
+                <div className={styles.browserFooterDetails}>
+                  <h3 className={styles.previewStepTitle}>
+                    <span className={styles.previewMonoStep}>{currentStep.stepNumber}</span>
+                    {currentStep.title}
+                  </h3>
+                  <p className={styles.previewStepDetails}>{currentStep.details}</p>
+                </div>
+
+                <div className={styles.browserFooterActions}>
+                  {currentStep.action &&
+                    (currentStep.action.href ? (
+                      <a
+                        href={currentStep.action.href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={styles.stepActionBtn}
+                      >
+                        <span>{currentStep.action.label}</span>
+                        <ExternalLink size={14} aria-hidden="true" />
+                      </a>
+                    ) : (
+                      <button
+                        type="button"
+                        className={styles.stepActionBtn}
+                        onClick={() => handleActionClick(currentStep.action?.code)}
+                      >
+                        <span>{currentStep.action.label}</span>
+                        <ArrowRight size={14} aria-hidden="true" />
+                      </button>
+                    ))}
+
+                  <div className={styles.stepperNav} aria-label="Navegar pelas etapas">
+                    <button
+                      type="button"
+                      className={styles.stepperBtn}
+                      disabled={activeStepIndex === 0}
+                      onClick={() => setActiveStepIndex((prev) => Math.max(0, prev - 1))}
+                      aria-label="Etapa anterior"
+                    >
+                      <ChevronLeft size={18} aria-hidden="true" />
+                    </button>
+                    <span className={styles.stepperCount} aria-live="polite">
+                      {currentStep.stepNumber} / 0{TUTORIAL_STEPS.length}
+                    </span>
+                    <button
+                      type="button"
+                      className={styles.stepperBtn}
+                      disabled={activeStepIndex === TUTORIAL_STEPS.length - 1}
+                      onClick={() =>
+                        setActiveStepIndex((prev) => Math.min(TUTORIAL_STEPS.length - 1, prev + 1))
+                      }
+                      aria-label="Próxima etapa"
+                    >
+                      <ChevronRight size={18} aria-hidden="true" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </section>
 
       {lightboxStep && (
