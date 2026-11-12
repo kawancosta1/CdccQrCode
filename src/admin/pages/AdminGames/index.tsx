@@ -17,6 +17,7 @@ import {
 import { isFirebaseConfigured } from "../../../lib/firebase.ts";
 import { GamesService, generateSlug } from "../../../services/gamesService.ts";
 import type { GameItem } from "../../../types/content.ts";
+import { useAdminAuth } from "../../context/adminAuthStore.ts";
 import styles from "../../styles/admin.module.css";
 
 interface GameFormState {
@@ -76,6 +77,16 @@ export function AdminGames() {
 
   const fileInputId = useId();
   const isOnlineFirebase = isFirebaseConfigured();
+  const { user } = useAdminAuth();
+
+  // Revoga ObjectURLs temporárias para evitar vazamento de memória
+  useEffect(() => {
+    return () => {
+      if (previewUrl.startsWith("blob:")) {
+        URL.revokeObjectURL(previewUrl);
+      }
+    };
+  }, [previewUrl]);
 
   const showToast = (msg: string) => {
     setToastMessage(msg);
@@ -179,6 +190,10 @@ export function AdminGames() {
 
   const handleSaveGame = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!user) {
+      setErrorBanner("Sessão expirada. Faça login novamente para salvar alterações.");
+      return;
+    }
     if (!formState.nome.trim()) {
       alert("Por favor, preencha o nome do jogo.");
       return;

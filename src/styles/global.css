@@ -193,3 +193,9 @@ html:not(.vlibras-enabled) div[vw] {
 html.vlibras-enabled div[vw] {
   z-index: 800 !important;
 }
+
+@media (max-width: 768px) {
+  html.vlibras-enabled .app-main {
+    padding-bottom: 5rem;
+  }
+}

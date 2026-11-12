@@ -59,15 +59,29 @@ export function useBookSearch() {
     lastQuery: string;
     resultsByRoom: SearchResultsByRoom | null;
     activeRoom: RoomId | null;
+    urlError: string;
+    urlFallback: string[];
   }>(() => {
     if (!urlQuery) {
-      return { lastQuery: "", resultsByRoom: null, activeRoom: null };
+      return {
+        lastQuery: "",
+        resultsByRoom: null,
+        activeRoom: null,
+        urlError: "",
+        urlFallback: [],
+      };
     }
 
     const results = searchBooksByCode(urlQuery, staticBookCatalogRepository);
     const defaultRoom = getDefaultRoom(results);
     if (!defaultRoom) {
-      return { lastQuery: "", resultsByRoom: null, activeRoom: null };
+      return {
+        lastQuery: "",
+        resultsByRoom: null,
+        activeRoom: null,
+        urlError: `Código "${urlQuery}" do QR Code não encontrado no acervo. Confira o código no Dedalus (ex: 530, 869.3 C500, R).`,
+        urlFallback: suggestNearestCodes(urlQuery, staticBookCatalogRepository, 3),
+      };
     }
 
     const resolvedRoom = urlRoom && results[urlRoom] ? urlRoom : defaultRoom;
@@ -75,6 +89,8 @@ export function useBookSearch() {
       lastQuery: urlQuery,
       resultsByRoom: results,
       activeRoom: resolvedRoom,
+      urlError: "",
+      urlFallback: [],
     };
   }, [urlQuery, urlRoom]);
 
@@ -169,8 +185,9 @@ export function useBookSearch() {
   return {
     searchValue,
     lastQuery: activeSearch.lastQuery,
-    searchError,
-    fallbackSuggestions,
+    searchError: searchError || activeSearch.urlError,
+    fallbackSuggestions:
+      fallbackSuggestions.length > 0 ? fallbackSuggestions : activeSearch.urlFallback,
     autocompleteSuggestions,
     recentSearches,
     resultsByRoom: activeSearch.resultsByRoom,

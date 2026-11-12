@@ -4,9 +4,11 @@ import "./styles/theme.css";
 import { lazy, Suspense } from "react";
 import { HashRouter, Route, Routes } from "react-router-dom";
 import { ErrorBoundary } from "./components/ErrorBoundary";
+import { PageSkeleton } from "./components/PageSkeleton";
 import { MainTemplate } from "./components/template/MainTemplate";
 import { AccessibilityProvider } from "./context/AccessibilityContext";
 import { BookSearchProvider } from "./context/BookSearchContext";
+import { RouteTitleUpdater } from "./hooks/useDocumentTitle";
 import { Home } from "./pages/Home";
 
 const Estantes = lazy(() =>
@@ -31,17 +33,12 @@ const AdminRoutes = lazy(() =>
 export function App() {
   return (
     <HashRouter>
+      <RouteTitleUpdater />
       <AccessibilityProvider>
         <BookSearchProvider>
           <MainTemplate>
             <ErrorBoundary>
-              <Suspense
-                fallback={
-                  <div role="status" aria-live="polite" className="page-loading-fallback">
-                    Carregando página...
-                  </div>
-                }
-              >
+              <Suspense fallback={<PageSkeleton label="Carregando página da Biblioteca CDCC..." />}>
                 <Routes>
                   <Route path="/" element={<Home />} />
                   <Route path="/espacoludico" element={<EspacoLudico />} />

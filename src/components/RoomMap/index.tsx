@@ -24,7 +24,16 @@ export function RoomMap({ roomId, shelves, imageClassName, interactive = false }
     : shelves;
 
   return (
-    <div className={style.mapWrapper}>
+    <div
+      className={style.mapWrapper}
+      role="region"
+      aria-label={`Mapa interativo da ${room.label}`}
+    >
+      <div className="sr-only" aria-live="polite">
+        {shelves.length > 0
+          ? `Estante ${shelves.join(", ")} destacada no mapa da ${room.label}.`
+          : `Visão geral do mapa da ${room.label}.`}
+      </div>
       <img
         src={room.mapSrc}
         alt={room.mapAlt}
