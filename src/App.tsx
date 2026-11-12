@@ -3,7 +3,9 @@ import "./styles/theme.css";
 
 import { lazy, Suspense } from "react";
 import { HashRouter, Route, Routes } from "react-router-dom";
+import { ErrorBoundary } from "./components/ErrorBoundary";
 import { MainTemplate } from "./components/template/MainTemplate";
+import { BookSearchProvider } from "./context/BookSearchContext";
 import { Home } from "./pages/Home";
 
 const Estantes = lazy(() =>
@@ -21,22 +23,36 @@ const GameRules = lazy(() =>
 const NotFound = lazy(() =>
   import("./pages/NotFound").then((m) => ({ default: m.NotFound })),
 );
+const AdminRoutes = lazy(() =>
+  import("./admin/AdminRoutes").then((m) => ({ default: m.AdminRoutes })),
+);
 
 export function App() {
   return (
     <HashRouter>
-      <MainTemplate>
-        <Suspense fallback={<div style={{ textAlign: "center", padding: "40px" }}>Carregando...</div>}>
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/espacoludico" element={<EspacoLudico />} />
-            <Route path="/espacoludico/:jogo" element={<GameRules />} />
-            <Route path="/estantes" element={<Estantes />} />
-            <Route path="/estantes/:sala/:numero" element={<ShelfDetail />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </Suspense>
-      </MainTemplate>
+      <BookSearchProvider>
+        <MainTemplate>
+          <ErrorBoundary>
+            <Suspense
+              fallback={
+                <div role="status" aria-live="polite" className="page-loading-fallback">
+                  Carregando página...
+                </div>
+              }
+            >
+              <Routes>
+                <Route path="/" element={<Home />} />
+                <Route path="/espacoludico" element={<EspacoLudico />} />
+                <Route path="/espacoludico/:jogo" element={<GameRules />} />
+                <Route path="/estantes" element={<Estantes />} />
+                <Route path="/estantes/:sala/:numero" element={<ShelfDetail />} />
+                <Route path="/admin/*" element={<AdminRoutes />} />
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </Suspense>
+          </ErrorBoundary>
+        </MainTemplate>
+      </BookSearchProvider>
     </HashRouter>
   );
 }
