@@ -1,5 +1,11 @@
 import { useCallback, useEffect, useMemo, useState, type FormEvent } from "react";
 import { Link } from "react-router-dom";
+import {
+  parseDedalusCsv,
+  readLocalImportedBooks,
+  saveImportedDedalusBooks,
+  syncAdminBookToSearchIndex,
+} from "../../../services/catalogSearchIndex";
 import type { BookInput } from "../../api/contracts";
 import { useAdminAuth } from "../../context/adminAuthStore";
 import { adminServices } from "../../services/adminServices";
@@ -33,6 +39,9 @@ export function AdminBooks() {
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [feedback, setFeedback] = useState<string | null>(null);
+  const [showCsvImport, setShowCsvImport] = useState(false);
+  const [csvText, setCsvText] = useState("");
+  const [indexedCount, setIndexedCount] = useState(() => readLocalImportedBooks().length);
 
   const canCreate = hasPermission("books.create");
   const canUpdate = hasPermission("books.update");
@@ -159,12 +168,15 @@ export function AdminBooks() {
 
     try {
       if (editingId) {
-        await adminServices.BookService.update(editingId, form, user);
-        setFeedback("Livro atualizado com sucesso.");
+        const updated = await adminServices.BookService.update(editingId, form, user);
+        await syncAdminBookToSearchIndex(updated);
+        setFeedback("Livro atualizado com sucesso e indexado na busca por nome.");
       } else {
-        await adminServices.BookService.create(form, user);
-        setFeedback("Livro cadastrado com sucesso.");
+        const created = await adminServices.BookService.create(form, user);
+        await syncAdminBookToSearchIndex(created);
+        setFeedback("Livro cadastrado com sucesso e indexado na busca por nome.");
       }
+      setIndexedCount(readLocalImportedBooks().length);
       setShowForm(false);
       setEditingId(null);
       await loadData();
@@ -202,6 +214,31 @@ export function AdminBooks() {
     }
   }
 
+  const parsedCsvPreview = useMemo(() => parseDedalusCsv(csvText), [csvText]);
+
+  async function handleCsvFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const text = await file.text();
+    setCsvText(text);
+    e.target.value = "";
+  }
+
+  async function handleImportCsvSubmit() {
+    if (parsedCsvPreview.length === 0) {
+      setError("Nenhum registro válido encontrado. Use o formato: Título;Autor;Código Dedalus");
+      return;
+    }
+    setError(null);
+    const res = await saveImportedDedalusBooks(parsedCsvPreview);
+    setIndexedCount(res.total);
+    setCsvText("");
+    setShowCsvImport(false);
+    setFeedback(
+      `${parsedCsvPreview.length} obra(s) processada(s) (${res.added} nova(s)). Total indexado para busca por nome: ${res.total}.`,
+    );
+  }
+
   if (!user) return null;
 
   return (
@@ -212,15 +249,63 @@ export function AdminBooks() {
             Livros e Classificação Dedalus
           </h1>
           <p className={styles.sectionSubtitle}>
-            Gerencie títulos, códigos Dedalus e vínculo com sala, setor e estante.
+            Gerencie títulos, códigos Dedalus e vínculo com sala, setor e estante. ({indexedCount} título(s) indexado(s) na busca por nome)
           </p>
         </div>
-        {canCreate && (
-          <button type="button" onClick={openCreateForm} className={styles.primaryBtn}>
-            + Novo livro
+        <div className={styles.rowActions}>
+          <button
+            type="button"
+            onClick={() => setShowCsvImport((prev) => !prev)}
+            className={styles.secondaryBtn}
+          >
+            {showCsvImport ? "Fechar importador CSV" : "Importar Planilha Dedalus (CSV)"}
           </button>
-        )}
+          {canCreate && (
+            <button type="button" onClick={openCreateForm} className={styles.primaryBtn}>
+              + Novo livro
+            </button>
+          )}
+        </div>
       </header>
+
+      {showCsvImport && (
+        <div className={styles.panelCard} style={{ marginBottom: "1rem" }}>
+          <h2 className={styles.panelTitle}>Importar Acervo Dedalus para Busca por Nome (CSV / TSV)</h2>
+          <p className={styles.sectionSubtitle} style={{ marginBottom: "0.75rem" }}>
+            Envie um arquivo <code>.csv</code>/<code>.tsv</code> ou cole linhas no formato{" "}
+            <code>Título;Autor;Código Dedalus</code> (ex.: <code>Física Conceitual;Paul Hewitt;530 H611f</code>).
+          </p>
+          <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap", marginBottom: "0.75rem" }}>
+            <input
+              type="file"
+              accept=".csv,.tsv,.txt"
+              onChange={(e) => void handleCsvFileChange(e)}
+              className={styles.input}
+              style={{ maxWidth: "360px" }}
+            />
+          </div>
+          <textarea
+            rows={5}
+            className={styles.textarea}
+            placeholder={"Título;Autor;Código Dedalus\nFísica Conceitual;Paul G. Hewitt;530\nCálculo Vol. 1;James Stewart;517"}
+            value={csvText}
+            onChange={(e) => setCsvText(e.target.value)}
+          />
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: "0.75rem", gap: "0.75rem", flexWrap: "wrap" }}>
+            <span className={styles.sectionSubtitle}>
+              Registros reconhecidos: <strong>{parsedCsvPreview.length}</strong>
+            </span>
+            <button
+              type="button"
+              className={styles.primaryBtn}
+              disabled={parsedCsvPreview.length === 0}
+              onClick={() => void handleImportCsvSubmit()}
+            >
+              Indexar na Busca por Nome
+            </button>
+          </div>
+        </div>
+      )}
 
       {error && (
         <div role="alert" className={styles.errorBanner}>

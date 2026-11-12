@@ -85,6 +85,58 @@ function isPurelyNumericOrCodeLike(normalized: string): boolean {
   return /^\d[\d.\s]*$/.test(normalized);
 }
 
+function levenshteinDistance(a: string, b: string): number {
+  if (a === b) return 0;
+  if (a.length === 0) return b.length;
+  if (b.length === 0) return a.length;
+
+  const prev = Array.from({ length: b.length + 1 }, (_, i) => i);
+  const curr = new Array<number>(b.length + 1);
+
+  for (let i = 1; i <= a.length; i++) {
+    curr[0] = i;
+    for (let j = 1; j <= b.length; j++) {
+      const cost = a[i - 1] === b[j - 1] ? 0 : 1;
+      curr[j] = Math.min(curr[j - 1] + 1, prev[j] + 1, prev[j - 1] + cost);
+    }
+    for (let j = 0; j <= b.length; j++) {
+      prev[j] = curr[j];
+    }
+  }
+  return prev[b.length];
+}
+
+function matchTokensWithFuzzy(
+  tokens: string[],
+  targetText: string,
+): { matched: boolean; exact: boolean } {
+  const words = targetText.split(" ").filter(Boolean);
+  let allExact = true;
+
+  for (const token of tokens) {
+    if (targetText.includes(token)) {
+      continue;
+    }
+
+    if (token.length < 4) {
+      return { matched: false, exact: false };
+    }
+
+    const maxDist = token.length >= 7 ? 2 : 1;
+    const fuzzyHit = words.some((word) => {
+      if (Math.abs(word.length - token.length) > maxDist) return false;
+      return levenshteinDistance(token, word) <= maxDist;
+    });
+
+    if (!fuzzyHit) {
+      return { matched: false, exact: false };
+    }
+    allExact = false;
+  }
+
+  return { matched: true, exact: allExact };
+}
+
 /**
  * Busca obras por título/autor (seed do vestibular + registros extras) e áreas CDU por assunto,
  * validando cada código contra o repositório de estantes do CDCC.
@@ -122,8 +174,8 @@ export function searchByNameOrSubject(
     const normAuthor = normalizeSearchText(book.autor ?? "");
     const combined = `${normTitle} ${normAuthor}`.trim();
 
-    const allTokensMatch = tokens.every((token) => combined.includes(token));
-    if (!allTokensMatch) continue;
+    const { matched, exact } = matchTokensWithFuzzy(tokens, combined);
+    if (!matched) continue;
 
     const dedupeKey = `${book.codigoDedalus.toUpperCase()}::${normTitle}`;
     if (seenKeys.has(dedupeKey)) continue;
@@ -133,7 +185,7 @@ export function searchByNameOrSubject(
 
     seenKeys.add(dedupeKey);
 
-    let score = 50;
+    let score = exact ? 50 : 28;
     if (normTitle === normalized) score = 120;
     else if (normTitle.startsWith(normalized)) score = 100;
     else if (normTitle.includes(normalized)) score = 85;
@@ -153,11 +205,13 @@ export function searchByNameOrSubject(
 
   for (const subject of SUBJECT_CDU_ENTRIES) {
     const normLabel = normalizeSearchText(subject.label);
+    const allKeywordsText = `${normLabel} ${subject.keywords.join(" ")}`;
     const matchesKeyword = subject.keywords.some(
       (kw) => kw.includes(normalized) || normalized.includes(kw),
     );
-    const matchesTokens = tokens.every(
-      (token) => normLabel.includes(token) || subject.keywords.some((kw) => kw.includes(token)),
+    const { matched: matchesTokens, exact: exactTokens } = matchTokensWithFuzzy(
+      tokens,
+      allKeywordsText,
     );
 
     if (!matchesKeyword && !matchesTokens) continue;
@@ -169,7 +223,7 @@ export function searchByNameOrSubject(
     if (seenKeys.has(dedupeKey)) continue;
     seenKeys.add(dedupeKey);
 
-    let score = 45;
+    let score = matchesKeyword || exactTokens ? 45 : 24;
     if (normLabel === normalized || subject.keywords.includes(normalized)) score = 110;
     else if (normLabel.startsWith(normalized)) score = 90;
 

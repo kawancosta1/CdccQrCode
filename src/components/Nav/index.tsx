@@ -1,6 +1,10 @@
 import { useEffect, useState } from "react";
 import { NavLink, Link } from "react-router-dom";
 import { ExternalLink, Menu, Search, X } from "lucide-react";
+import {
+  SearchAutocompleteDropdown,
+  type AutocompleteEntry,
+} from "../SearchAutocompleteDropdown";
 import { UniversalAccessibilityIcon } from "../icons/UniversalAccessibilityIcon";
 import { useAccessibility } from "../../context/accessibilityStore";
 import { useBookSearchContext } from "../../context/bookSearchStore";
@@ -17,9 +21,12 @@ interface NavSearchFormProps {
   value: string;
   hasError: boolean;
   errorId?: string;
+  entries: AutocompleteEntry[];
+  dedalusSearchUrl: string;
   onChange: (value: string) => void;
   onClear: () => void;
   onSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
+  onSelectEntry: (entry: AutocompleteEntry) => void;
 }
 
 function NavSearchForm({
@@ -29,36 +36,95 @@ function NavSearchForm({
   value,
   hasError,
   errorId,
+  entries,
+  dedalusSearchUrl,
   onChange,
   onClear,
   onSubmit,
+  onSelectEntry,
 }: NavSearchFormProps) {
+  const [open, setOpen] = useState(false);
+  const [activeIndex, setActiveIndex] = useState(-1);
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (!open || entries.length === 0) return;
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      setActiveIndex((prev) => (prev + 1) % entries.length);
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      setActiveIndex((prev) => (prev <= 0 ? entries.length - 1 : prev - 1));
+    } else if (e.key === "Enter" && activeIndex >= 0 && activeIndex < entries.length) {
+      e.preventDefault();
+      setOpen(false);
+      onSelectEntry(entries[activeIndex]);
+      setActiveIndex(-1);
+    } else if (e.key === "Escape") {
+      setOpen(false);
+      setActiveIndex(-1);
+    }
+  };
+
   return (
-    <form className={formClassName} onSubmit={onSubmit} role="search" aria-label={ariaLabel}>
-      <div className={style.searchInputWrapper}>
+    <form
+      className={formClassName}
+      onSubmit={(e) => {
+        setOpen(false);
+        setActiveIndex(-1);
+        onSubmit(e);
+      }}
+      role="search"
+      aria-label={ariaLabel}
+    >
+      <div className={style.searchInputWrapper} style={{ position: "relative" }}>
         <Search size={16} className={style.searchIcon} aria-hidden="true" />
         <label htmlFor={inputId} className="sr-only">
-          Pesquisar código de classificação Dedalus
+          Pesquisar código Dedalus ou nome do livro
         </label>
         <input
           id={inputId}
           type="search"
-          placeholder="Código Dedalus (ex: 530)"
+          placeholder="Nome, autor ou código (ex: 530)"
           aria-invalid={hasError}
           aria-describedby={hasError ? errorId : undefined}
           className={style.searchInput}
           value={value}
-          onChange={(e) => onChange(e.target.value)}
+          onChange={(e) => {
+            onChange(e.target.value);
+            setOpen(true);
+            setActiveIndex(-1);
+          }}
+          onFocus={() => setOpen(true)}
+          onBlur={() => setOpen(false)}
+          onKeyDown={handleKeyDown}
         />
         {value && (
           <button
             type="button"
             className={style.clearBtn}
-            onClick={onClear}
+            onClick={() => {
+              onClear();
+              setOpen(false);
+              setActiveIndex(-1);
+            }}
             aria-label="Limpar busca"
           >
             <X size={14} aria-hidden="true" />
           </button>
+        )}
+        {open && value.trim().length >= 2 && (
+          <SearchAutocompleteDropdown
+            entries={entries}
+            activeIndex={activeIndex}
+            searchValue={value}
+            dedalusSearchUrl={dedalusSearchUrl}
+            onSelectEntry={(entry) => {
+              setOpen(false);
+              setActiveIndex(-1);
+              onSelectEntry(entry);
+            }}
+            onHoverIndex={setActiveIndex}
+          />
         )}
       </div>
       <button type="submit" className={style.searchSubmitBtn}>
@@ -86,12 +152,28 @@ export function Nav() {
   const {
     searchValue,
     searchError,
+    autocompleteSuggestions,
+    nameSuggestions,
     matchedNameOptions,
     dedalusSearchUrl,
     handleSearchChange,
     submitSearch,
     clearSearch,
   } = useBookSearchContext();
+
+  const dropdownEntries: AutocompleteEntry[] = [
+    ...nameSuggestions.map((item): AutocompleteEntry => ({ type: "name", item })),
+    ...autocompleteSuggestions.map((code): AutocompleteEntry => ({ type: "code", code })),
+  ];
+
+  const handleSelectDropdownEntry = (entry: AutocompleteEntry) => {
+    setMenuOpen(false);
+    if (entry.type === "name") {
+      submitSearch(entry.item.code, entry.item);
+    } else {
+      submitSearch(entry.code);
+    }
+  };
 
   useEffect(() => {
     let active = true;
@@ -215,13 +297,16 @@ export function Nav() {
           <NavSearchForm
             inputId="nav-search-desktop"
             formClassName={style.desktopSearchForm}
-            ariaLabel="Busca rápida por código Dedalus"
+            ariaLabel="Busca rápida por nome ou código Dedalus"
             value={searchValue}
             hasError={Boolean(searchError)}
             errorId={errorBannerId}
+            entries={dropdownEntries}
+            dedalusSearchUrl={dedalusSearchUrl}
             onChange={handleSearchChange}
             onClear={clearSearch}
             onSubmit={handleSubmit}
+            onSelectEntry={handleSelectDropdownEntry}
           />
 
           <div className={style.desktopLinks}>
@@ -289,7 +374,7 @@ export function Nav() {
                       key={item.id}
                       type="button"
                       onClick={() => {
-                        submitSearch(item.code);
+                        submitSearch(item.code, item);
                         setMenuOpen(false);
                       }}
                       style={{
@@ -354,9 +439,12 @@ export function Nav() {
             value={searchValue}
             hasError={Boolean(searchError)}
             errorId={errorBannerId}
+            entries={dropdownEntries}
+            dedalusSearchUrl={dedalusSearchUrl}
             onChange={handleSearchChange}
             onClear={clearSearch}
             onSubmit={handleSubmit}
+            onSelectEntry={handleSelectDropdownEntry}
           />
 
           <div className={style.mobileLinks}>{renderLinks(closeMenu)}</div>

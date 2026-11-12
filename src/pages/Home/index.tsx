@@ -18,6 +18,10 @@ import {
 } from "lucide-react";
 import { HeroCarousel, type HeroSlide } from "../../components/HeroCarousel";
 import { ImageLightbox } from "../../components/ImageLightbox";
+import {
+  SearchAutocompleteDropdown,
+  type AutocompleteEntry,
+} from "../../components/SearchAutocompleteDropdown";
 import dedalus4 from "../../components/img/Dedalus4.webp";
 import dedalus5 from "../../components/img/Dedalus5.webp";
 import dedalus6 from "../../components/img/Dedalus6.webp";
@@ -280,8 +284,45 @@ export function Home() {
     primaryInputRef.current?.focus();
   };
 
+  const [heroDropdownOpen, setHeroDropdownOpen] = useState(false);
+  const [heroActiveIndex, setHeroActiveIndex] = useState(-1);
+
+  const dropdownEntries: AutocompleteEntry[] = [
+    ...nameSuggestions.map((item): AutocompleteEntry => ({ type: "name", item })),
+    ...autocompleteSuggestions.map((code): AutocompleteEntry => ({ type: "code", code })),
+  ];
+
+  const handleSelectDropdownEntry = (entry: AutocompleteEntry) => {
+    setHeroDropdownOpen(false);
+    setHeroActiveIndex(-1);
+    if (entry.type === "name") {
+      submitSearch(entry.item.code, entry.item);
+    } else {
+      submitSearch(entry.code);
+    }
+  };
+
+  const handleHeroKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (!heroDropdownOpen || dropdownEntries.length === 0) return;
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      setHeroActiveIndex((prev) => (prev + 1) % dropdownEntries.length);
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      setHeroActiveIndex((prev) => (prev <= 0 ? dropdownEntries.length - 1 : prev - 1));
+    } else if (e.key === "Enter" && heroActiveIndex >= 0 && heroActiveIndex < dropdownEntries.length) {
+      e.preventDefault();
+      handleSelectDropdownEntry(dropdownEntries[heroActiveIndex]);
+    } else if (e.key === "Escape") {
+      setHeroDropdownOpen(false);
+      setHeroActiveIndex(-1);
+    }
+  };
+
   const handleHeroSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setHeroDropdownOpen(false);
+    setHeroActiveIndex(-1);
     submitSearch(searchValue);
   };
 
@@ -314,7 +355,7 @@ export function Home() {
             <div className={styles.heroInputWrap}>
               <Search size={20} className={styles.heroSearchIcon} aria-hidden="true" />
               <label htmlFor="hero-book-search" className="sr-only">
-                Código de classificação Dedalus
+                Código de classificação Dedalus ou nome do livro
               </label>
               <input
                 id="hero-book-search"
@@ -323,7 +364,16 @@ export function Home() {
                 className={styles.heroInput}
                 placeholder={homeCfg.searchPlaceholder}
                 value={searchValue}
-                onChange={(e) => handleSearchChange(e.target.value)}
+                onChange={(e) => {
+                  handleSearchChange(e.target.value);
+                  setHeroDropdownOpen(true);
+                  setHeroActiveIndex(-1);
+                }}
+                onFocus={() => setHeroDropdownOpen(true)}
+                onBlur={() => setHeroDropdownOpen(false)}
+                onKeyDown={handleHeroKeyDown}
+                aria-autocomplete="list"
+                aria-expanded={heroDropdownOpen && !resultsByRoom && searchValue.trim().length >= 2}
                 aria-invalid={Boolean(searchError)}
                 aria-describedby={searchError ? "hero-search-error" : "hero-search-hint"}
               />
@@ -331,11 +381,25 @@ export function Home() {
                 <button
                   type="button"
                   className={styles.heroClearBtn}
-                  onClick={clearSearch}
+                  onClick={() => {
+                    clearSearch();
+                    setHeroDropdownOpen(false);
+                    setHeroActiveIndex(-1);
+                  }}
                   aria-label="Limpar código digitado"
                 >
                   <X size={18} aria-hidden="true" />
                 </button>
+              )}
+              {heroDropdownOpen && !resultsByRoom && searchValue.trim().length >= 2 && (
+                <SearchAutocompleteDropdown
+                  entries={dropdownEntries}
+                  activeIndex={heroActiveIndex}
+                  searchValue={searchValue}
+                  dedalusSearchUrl={dedalusSearchUrl}
+                  onSelectEntry={handleSelectDropdownEntry}
+                  onHoverIndex={setHeroActiveIndex}
+                />
               )}
             </div>
 
@@ -402,53 +466,6 @@ export function Home() {
               {homeCfg.searchHint}
             </p>
           )}
-
-          {!searchError &&
-            !resultsByRoom &&
-            (nameSuggestions.length > 0 || autocompleteSuggestions.length > 0) && (
-              <div className={styles.examplesRow} aria-label="Sugestões compatíveis">
-                <span className={styles.examplesLabel}>Sugestões:</span>
-                <div className={styles.examplesList} role="listbox" aria-label="Sugestões de livros e códigos">
-                  {nameSuggestions.map((item) => (
-                    <button
-                      key={item.id}
-                      type="button"
-                      role="option"
-                      aria-selected={false}
-                      className={styles.exampleChip}
-                      onClick={() => handleExampleClick(item.code)}
-                      title={item.subtitle}
-                    >
-                      {item.title} • {item.code}
-                    </button>
-                  ))}
-                  {autocompleteSuggestions.map((code) => (
-                    <button
-                      key={code}
-                      type="button"
-                      role="option"
-                      aria-selected={false}
-                      className={styles.exampleChip}
-                      onClick={() => handleExampleClick(code)}
-                    >
-                      {code}
-                    </button>
-                  ))}
-                  {searchValue.trim().length >= 2 && (
-                    <a
-                      href={dedalusSearchUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className={styles.exampleChip}
-                      style={{ display: "inline-flex", alignItems: "center", gap: "0.35rem", textDecoration: "none" }}
-                    >
-                      <ExternalLink size={13} aria-hidden="true" />
-                      Buscar no Dedalus USP
-                    </a>
-                  )}
-                </div>
-              </div>
-            )}
 
           {/* Anúncio dinâmico para leitores de tela sobre resultados ou sugestões */}
           <div className="sr-only" role="status" aria-live="polite" aria-atomic="true">

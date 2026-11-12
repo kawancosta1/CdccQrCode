@@ -1,10 +1,11 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import type { RoomId } from "../config/roomConstants";
 import {
   buildDedalusSearchUrl,
   searchByNameOrSubject,
   type NameMatchItem,
+  type SearchableBookRecord,
 } from "../domain/nameSearch";
 import {
   getDefaultRoom,
@@ -14,6 +15,10 @@ import {
   type SearchResultsByRoom,
 } from "../domain/searchParser";
 import { staticBookCatalogRepository } from "../repositories/bookCatalogRepository";
+import {
+  CATALOG_INDEX_UPDATED_EVENT,
+  getDynamicSearchableBooks,
+} from "../services/catalogSearchIndex";
 
 const RECENT_SEARCHES_KEY = "qrcodecdcc_recent_searches";
 const MAX_RECENT_SEARCHES = 4;
@@ -55,8 +60,27 @@ export function useBookSearch() {
   const [searchError, setSearchError] = useState("");
   const [fallbackSuggestions, setFallbackSuggestions] = useState<string[]>([]);
   const [matchedNameOptions, setMatchedNameOptions] = useState<NameMatchItem[]>([]);
+  const [matchedContext, setMatchedContext] = useState<NameMatchItem | null>(null);
+  const [dynamicBooks, setDynamicBooks] = useState<SearchableBookRecord[]>([]);
   const [recentSearches, setRecentSearches] = useState<string[]>(loadRecentSearches);
   const [searchKey, setSearchKey] = useState(0);
+
+  useEffect(() => {
+    let active = true;
+    const loadBooks = () => {
+      getDynamicSearchableBooks()
+        .then((items) => {
+          if (active) setDynamicBooks(items);
+        })
+        .catch(() => {});
+    };
+    loadBooks();
+    window.addEventListener(CATALOG_INDEX_UPDATED_EVENT, loadBooks);
+    return () => {
+      active = false;
+      window.removeEventListener(CATALOG_INDEX_UPDATED_EVENT, loadBooks);
+    };
+  }, []);
 
   const urlQuery = searchParams.get("q")?.trim() ?? "";
   const urlRoom = parseRoomParam(searchParams.get("sala"));
@@ -137,12 +161,13 @@ export function useBookSearch() {
   );
 
   const submitSearch = useCallback(
-    (rawQuery: string): boolean => {
+    (rawQuery: string, contextItem?: NameMatchItem): boolean => {
       const trimmed = rawQuery.trim();
       if (!trimmed) {
         clearUrlSearchParams();
         setFallbackSuggestions([]);
         setMatchedNameOptions([]);
+        setMatchedContext(null);
         setSearchError("Digite um código Dedalus (ex: 530, 869.3 C500) ou nome do livro, autor ou assunto.");
         return false;
       }
@@ -151,7 +176,12 @@ export function useBookSearch() {
       const defaultRoom = getDefaultRoom(results);
 
       if (!defaultRoom) {
-        const nameMatches = searchByNameOrSubject(trimmed, staticBookCatalogRepository, [], 6);
+        const nameMatches = searchByNameOrSubject(
+          trimmed,
+          staticBookCatalogRepository,
+          dynamicBooks,
+          6,
+        );
         if (nameMatches.length === 1) {
           const matched = nameMatches[0];
           const matchedResults = searchBooksByCode(matched.code, staticBookCatalogRepository);
@@ -162,6 +192,7 @@ export function useBookSearch() {
             setSearchError("");
             setFallbackSuggestions([]);
             setMatchedNameOptions([]);
+            setMatchedContext(matched);
             pushRecentSearch(matched.code);
 
             const next = new URLSearchParams(searchParams);
@@ -173,6 +204,7 @@ export function useBookSearch() {
         }
 
         clearUrlSearchParams();
+        setMatchedContext(null);
         if (nameMatches.length > 1) {
           setMatchedNameOptions(nameMatches);
           setFallbackSuggestions([]);
@@ -195,6 +227,7 @@ export function useBookSearch() {
       setSearchError("");
       setFallbackSuggestions([]);
       setMatchedNameOptions([]);
+      setMatchedContext(contextItem ?? null);
       pushRecentSearch(trimmed);
 
       const next = new URLSearchParams(searchParams);
@@ -203,10 +236,11 @@ export function useBookSearch() {
       setSearchParams(next);
       return true;
     },
-    [clearUrlSearchParams, pushRecentSearch, searchParams, setSearchParams],
+    [clearUrlSearchParams, dynamicBooks, pushRecentSearch, searchParams, setSearchParams],
   );
 
   const closeResults = useCallback(() => {
+    setMatchedContext(null);
     clearUrlSearchParams();
   }, [clearUrlSearchParams]);
 
@@ -215,6 +249,7 @@ export function useBookSearch() {
     setSearchError("");
     setFallbackSuggestions([]);
     setMatchedNameOptions([]);
+    setMatchedContext(null);
     clearUrlSearchParams();
   }, [clearUrlSearchParams]);
 
@@ -225,8 +260,8 @@ export function useBookSearch() {
 
   const nameSuggestions = useMemo<NameMatchItem[]>(() => {
     if (searchValue.trim().length < 2) return [];
-    return searchByNameOrSubject(searchValue, staticBookCatalogRepository, [], 5);
-  }, [searchValue]);
+    return searchByNameOrSubject(searchValue, staticBookCatalogRepository, dynamicBooks, 5);
+  }, [dynamicBooks, searchValue]);
 
   const dedalusSearchUrl = useMemo(() => {
     return buildDedalusSearchUrl(searchValue || activeSearch.lastQuery);
@@ -241,6 +276,7 @@ export function useBookSearch() {
     autocompleteSuggestions,
     nameSuggestions,
     matchedNameOptions,
+    matchedContext,
     dedalusSearchUrl,
     recentSearches,
     resultsByRoom: activeSearch.resultsByRoom,

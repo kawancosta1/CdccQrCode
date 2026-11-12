@@ -15,6 +15,7 @@ import {
   X,
 } from "lucide-react";
 import { getShelfDirectionText, ROOM_CONFIG, ROOM_IDS, type RoomId } from "../../config/rooms";
+import type { NameMatchItem } from "../../domain/nameSearch";
 import { extractShelves, type SearchResultsByRoom } from "../../domain/searchParser";
 import { useFocusTrap } from "../../hooks/useFocusTrap";
 import { getPhotoOverrides, type PhotoOverrideRecord } from "../../services/mappingService";
@@ -26,6 +27,7 @@ type TabType = "photo" | "map";
 
 interface SearchResultModalProps {
   query: string;
+  matchedContext?: NameMatchItem | null;
   resultsByRoom: SearchResultsByRoom;
   activeRoom: RoomId;
   onSelectRoom: (room: RoomId) => void;
@@ -38,6 +40,7 @@ interface SearchResultModalProps {
  */
 export function SearchResultModal({
   query,
+  matchedContext,
   resultsByRoom,
   activeRoom,
   onSelectRoom,
@@ -191,6 +194,21 @@ export function SearchResultModal({
             <h2 id="search-result-title" className={style.title}>
               {activeRoomData?.shelf ?? activeMapConfig.label}
             </h2>
+
+            {matchedContext && (
+              <p
+                style={{
+                  margin: "0.25rem 0 0.15rem",
+                  fontSize: "0.875rem",
+                  color: "var(--color-brand-text)",
+                  fontWeight: 600,
+                }}
+              >
+                {matchedContext.kind === "livro" ? "Obra localizada: " : "Área temática: "}
+                <strong>{matchedContext.title}</strong>
+                {matchedContext.subtitle ? ` (${matchedContext.subtitle})` : ""}
+              </p>
+            )}
 
             {activeRoomData?.range && (
               <p className={style.rangeText}>

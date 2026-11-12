@@ -14,6 +14,7 @@ export function MainTemplate({ children }: MainTemplateProps) {
     lastQuery,
     resultsByRoom,
     activeRoom,
+    matchedContext,
     searchKey,
     setActiveRoom,
     closeResults,
@@ -41,6 +42,7 @@ export function MainTemplate({ children }: MainTemplateProps) {
         <SearchResultModal
           key={searchKey}
           query={lastQuery}
+          matchedContext={matchedContext}
           resultsByRoom={resultsByRoom}
           activeRoom={activeRoom}
           onSelectRoom={setActiveRoom}
