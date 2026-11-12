@@ -17,6 +17,7 @@ import {
 import { getShelfDirectionText, ROOM_CONFIG, ROOM_IDS, type RoomId } from "../../config/rooms";
 import { extractShelves, type SearchResultsByRoom } from "../../domain/searchParser";
 import { useFocusTrap } from "../../hooks/useFocusTrap";
+import { getPhotoOverrides, type PhotoOverrideRecord } from "../../services/mappingService";
 import { ImageLightbox } from "../ImageLightbox";
 import { RoomMap } from "../RoomMap";
 import style from "./style.module.css";
@@ -74,12 +75,43 @@ export function SearchResultModal({
     };
   }, [onClose]);
 
+  const [photoOverrides, setPhotoOverrides] = useState<PhotoOverrideRecord[]>([]);
+
+  useEffect(() => {
+    let active = true;
+    getPhotoOverrides()
+      .then((list) => {
+        if (active) setPhotoOverrides(list);
+      })
+      .catch(() => {});
+    return () => {
+      active = false;
+    };
+  }, []);
+
   const activeRoomData = resultsByRoom[activeRoom] ?? null;
   const activeMapConfig = ROOM_CONFIG[activeRoom];
-  const currentImages = activeRoomData?.images ?? [];
+  const baseImages = activeRoomData?.images ?? [];
+  const activeShelves = extractShelves(activeRoomData);
+  const normalizedQuery = query.trim().toUpperCase();
+  const codeOverride = photoOverrides.find(
+    (o) =>
+      o.targetType === "code" &&
+      (o.codeKey ?? "").trim().toUpperCase() === normalizedQuery
+  );
+  const shelfOverride = photoOverrides.find(
+    (o) =>
+      o.targetType === "shelf" &&
+      o.roomId === activeRoom &&
+      activeShelves.some((s) => s.toUpperCase() === (o.shelfKey ?? "").toUpperCase())
+  );
+  const currentImages = codeOverride
+    ? [codeOverride.imageUrl, ...baseImages]
+    : shelfOverride
+      ? [shelfOverride.imageUrl, ...baseImages.slice(1)]
+      : baseImages;
   const availableRooms = ROOM_IDS.filter((id) => Boolean(resultsByRoom[id]));
   const otherRooms = availableRooms.filter((id) => id !== activeRoom);
-  const activeShelves = extractShelves(activeRoomData);
   const directionText = getShelfDirectionText(activeRoom, activeShelves);
 
   const primaryShelfNumber = Number(activeShelves[0]);

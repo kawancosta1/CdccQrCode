@@ -210,7 +210,39 @@ export function Home() {
     primaryInputRef,
   } = useBookSearchContext();
 
-  const currentPhase = TUTORIAL_PHASES[activePhaseIndex];
+  const defaultImages = [dedalus4, dedalus5, dedalus6];
+  const activeTutorialPhases: TutorialPhase[] = (
+    homeCfg.tutorialPhases.filter((p) => p.enabled !== false)
+  ).map((p, idx) => {
+    const base = TUTORIAL_PHASES[idx];
+    const resolvedImage =
+      p.imageUrl ||
+      getImageSrc(`tutorial_fase_${idx + 1}`, base?.image ?? defaultImages[idx % defaultImages.length]);
+    return {
+      id: p.id,
+      phaseNumber: p.phaseNumber,
+      tabLabel: p.tabLabel,
+      tagline: p.tagline,
+      title: p.title,
+      description: p.description,
+      bullets: p.bullets.length > 0 ? p.bullets : (base?.bullets ?? []),
+      callout: {
+        label: p.calloutLabel || base?.callout.label || "Biblioteca CDCC",
+        value: p.calloutValue || base?.callout.value || "USP São Carlos",
+      },
+      image: resolvedImage,
+      imageAlt: p.imageAlt || p.title,
+      badge: p.badge || "CDCC-USP",
+      primaryAction:
+        p.actionLabel && p.actionUrl
+          ? { type: "link", label: p.actionLabel, href: p.actionUrl }
+          : (base?.primaryAction ?? { type: "link", label: "Explorar estantes", href: "/estantes" }),
+      secondaryAction: base?.secondaryAction,
+    };
+  });
+
+  const safePhaseIndex = Math.min(activePhaseIndex, Math.max(0, activeTutorialPhases.length - 1));
+  const currentPhase = activeTutorialPhases[safePhaseIndex] ?? TUTORIAL_PHASES[0];
 
   const handleCopyCode = (text: string) => {
     if (navigator?.clipboard?.writeText) {
@@ -221,20 +253,20 @@ export function Home() {
   };
 
   const handlePhaseKeyDown = (e: React.KeyboardEvent, index: number) => {
+    const total = activeTutorialPhases.length;
+    if (total === 0) return;
     if (e.key === "ArrowRight" || e.key === "ArrowDown") {
       e.preventDefault();
-      const next = (index + 1) % TUTORIAL_PHASES.length;
-      setActivePhaseIndex(next);
+      setActivePhaseIndex((index + 1) % total);
     } else if (e.key === "ArrowLeft" || e.key === "ArrowUp") {
       e.preventDefault();
-      const prev = (index - 1 + TUTORIAL_PHASES.length) % TUTORIAL_PHASES.length;
-      setActivePhaseIndex(prev);
+      setActivePhaseIndex((index - 1 + total) % total);
     } else if (e.key === "Home") {
       e.preventDefault();
       setActivePhaseIndex(0);
     } else if (e.key === "End") {
       e.preventDefault();
-      setActivePhaseIndex(TUTORIAL_PHASES.length - 1);
+      setActivePhaseIndex(total - 1);
     }
   };
 
@@ -492,8 +524,8 @@ export function Home() {
           role="tablist"
           aria-label="Fases do tutorial para localizar livros"
         >
-          {TUTORIAL_PHASES.map((phase, idx) => {
-            const isActive = activePhaseIndex === idx;
+          {activeTutorialPhases.map((phase, idx) => {
+            const isActive = safePhaseIndex === idx;
             return (
               <button
                 key={phase.id}
@@ -685,9 +717,11 @@ export function Home() {
             <button
               type="button"
               className={styles.stepperArrowBtn}
-              disabled={activePhaseIndex === TUTORIAL_PHASES.length - 1}
+              disabled={safePhaseIndex >= activeTutorialPhases.length - 1}
               onClick={() =>
-                setActivePhaseIndex((prev) => Math.min(TUTORIAL_PHASES.length - 1, prev + 1))
+                setActivePhaseIndex((prev) =>
+                  Math.min(activeTutorialPhases.length - 1, prev + 1)
+                )
               }
               aria-label="Próxima fase"
             >

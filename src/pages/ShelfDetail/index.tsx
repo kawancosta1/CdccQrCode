@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import {
   ArrowLeft,
@@ -14,6 +14,7 @@ import { ImageLightbox } from "../../components/ImageLightbox";
 import { RoomMap } from "../../components/RoomMap";
 import { getRoomIdBySlug, getShelfDirectionText, ROOM_CONFIG } from "../../config/rooms";
 import { SHELF_OVERVIEW_IMAGES } from "../../config/shelfImages";
+import { getPhotoOverrides, type PhotoOverrideRecord } from "../../services/mappingService";
 import style from "./style.module.css";
 
 /**
@@ -22,12 +23,35 @@ import style from "./style.module.css";
 export function ShelfDetail() {
   const [viewMode, setViewMode] = useState<"estante" | "mapa">("estante");
   const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [photoOverrides, setPhotoOverrides] = useState<PhotoOverrideRecord[]>([]);
   const { sala, numero } = useParams<{ sala: string; numero: string }>();
+
+  useEffect(() => {
+    let active = true;
+    getPhotoOverrides()
+      .then((list) => {
+        if (active) setPhotoOverrides(list);
+      })
+      .catch(() => {});
+    return () => {
+      active = false;
+    };
+  }, []);
 
   const roomId = getRoomIdBySlug(sala);
   const room = roomId ? ROOM_CONFIG[roomId] : null;
   const roomImages = roomId ? SHELF_OVERVIEW_IMAGES[roomId] : undefined;
-  const imagem = numero && roomImages ? roomImages[numero] : undefined;
+  const baseImagem = numero && roomImages ? roomImages[numero] : undefined;
+  const shelfOverride =
+    roomId && numero
+      ? photoOverrides.find(
+          (o) =>
+            o.targetType === "shelf" &&
+            o.roomId === roomId &&
+            (o.shelfKey ?? "").toUpperCase() === numero.toUpperCase()
+        )
+      : undefined;
+  const imagem = shelfOverride?.imageUrl || baseImagem;
 
   if (!room || !numero || !imagem) {
     const maxShelves = room?.shelfNumbers.length ?? 0;

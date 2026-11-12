@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { LayoutTemplate, Plus, Save, Trash2 } from "lucide-react";
+import { ArrowDown, ArrowUp, LayoutTemplate, Plus, Save, Trash2 } from "lucide-react";
 import { useSiteConfig } from "../../../context/siteConfigStore.ts";
 import { uploadCmsImage } from "../../../services/siteConfigService.ts";
 import type { QuickAccessCardConfig, SiteConfig } from "../../../types/content.ts";
@@ -47,31 +47,74 @@ export default function AdminHomeEditor() {
 
       <section className={styles.card}>
         <h2 className={styles.cardTitle}>
-          <LayoutTemplate size={18} /> Visibilidade das Seções
+          <LayoutTemplate size={18} /> Ordem &amp; Visibilidade das Seções da Home
         </h2>
-        <div style={{ display: "flex", flexWrap: "wrap", gap: "1.5rem" }}>
-          {(
-            [
-              ["hero", "Hero & Buscador"],
-              ["quickAccess", "Cards de Acesso Rápido"],
-              ["carousel", "Carrossel de Destaques"],
-              ["tutorial", "Tutorial em 3 Passos"],
-            ] as const
-          ).map(([key, label]) => (
-            <label key={key} className={styles.checkboxRow}>
-              <input
-                type="checkbox"
-                checked={home.sectionsVisibility[key]}
-                onChange={(e) =>
-                  setHome((p) => ({
-                    ...p,
-                    sectionsVisibility: { ...p.sectionsVisibility, [key]: e.target.checked },
-                  }))
-                }
-              />
-              {label}
-            </label>
-          ))}
+        <div style={{ display: "flex", flexDirection: "column", gap: "0.55rem" }}>
+          {(home.sectionsOrder ?? ["hero", "quickAccess", "carousel", "tutorial"]).map((key, idx, arr) => {
+            const labels: Record<"hero" | "quickAccess" | "carousel" | "tutorial", string> = {
+              hero: "Hero & Buscador",
+              quickAccess: "Cards de Acesso Rápido",
+              carousel: "Carrossel de Destaques",
+              tutorial: "Tutorial Dinâmico",
+            };
+            return (
+              <div
+                key={key}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  gap: 10,
+                  padding: "0.55rem 0.75rem",
+                  background: "#f8fafc",
+                  border: "1px solid #e2e8f0",
+                  borderRadius: 8,
+                }}
+              >
+                <label className={styles.checkboxRow}>
+                  <input
+                    type="checkbox"
+                    checked={home.sectionsVisibility[key]}
+                    onChange={(e) =>
+                      setHome((p) => ({
+                        ...p,
+                        sectionsVisibility: { ...p.sectionsVisibility, [key]: e.target.checked },
+                      }))
+                    }
+                  />
+                  {labels[key]}
+                </label>
+                <div style={{ display: "flex", gap: 6 }}>
+                  <button
+                    type="button"
+                    className={styles.secondaryBtn}
+                    disabled={idx === 0}
+                    onClick={() => {
+                      const next = [...arr];
+                      [next[idx - 1], next[idx]] = [next[idx], next[idx - 1]];
+                      setHome((p) => ({ ...p, sectionsOrder: next }));
+                    }}
+                    title="Subir seção"
+                  >
+                    <ArrowUp size={14} />
+                  </button>
+                  <button
+                    type="button"
+                    className={styles.secondaryBtn}
+                    disabled={idx === arr.length - 1}
+                    onClick={() => {
+                      const next = [...arr];
+                      [next[idx], next[idx + 1]] = [next[idx + 1], next[idx]];
+                      setHome((p) => ({ ...p, sectionsOrder: next }));
+                    }}
+                    title="Descer seção"
+                  >
+                    <ArrowDown size={14} />
+                  </button>
+                </div>
+              </div>
+            );
+          })}
         </div>
       </section>
 
@@ -296,26 +339,137 @@ export default function AdminHomeEditor() {
       </section>
 
       <section className={styles.card}>
-        <h2 className={styles.cardTitle}>Tutorial em 3 Passos</h2>
-        <div className={styles.grid3}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 8 }}>
+          <h2 className={styles.cardTitle}>
+            Tutorial Dinâmico ({home.tutorialPhases.length} passos)
+          </h2>
+          <button
+            type="button"
+            className={styles.secondaryBtn}
+            onClick={() => {
+              const num = String(home.tutorialPhases.length + 1).padStart(2, "0");
+              setHome((p) => ({
+                ...p,
+                tutorialPhases: [
+                  ...p.tutorialPhases,
+                  {
+                    id: `passo-${Date.now()}`,
+                    phaseNumber: num,
+                    tabLabel: `${home.tutorialPhases.length + 1}. Novo Passo`,
+                    tagline: `Fase ${num} • Dica`,
+                    title: "Novo passo do tutorial",
+                    description: "Descreva aqui a orientação para o estudante.",
+                    bullets: ["Orientação detalhada"],
+                    calloutLabel: "Destaque",
+                    calloutValue: "Biblioteca CDCC",
+                    imageAlt: "Ilustração do passo",
+                    badge: "CDCC-USP",
+                    enabled: true,
+                  },
+                ],
+              }));
+            }}
+          >
+            <Plus size={14} /> Adicionar Passo
+          </button>
+        </div>
+
+        <div className={styles.grid2}>
           {home.tutorialPhases.map((phase, idx) => (
             <div key={phase.id} className={styles.subBox}>
-              <strong>
-                Passo {phase.phaseNumber} — {phase.tabLabel}
-              </strong>
-              <input
-                className={styles.input}
-                placeholder="Rótulo da aba"
-                value={phase.tabLabel}
-                onChange={(e) =>
-                  setHome((p) => ({
-                    ...p,
-                    tutorialPhases: p.tutorialPhases.map((t, i) =>
-                      i === idx ? { ...t, tabLabel: e.target.value } : t
-                    ),
-                  }))
-                }
-              />
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 6 }}>
+                <strong>
+                  Passo {phase.phaseNumber} — {phase.tabLabel}
+                </strong>
+                <div style={{ display: "flex", gap: 4 }}>
+                  <button
+                    type="button"
+                    className={styles.secondaryBtn}
+                    disabled={idx === 0}
+                    onClick={() => {
+                      const next = [...home.tutorialPhases];
+                      [next[idx - 1], next[idx]] = [next[idx], next[idx - 1]];
+                      setHome((p) => ({ ...p, tutorialPhases: next }));
+                    }}
+                    title="Subir passo"
+                  >
+                    <ArrowUp size={13} />
+                  </button>
+                  <button
+                    type="button"
+                    className={styles.secondaryBtn}
+                    disabled={idx === home.tutorialPhases.length - 1}
+                    onClick={() => {
+                      const next = [...home.tutorialPhases];
+                      [next[idx], next[idx + 1]] = [next[idx + 1], next[idx]];
+                      setHome((p) => ({ ...p, tutorialPhases: next }));
+                    }}
+                    title="Descer passo"
+                  >
+                    <ArrowDown size={13} />
+                  </button>
+                  <button
+                    type="button"
+                    className={styles.dangerBtn}
+                    disabled={home.tutorialPhases.length <= 1}
+                    onClick={() =>
+                      setHome((p) => ({
+                        ...p,
+                        tutorialPhases: p.tutorialPhases.filter((_, i) => i !== idx),
+                      }))
+                    }
+                    title="Remover passo"
+                  >
+                    <Trash2 size={13} />
+                  </button>
+                </div>
+              </div>
+
+              <label className={styles.checkboxRow}>
+                <input
+                  type="checkbox"
+                  checked={phase.enabled !== false}
+                  onChange={(e) =>
+                    setHome((p) => ({
+                      ...p,
+                      tutorialPhases: p.tutorialPhases.map((t, i) =>
+                        i === idx ? { ...t, enabled: e.target.checked } : t
+                      ),
+                    }))
+                  }
+                />
+                Exibir este passo na Home
+              </label>
+
+              <div className={styles.grid2}>
+                <input
+                  className={styles.input}
+                  placeholder="Número (ex: 01)"
+                  value={phase.phaseNumber}
+                  onChange={(e) =>
+                    setHome((p) => ({
+                      ...p,
+                      tutorialPhases: p.tutorialPhases.map((t, i) =>
+                        i === idx ? { ...t, phaseNumber: e.target.value } : t
+                      ),
+                    }))
+                  }
+                />
+                <input
+                  className={styles.input}
+                  placeholder="Rótulo da aba"
+                  value={phase.tabLabel}
+                  onChange={(e) =>
+                    setHome((p) => ({
+                      ...p,
+                      tutorialPhases: p.tutorialPhases.map((t, i) =>
+                        i === idx ? { ...t, tabLabel: e.target.value } : t
+                      ),
+                    }))
+                  }
+                />
+              </div>
+
               <input
                 className={styles.input}
                 placeholder="Título"
@@ -341,8 +495,38 @@ export default function AdminHomeEditor() {
                   }))
                 }
               />
+
+              <div className={styles.grid2}>
+                <input
+                  className={styles.input}
+                  placeholder="Botão opcional (ex: Abrir Vestibular)"
+                  value={phase.actionLabel ?? ""}
+                  onChange={(e) =>
+                    setHome((p) => ({
+                      ...p,
+                      tutorialPhases: p.tutorialPhases.map((t, i) =>
+                        i === idx ? { ...t, actionLabel: e.target.value } : t
+                      ),
+                    }))
+                  }
+                />
+                <input
+                  className={styles.input}
+                  placeholder="Link do botão (ex: /vestibular)"
+                  value={phase.actionUrl ?? ""}
+                  onChange={(e) =>
+                    setHome((p) => ({
+                      ...p,
+                      tutorialPhases: p.tutorialPhases.map((t, i) =>
+                        i === idx ? { ...t, actionUrl: e.target.value } : t
+                      ),
+                    }))
+                  }
+                />
+              </div>
+
               <label className={styles.field}>
-                <span className={styles.label}>Imagem customizada (opcional)</span>
+                <span className={styles.label}>Imagem customizada (WebP ou URL)</span>
                 <input
                   type="file"
                   accept="image/*"

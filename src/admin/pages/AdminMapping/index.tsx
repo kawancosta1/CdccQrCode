@@ -1,12 +1,16 @@
 import { useEffect, useState } from "react";
-import { MapPin, Plus, Save, Trash2 } from "lucide-react";
+import { Camera, MapPin, Plus, Save, Trash2 } from "lucide-react";
 import { ROOM_CONFIG, type RoomId } from "../../../config/rooms.ts";
 import {
   deleteDynamicShelfMapping,
+  deletePhotoOverride,
   getDynamicShelfMappings,
   getMarkerOverrides,
+  getPhotoOverrides,
   saveDynamicShelfMapping,
   saveMarkerOverride,
+  savePhotoOverride,
+  type PhotoOverrideRecord,
 } from "../../../services/mappingService.ts";
 import { uploadCmsImage } from "../../../services/siteConfigService.ts";
 import type { DynamicMarkerOverride, DynamicShelfMapping } from "../../../types/content.ts";
@@ -22,21 +26,33 @@ export default function AdminMapping() {
   const [newShelf, setNewShelf] = useState("1");
   const [newRange, setNewRange] = useState("");
   const [newImageUrl, setNewImageUrl] = useState("");
+  const [photoOverrides, setPhotoOverrides] = useState<PhotoOverrideRecord[]>([]);
+  const [photoTargetType, setPhotoTargetType] = useState<"shelf" | "code">("shelf");
+  const [photoShelf, setPhotoShelf] = useState("1");
+  const [photoCode, setPhotoCode] = useState("");
+  const [photoUrlInput, setPhotoUrlInput] = useState("");
+  const [photoFilter, setPhotoFilter] = useState("");
   const [statusMsg, setStatusMsg] = useState<string | null>(null);
 
   const loadData = async () => {
-    const [ov, mp] = await Promise.all([getMarkerOverrides(), getDynamicShelfMappings()]);
+    const [ov, mp, po] = await Promise.all([
+      getMarkerOverrides(),
+      getDynamicShelfMappings(),
+      getPhotoOverrides(),
+    ]);
     setOverrides(ov);
     setMappings(mp);
+    setPhotoOverrides(po);
   };
 
   useEffect(() => {
     let active = true;
-    Promise.all([getMarkerOverrides(), getDynamicShelfMappings()])
-      .then(([ov, mp]) => {
+    Promise.all([getMarkerOverrides(), getDynamicShelfMappings(), getPhotoOverrides()])
+      .then(([ov, mp, po]) => {
         if (active) {
           setOverrides(ov);
           setMappings(mp);
+          setPhotoOverrides(po);
         }
       })
       .catch(() => {});
@@ -276,6 +292,186 @@ export default function AdminMapping() {
           )}
         </section>
       </div>
+
+      {/* Troca Rápida de Foto por Estante ou Código/Número CDU */}
+      <section className={styles.card}>
+        <h2 className={styles.cardTitle}>
+          <Camera size={18} /> Troca Rápida de Foto por Estante ou Código/Número CDU
+        </h2>
+        <p style={{ margin: 0, fontSize: "0.86rem", color: "#475569" }}>
+          Substitua a foto geral de uma estante (ex.: Sala 1 - Estante 17) ou defina uma foto
+          específica para um código exato (ex.: <code>530</code>, <code>869.3 C500</code>,{" "}
+          <code>R</code>). Se o código não tiver foto própria, o sistema usa a foto da estante.
+        </p>
+
+        <div className={styles.grid2}>
+          <form
+            className={styles.subBox}
+            onSubmit={async (e) => {
+              e.preventDefault();
+              if (!photoUrlInput.trim()) return;
+              await savePhotoOverride({
+                id: "",
+                targetType: photoTargetType,
+                roomId: photoTargetType === "shelf" ? roomId : undefined,
+                shelfKey: photoTargetType === "shelf" ? photoShelf : undefined,
+                codeKey: photoTargetType === "code" ? photoCode.trim().toUpperCase() : undefined,
+                imageUrl: photoUrlInput.trim(),
+              });
+              setPhotoUrlInput("");
+              setPhotoCode("");
+              await loadData();
+              setStatusMsg("Foto específica salva e aplicada imediatamente!");
+            }}
+          >
+            <div className={styles.tabs}>
+              <button
+                type="button"
+                className={`${styles.tab} ${photoTargetType === "shelf" ? styles.tabActive : ""}`}
+                onClick={() => setPhotoTargetType("shelf")}
+              >
+                Por Estante ({room.label})
+              </button>
+              <button
+                type="button"
+                className={`${styles.tab} ${photoTargetType === "code" ? styles.tabActive : ""}`}
+                onClick={() => setPhotoTargetType("code")}
+              >
+                Por Código/Número Específico
+              </button>
+            </div>
+
+            {photoTargetType === "shelf" ? (
+              <label className={styles.field}>
+                <span className={styles.label}>Estante ({room.label})</span>
+                <select
+                  className={styles.select}
+                  value={photoShelf}
+                  onChange={(e) => setPhotoShelf(e.target.value)}
+                >
+                  {room.shelfNumbers.map((num) => (
+                    <option key={num} value={String(num)}>
+                      Estante {num}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            ) : (
+              <label className={styles.field}>
+                <span className={styles.label}>Código CDU / Dedalus exato</span>
+                <input
+                  required
+                  className={styles.input}
+                  placeholder="Ex: 530, 869.3 C500, R"
+                  value={photoCode}
+                  onChange={(e) => setPhotoCode(e.target.value)}
+                />
+              </label>
+            )}
+
+            <label className={styles.field}>
+              <span className={styles.label}>Foto (Upload WebP ou URL)</span>
+              <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                <input
+                  required
+                  className={styles.input}
+                  placeholder="https://... ou envie um arquivo abaixo"
+                  value={photoUrlInput}
+                  onChange={(e) => setPhotoUrlInput(e.target.value)}
+                />
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={async (e) => {
+                    const file = e.target.files?.[0];
+                    if (!file) return;
+                    const url = await uploadCmsImage(file, "shelf-overrides");
+                    setPhotoUrlInput(url);
+                  }}
+                />
+              </div>
+            </label>
+
+            <button type="submit" className={styles.primaryBtn}>
+              <Save size={15} /> Salvar Foto Customizada
+            </button>
+          </form>
+
+          <div className={styles.subBox}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8 }}>
+              <strong>Fotos Customizadas ({photoOverrides.length})</strong>
+              <input
+                type="search"
+                className={styles.input}
+                style={{ maxWidth: 200 }}
+                placeholder="Filtrar estante ou código..."
+                value={photoFilter}
+                onChange={(e) => setPhotoFilter(e.target.value)}
+              />
+            </div>
+
+            {photoOverrides.length === 0 ? (
+              <p style={{ margin: 0, fontSize: "0.85rem", color: "#64748b" }}>
+                Nenhuma foto sobrescrita ainda.
+              </p>
+            ) : (
+              <div style={{ display: "flex", flexDirection: "column", gap: 8, maxHeight: 280, overflowY: "auto" }}>
+                {photoOverrides
+                  .filter((o) => {
+                    const q = photoFilter.trim().toLowerCase();
+                    if (!q) return true;
+                    return (
+                      (o.codeKey ?? "").toLowerCase().includes(q) ||
+                      (o.shelfKey ?? "").toLowerCase().includes(q) ||
+                      `sala ${o.roomId ?? ""}`.includes(q)
+                    );
+                  })
+                  .map((o) => (
+                    <div
+                      key={o.id}
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                        gap: 10,
+                        background: "#ffffff",
+                        padding: "0.5rem 0.75rem",
+                        borderRadius: 8,
+                        border: "1px solid #cbd5e1",
+                      }}
+                    >
+                      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                        <img
+                          src={o.imageUrl}
+                          alt={o.id}
+                          style={{ width: 48, height: 36, objectFit: "cover", borderRadius: 4 }}
+                        />
+                        <div>
+                          <strong style={{ fontSize: "0.85rem" }}>
+                            {o.targetType === "shelf"
+                              ? `Sala ${o.roomId} • Estante ${o.shelfKey}`
+                              : `Código ${o.codeKey}`}
+                          </strong>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        className={styles.dangerBtn}
+                        onClick={async () => {
+                          await deletePhotoOverride(o.id);
+                          await loadData();
+                          setStatusMsg("Foto original restaurada!");
+                        }}
+                      >
+                        Restaurar Original
+                      </button>
+                    </div>
+                  ))}
+              </div>
+            )}
+          </div>
+        </div>
+      </section>
     </div>
   );
 }

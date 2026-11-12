@@ -9,10 +9,22 @@ import type {
 const MAPPINGS_COLLECTION = "mapeamento_dedalus";
 const MARKERS_COLLECTION = "marker_overrides";
 const USERS_COLLECTION = "usuarios_admin";
+const PHOTO_OVERRIDES_COLLECTION = "fotos_estantes_codigos";
 
 const LOCAL_MAPPINGS_KEY = "qrcodecdcc_dynamic_mappings_v1";
 const LOCAL_MARKERS_KEY = "qrcodecdcc_marker_overrides_v1";
 const LOCAL_USERS_KEY = "qrcodecdcc_admin_users_v1";
+const LOCAL_PHOTO_OVERRIDES_KEY = "qrcodecdcc_photo_overrides_v1";
+
+export interface PhotoOverrideRecord {
+  id: string;
+  targetType: "shelf" | "code";
+  roomId?: 1 | 2 | 3;
+  shelfKey?: string;
+  codeKey?: string;
+  imageUrl: string;
+  atualizadoEm?: string;
+}
 
 function readLocal<T>(key: string, fallback: T): T {
   try {
@@ -191,3 +203,61 @@ export async function deleteAdminUser(id: string): Promise<void> {
     await deleteDoc(doc(db, USERS_COLLECTION, id));
   }
 }
+
+// ==========================================
+// Overrides de Foto por Estante ou Código CDU
+// ==========================================
+
+export async function getPhotoOverrides(): Promise<PhotoOverrideRecord[]> {
+  const db = getFirestoreDb();
+  if (db) {
+    try {
+      const snap = await getDocs(collection(db, PHOTO_OVERRIDES_COLLECTION));
+      if (!snap.empty) {
+        const list = snap.docs.map((d) => ({ ...(d.data() as PhotoOverrideRecord), id: d.id }));
+        saveLocal(LOCAL_PHOTO_OVERRIDES_KEY, list);
+        return list;
+      }
+    } catch {
+      // fallback
+    }
+  }
+  return readLocal<PhotoOverrideRecord[]>(LOCAL_PHOTO_OVERRIDES_KEY, []);
+}
+
+export async function savePhotoOverride(record: PhotoOverrideRecord): Promise<PhotoOverrideRecord> {
+  const id =
+    record.id ||
+    (record.targetType === "shelf"
+      ? `shelf-s${record.roomId}-${(record.shelfKey || "").toUpperCase()}`
+      : `code-${(record.codeKey || "").trim().toUpperCase().replace(/[^A-Z0-9.]/g, "_")}`);
+
+  const payload: PhotoOverrideRecord = {
+    ...record,
+    id,
+    atualizadoEm: new Date().toISOString(),
+  };
+
+  const current = readLocal<PhotoOverrideRecord[]>(LOCAL_PHOTO_OVERRIDES_KEY, []);
+  const next = [...current.filter((item) => item.id !== id), payload];
+  saveLocal(LOCAL_PHOTO_OVERRIDES_KEY, next);
+
+  const db = getFirestoreDb();
+  if (db) {
+    await setDoc(doc(db, PHOTO_OVERRIDES_COLLECTION, id), payload, { merge: true });
+  }
+  return payload;
+}
+
+export async function deletePhotoOverride(id: string): Promise<void> {
+  const current = readLocal<PhotoOverrideRecord[]>(LOCAL_PHOTO_OVERRIDES_KEY, []);
+  saveLocal(
+    LOCAL_PHOTO_OVERRIDES_KEY,
+    current.filter((item) => item.id !== id)
+  );
+  const db = getFirestoreDb();
+  if (db) {
+    await deleteDoc(doc(db, PHOTO_OVERRIDES_COLLECTION, id));
+  }
+}
+

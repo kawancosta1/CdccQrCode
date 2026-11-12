@@ -70,6 +70,9 @@ export interface TutorialPhaseConfig {
   imageUrl?: string;
   imageAlt: string;
   badge: string;
+  enabled?: boolean;
+  actionLabel?: string;
+  actionUrl?: string;
 }
 
 export interface SiteConfig {
@@ -105,6 +108,7 @@ export interface SiteConfig {
       carousel: boolean;
       tutorial: boolean;
     };
+    sectionsOrder?: Array<"hero" | "quickAccess" | "carousel" | "tutorial">;
     carouselConfig?: {
       autoPlayEnabled: boolean;
       autoPlaySeconds: number;

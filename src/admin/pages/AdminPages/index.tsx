@@ -655,6 +655,27 @@ export default function AdminPages() {
               </label>
             </div>
             <label className={styles.field}>
+              <span className={styles.label}>Capa do Livro (URL ou upload WebP)</span>
+              <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                <input
+                  className={styles.input}
+                  placeholder="https://... (opcional)"
+                  value={editingBook.capaUrl ?? ""}
+                  onChange={(e) => setEditingBook((p) => ({ ...p, capaUrl: e.target.value }))}
+                />
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={async (e) => {
+                    const file = e.target.files?.[0];
+                    if (!file) return;
+                    const url = await uploadCmsImage(file, "vestibular");
+                    setEditingBook((p) => ({ ...p, capaUrl: url }));
+                  }}
+                />
+              </div>
+            </label>
+            <label className={styles.field}>
               <span className={styles.label}>Observação</span>
               <input
                 className={styles.input}

@@ -3,6 +3,7 @@ import { AccessibilityDrawer } from "../../AccessibilityDrawer";
 import { Footer } from "../../Footer";
 import { Nav } from "../../Nav";
 import { SearchResultModal } from "../../SearchResultModal";
+import { VisualEditorOverlay } from "../../VisualEditorOverlay";
 
 type MainTemplateProps = {
   children: React.ReactNode;
@@ -34,6 +35,7 @@ export function MainTemplate({ children }: MainTemplateProps) {
       <Footer />
 
       <AccessibilityDrawer />
+      <VisualEditorOverlay />
 
       {resultsByRoom && activeRoom !== null && (
         <SearchResultModal
