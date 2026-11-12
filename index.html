@@ -10,12 +10,12 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&display=swap"
       rel="stylesheet"
     />
     <title>QRCodeCDCC — Localizador de Livros | Biblioteca CDCC USP</title>
-    <script type="module" crossorigin src="/CdccQrCode/assets/index-CsOGStLj.js"></script>
-    <link rel="stylesheet" crossorigin href="/CdccQrCode/assets/index-EpHjzoN2.css">
+    <script type="module" crossorigin src="/CdccQrCode/assets/index-BwCD7ILY.js"></script>
+    <link rel="stylesheet" crossorigin href="/CdccQrCode/assets/index-CFac_dBq.css">
   </head>
   <body>
     <script>
@@ -39,5 +39,41 @@
       })(window.location);
     </script>
     <div id="root"></div>
+
+    <!-- Widget Oficial VLibras (carregamento assíncrono não bloqueante) -->
+    <div vw class="enabled">
+      <div vw-access-button class="active"></div>
+      <div vw-plugin-wrapper>
+        <div class="vw-plugin-top-wrapper"></div>
+      </div>
+    </div>
+    <script>
+      (function () {
+        function loadVLibras() {
+          if (document.getElementById('vlibras-plugin-script')) return;
+          var s = document.createElement('script');
+          s.id = 'vlibras-plugin-script';
+          s.src = 'https://vlibras.gov.br/app/vlibras-plugin.js';
+          s.async = true;
+          s.onload = function () {
+            try {
+              if (window.VLibras && window.VLibras.Widget) {
+                new window.VLibras.Widget('https://vlibras.gov.br/app');
+              }
+            } catch (e) {
+              console.warn('VLibras indisponível no momento:', e);
+            }
+          };
+          document.body.appendChild(s);
+        }
+
+        if (document.readyState === 'complete') {
+          loadVLibras();
+        } else {
+          window.addEventListener('load', loadVLibras, { once: true });
+        }
+      })();
+    </script>
+
   </body>
 </html>
