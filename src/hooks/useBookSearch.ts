@@ -2,6 +2,11 @@ import { useCallback, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import type { RoomId } from "../config/roomConstants";
 import {
+  buildDedalusSearchUrl,
+  searchByNameOrSubject,
+  type NameMatchItem,
+} from "../domain/nameSearch";
+import {
   getDefaultRoom,
   searchBooksByCode,
   suggestMatchingCodes,
@@ -49,6 +54,7 @@ export function useBookSearch() {
   const [searchValue, setSearchValue] = useState(() => searchParams.get("q") ?? "");
   const [searchError, setSearchError] = useState("");
   const [fallbackSuggestions, setFallbackSuggestions] = useState<string[]>([]);
+  const [matchedNameOptions, setMatchedNameOptions] = useState<NameMatchItem[]>([]);
   const [recentSearches, setRecentSearches] = useState<string[]>(loadRecentSearches);
   const [searchKey, setSearchKey] = useState(0);
 
@@ -117,6 +123,7 @@ export function useBookSearch() {
     setSearchValue(value);
     setSearchError((prev) => (prev ? "" : prev));
     setFallbackSuggestions((prev) => (prev.length > 0 ? [] : prev));
+    setMatchedNameOptions((prev) => (prev.length > 0 ? [] : prev));
   }, []);
 
   const setActiveRoom = useCallback(
@@ -135,7 +142,8 @@ export function useBookSearch() {
       if (!trimmed) {
         clearUrlSearchParams();
         setFallbackSuggestions([]);
-        setSearchError("Digite um código de classificação Dedalus (ex: 530 ou 869.3 C500).");
+        setMatchedNameOptions([]);
+        setSearchError("Digite um código Dedalus (ex: 530, 869.3 C500) ou nome do livro, autor ou assunto.");
         return false;
       }
 
@@ -143,10 +151,41 @@ export function useBookSearch() {
       const defaultRoom = getDefaultRoom(results);
 
       if (!defaultRoom) {
+        const nameMatches = searchByNameOrSubject(trimmed, staticBookCatalogRepository, [], 6);
+        if (nameMatches.length === 1) {
+          const matched = nameMatches[0];
+          const matchedResults = searchBooksByCode(matched.code, staticBookCatalogRepository);
+          const matchedRoom = getDefaultRoom(matchedResults);
+          if (matchedRoom) {
+            setSearchValue(matched.code);
+            setSearchKey((prev) => prev + 1);
+            setSearchError("");
+            setFallbackSuggestions([]);
+            setMatchedNameOptions([]);
+            pushRecentSearch(matched.code);
+
+            const next = new URLSearchParams(searchParams);
+            next.set("q", matched.code);
+            next.set("sala", String(matchedRoom));
+            setSearchParams(next);
+            return true;
+          }
+        }
+
         clearUrlSearchParams();
+        if (nameMatches.length > 1) {
+          setMatchedNameOptions(nameMatches);
+          setFallbackSuggestions([]);
+          setSearchError(
+            `Encontramos ${nameMatches.length} opções para "${trimmed}". Escolha abaixo ou pesquise no Dedalus USP:`,
+          );
+          return false;
+        }
+
+        setMatchedNameOptions([]);
         setFallbackSuggestions(suggestNearestCodes(trimmed, staticBookCatalogRepository, 3));
         setSearchError(
-          `Código "${trimmed}" não encontrado. Verifique os números no Dedalus (ex: 530, 869.3 C500, R).`,
+          `Não encontramos "${trimmed}" diretamente nas estantes mapeadas. Pesquise no Dedalus USP para obter o código CDU ou tente outro termo:`,
         );
         return false;
       }
@@ -155,6 +194,7 @@ export function useBookSearch() {
       setSearchKey((prev) => prev + 1);
       setSearchError("");
       setFallbackSuggestions([]);
+      setMatchedNameOptions([]);
       pushRecentSearch(trimmed);
 
       const next = new URLSearchParams(searchParams);
@@ -174,6 +214,7 @@ export function useBookSearch() {
     setSearchValue("");
     setSearchError("");
     setFallbackSuggestions([]);
+    setMatchedNameOptions([]);
     clearUrlSearchParams();
   }, [clearUrlSearchParams]);
 
@@ -182,6 +223,15 @@ export function useBookSearch() {
     return suggestMatchingCodes(searchValue, staticBookCatalogRepository, 5);
   }, [searchValue]);
 
+  const nameSuggestions = useMemo<NameMatchItem[]>(() => {
+    if (searchValue.trim().length < 2) return [];
+    return searchByNameOrSubject(searchValue, staticBookCatalogRepository, [], 5);
+  }, [searchValue]);
+
+  const dedalusSearchUrl = useMemo(() => {
+    return buildDedalusSearchUrl(searchValue || activeSearch.lastQuery);
+  }, [searchValue, activeSearch.lastQuery]);
+
   return {
     searchValue,
     lastQuery: activeSearch.lastQuery,
@@ -189,6 +239,9 @@ export function useBookSearch() {
     fallbackSuggestions:
       fallbackSuggestions.length > 0 ? fallbackSuggestions : activeSearch.urlFallback,
     autocompleteSuggestions,
+    nameSuggestions,
+    matchedNameOptions,
+    dedalusSearchUrl,
     recentSearches,
     resultsByRoom: activeSearch.resultsByRoom,
     activeRoom: activeSearch.activeRoom,

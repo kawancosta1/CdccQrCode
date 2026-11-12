@@ -30,8 +30,8 @@ export const DEFAULT_SITE_CONFIG: SiteConfig = {
     heroTitle: "Encontre seu livro nas estantes",
     heroSubtitle:
       "Digite o código CDU ou de classificação do Dedalus para localizar exatamente a sala e a prateleira no mapa.",
-    searchPlaceholder: "Ex.: 530, 512.04, 869.93 M149...",
-    searchHint: "Dica: o código fica na etiqueta da lombada ou na ficha do Dedalus USP.",
+    searchPlaceholder: "Ex.: Física, Dom Casmurro, 530, 869.3 C500...",
+    searchHint: "Busque pelo código Dedalus/CDU ou pelo nome do livro, autor ou assunto.",
     exampleCodes: [
       { code: "530", label: "Física (530)" },
       { code: "510", label: "Matemática (510)" },

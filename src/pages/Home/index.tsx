@@ -202,6 +202,9 @@ export function Home() {
     searchError,
     fallbackSuggestions,
     autocompleteSuggestions,
+    nameSuggestions,
+    matchedNameOptions,
+    dedalusSearchUrl,
     recentSearches,
     resultsByRoom,
     handleSearchChange,
@@ -344,6 +347,24 @@ export function Home() {
           {searchError ? (
             <div id="hero-search-error" className={styles.heroError} role="alert">
               <p>{searchError}</p>
+              {matchedNameOptions.length > 0 && (
+                <div className={styles.fallbackRow}>
+                  <span className={styles.fallbackLabel}>Obras e áreas encontradas:</span>
+                  <div className={styles.examplesList}>
+                    {matchedNameOptions.map((item) => (
+                      <button
+                        key={item.id}
+                        type="button"
+                        className={styles.exampleChip}
+                        onClick={() => handleExampleClick(item.code)}
+                        title={item.subtitle}
+                      >
+                        {item.title} ({item.code})
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
               {fallbackSuggestions.length > 0 && (
                 <div className={styles.fallbackRow}>
                   <span className={styles.fallbackLabel}>Códigos próximos:</span>
@@ -361,6 +382,20 @@ export function Home() {
                   </div>
                 </div>
               )}
+              {searchValue.trim().length >= 2 && (
+                <div className={styles.fallbackRow}>
+                  <a
+                    href={dedalusSearchUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={styles.exampleChip}
+                    style={{ display: "inline-flex", alignItems: "center", gap: "0.35rem", textDecoration: "none" }}
+                  >
+                    <ExternalLink size={14} aria-hidden="true" />
+                    Pesquisar &ldquo;{searchValue.trim()}&rdquo; no Dedalus USP
+                  </a>
+                </div>
+              )}
             </div>
           ) : (
             <p id="hero-search-hint" className={styles.heroHint}>
@@ -368,25 +403,52 @@ export function Home() {
             </p>
           )}
 
-          {!searchError && !resultsByRoom && autocompleteSuggestions.length > 0 && (
-            <div className={styles.examplesRow} aria-label="Sugestões de códigos compatíveis">
-              <span className={styles.examplesLabel}>Sugestões:</span>
-              <div className={styles.examplesList} role="listbox" aria-label="Códigos sugeridos">
-                {autocompleteSuggestions.map((code) => (
-                  <button
-                    key={code}
-                    type="button"
-                    role="option"
-                    aria-selected={false}
-                    className={styles.exampleChip}
-                    onClick={() => handleExampleClick(code)}
-                  >
-                    {code}
-                  </button>
-                ))}
+          {!searchError &&
+            !resultsByRoom &&
+            (nameSuggestions.length > 0 || autocompleteSuggestions.length > 0) && (
+              <div className={styles.examplesRow} aria-label="Sugestões compatíveis">
+                <span className={styles.examplesLabel}>Sugestões:</span>
+                <div className={styles.examplesList} role="listbox" aria-label="Sugestões de livros e códigos">
+                  {nameSuggestions.map((item) => (
+                    <button
+                      key={item.id}
+                      type="button"
+                      role="option"
+                      aria-selected={false}
+                      className={styles.exampleChip}
+                      onClick={() => handleExampleClick(item.code)}
+                      title={item.subtitle}
+                    >
+                      {item.title} • {item.code}
+                    </button>
+                  ))}
+                  {autocompleteSuggestions.map((code) => (
+                    <button
+                      key={code}
+                      type="button"
+                      role="option"
+                      aria-selected={false}
+                      className={styles.exampleChip}
+                      onClick={() => handleExampleClick(code)}
+                    >
+                      {code}
+                    </button>
+                  ))}
+                  {searchValue.trim().length >= 2 && (
+                    <a
+                      href={dedalusSearchUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={styles.exampleChip}
+                      style={{ display: "inline-flex", alignItems: "center", gap: "0.35rem", textDecoration: "none" }}
+                    >
+                      <ExternalLink size={13} aria-hidden="true" />
+                      Buscar no Dedalus USP
+                    </a>
+                  )}
+                </div>
               </div>
-            </div>
-          )}
+            )}
 
           {/* Anúncio dinâmico para leitores de tela sobre resultados ou sugestões */}
           <div className="sr-only" role="status" aria-live="polite" aria-atomic="true">
