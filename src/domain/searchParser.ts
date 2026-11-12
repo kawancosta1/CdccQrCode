@@ -51,13 +51,12 @@ export function parse8693Cutter(rawValue: string): CutterInput | null {
   const parts = value.split(/\s+/).filter(Boolean);
   if (parts.length < 2) return null;
 
-  const cutterText = parts[1];
-  const letter = cutterText.charAt(0);
-  const numberText = cutterText.slice(1);
-  const number = Number(numberText);
+  const cutterMatch = parts[1].match(/^([A-Z])(\d+)/);
+  if (!cutterMatch) return null;
 
-  if (letter < "A" || letter > "Z") return null;
-  if (numberText.length === 0 || Number.isNaN(number)) return null;
+  const letter = cutterMatch[1];
+  const number = Number(cutterMatch[2]);
+  if (Number.isNaN(number)) return null;
 
   return { letter, number };
 }
@@ -163,6 +162,20 @@ export function searchBooksByCode(
     const sala3Entry = repository.findByRoomAndCode(3, normalizedValue);
     if (sala2Entry) results[2] = sala2Entry;
     if (sala3Entry) results[3] = sala3Entry;
+  }
+
+  // Equivalência para notações de Literatura Brasileira (869.91 / 869.93 / 869.98) usadas no acervo
+  if (Object.keys(results).length === 0) {
+    const trimmed = rawInput.trim();
+    if (/^869\.93(\s|$)/i.test(trimmed)) {
+      return searchBooksByCode(trimmed.replace(/^869\.93/i, "869.3"), repository);
+    }
+    if (/^869\.91(\s|$)/i.test(trimmed)) {
+      return searchBooksByCode(trimmed.replace(/^869\.91/i, "869.1"), repository);
+    }
+    if (/^869\.98(\s|$)/i.test(trimmed)) {
+      return searchBooksByCode("869.909", repository);
+    }
   }
 
   return results;
