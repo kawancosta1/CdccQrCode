@@ -55,8 +55,8 @@ export const DEFAULT_CAROUSEL_SLIDES: CarouselSlide[] = [
     eyebrow: "Acervo de Vestibular",
     titulo: "Leituras obrigatórias para Fuvest e Unicamp",
     descricao: "Encontre rapidamente os clássicos e obras cobradas nos principais vestibulares.",
-    textoBotao: "Consultar Dedalus",
-    linkDestino: "https://dedalus.usp.br/F",
+    textoBotao: "Ver leituras obrigatórias",
+    linkDestino: "/vestibular",
     imagemUrl: vestibularImg,
     imagemAlt: "Estante de leitura obrigatória para vestibulares na Biblioteca do CDCC",
     posicaoObjeto: "center 40%",
@@ -124,7 +124,15 @@ function getLocalSlides(): CarouselSlide[] {
   try {
     const parsed = JSON.parse(raw) as CarouselSlide[];
     if (Array.isArray(parsed) && parsed.length > 0) {
-      return parsed.sort((a, b) => a.ordem - b.ordem);
+      return parsed
+        .map((slide) =>
+          slide.id === "vestibular" &&
+          slide.linkDestino === "https://dedalus.usp.br/F" &&
+          slide.textoBotao === "Consultar Dedalus"
+            ? { ...slide, linkDestino: "/vestibular", textoBotao: "Ver leituras obrigatórias" }
+            : slide
+        )
+        .sort((a, b) => a.ordem - b.ordem);
     }
   } catch {
     // ignora erro de parse
