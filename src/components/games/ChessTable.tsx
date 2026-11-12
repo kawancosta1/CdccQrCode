@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type CSSProperties } from "react";
 import { RotateCcw, FlipHorizontal2, Undo2 } from "lucide-react";
 import { useAccessibility } from "../../context/accessibilityStore";
 import styles from "./ChessTable.module.css";
@@ -230,14 +230,22 @@ function hasAnyLegalMoves(board: Board, color: Color): boolean {
   return false;
 }
 
-function ChessPieceSvg({ piece, className }: { piece: Piece; className?: string }) {
+function ChessPieceSvg({
+  piece,
+  className,
+  style,
+}: {
+  piece: Piece;
+  className?: string;
+  style?: CSSProperties;
+}) {
   const isWhite = piece.color === "w";
   const fill = isWhite ? "#FBF6EC" : "#2B1E16";
   const stroke = isWhite ? "#382619" : "#E8D5BC";
   const detail = isWhite ? "#382619" : "#F3E5D0";
 
   return (
-    <svg viewBox="0 0 45 45" className={className} aria-hidden="true">
+    <svg viewBox="0 0 45 45" className={className} style={style} aria-hidden="true">
       {piece.type === "p" && (
         <g fill={fill} stroke={stroke} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
           <path d="M22.5 9c-3.5 0-6 2.5-6 6 0 2.2 1.2 4.1 3 5.1-3.2 2-5.5 5.4-5.5 9.9h17c0-4.5-2.3-7.9-5.5-9.9 1.8-1 3-2.9 3-5.1 0-3.5-2.5-6-6-6z" />
@@ -287,7 +295,7 @@ function ChessPieceSvg({ piece, className }: { piece: Piece; className?: string 
 }
 
 export function ChessTable() {
-  const { announce, colorblindMode } = useAccessibility();
+  const { announce, colorblindMode, reducedMotion } = useAccessibility();
   const [board, setBoard] = useState<Board>(() => createInitialBoard());
   const [turn, setTurn] = useState<Color>("w");
   const [selected, setSelected] = useState<Pos | null>(null);
@@ -540,6 +548,29 @@ export function ChessTable() {
                     inCheck && kingPos?.r === r && kingPos?.c === c;
 
                   const squareLabel = `${FILES[c]}${8 - r}`;
+                  const isMovedTarget =
+                    !reducedMotion &&
+                    lastMove !== null &&
+                    lastMove.to.r === r &&
+                    lastMove.to.c === c;
+
+                  const fromVisualRow = lastMove
+                    ? flipped
+                      ? 7 - lastMove.from.r
+                      : lastMove.from.r
+                    : 0;
+                  const fromVisualCol = lastMove
+                    ? flipped
+                      ? 7 - lastMove.from.c
+                      : lastMove.from.c
+                    : 0;
+
+                  const moveDeltaStyle = isMovedTarget
+                    ? ({
+                        "--dx": fromVisualCol - visualColIdx,
+                        "--dy": fromVisualRow - visualRowIdx,
+                      } as CSSProperties)
+                    : undefined;
 
                   return (
                     <button
@@ -552,6 +583,7 @@ export function ChessTable() {
                         styles.square,
                         isLight ? styles.squareLight : styles.squareDark,
                         isSelected ? styles.squareSelected : "",
+                        isMovedTarget ? styles.squareMovedTarget : "",
                         !isSelected && isLastMove
                           ? isLight
                             ? styles.squareLastMoveLight
@@ -572,7 +604,16 @@ export function ChessTable() {
                         <span className={styles.coordFile}>{FILES[c]}</span>
                       )}
 
-                      {piece && <ChessPieceSvg piece={piece} className={styles.pieceSvg} />}
+                      {piece && (
+                        <ChessPieceSvg
+                          key={isMovedTarget ? `moved-${history.length}` : "static"}
+                          piece={piece}
+                          style={moveDeltaStyle}
+                          className={`${styles.pieceSvg} ${
+                            isMovedTarget ? styles.pieceMoving : ""
+                          }`}
+                        />
+                      )}
                       {isLegalDest && !piece && (
                         <span className={styles.moveDot} aria-hidden="true">
                           {colorblindMode ? "●" : ""}
