@@ -10,7 +10,7 @@ const LOCAL_STORAGE_KEY = "qrcodecdcc_site_config_v1";
 export const DEFAULT_SITE_CONFIG: SiteConfig = {
   brandColor: "#8a3354",
   accentColor: "#0f5298",
-  bgColor: "#f7f7f9",
+  bgColor: "#faf8f5",
   borderRadiusScale: "default",
   portalName: "Biblioteca CDCC",
   logoUrl: "",
