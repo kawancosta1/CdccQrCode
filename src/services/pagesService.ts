@@ -150,6 +150,24 @@ export async function deleteCustomPage(id: string): Promise<void> {
 // Obras Obrigatórias do Vestibular
 // ==========================================
 
+const SEED_BY_ID = new Map(VESTIBULAR_BOOKS_SEED.map((b) => [b.id, b]));
+
+function enrichVestibularBook(book: VestibularBook): VestibularBook {
+  const seed = SEED_BY_ID.get(book.id);
+  if (!seed) return book;
+  return {
+    ...book,
+    escolaLiteraria: book.escolaLiteraria || seed.escolaLiteraria,
+    anoPublicacao: book.anoPublicacao || seed.anoPublicacao,
+    sinopse: book.sinopse || seed.sinopse,
+    temasVestibular:
+      Array.isArray(book.temasVestibular) && book.temasVestibular.length > 0
+        ? book.temasVestibular
+        : seed.temasVestibular,
+    dominioPublicoUrl: book.dominioPublicoUrl || seed.dominioPublicoUrl,
+  };
+}
+
 export async function getVestibularBooks(): Promise<VestibularBook[]> {
   const db = getFirestoreDb();
   if (db) {
@@ -157,7 +175,9 @@ export async function getVestibularBooks(): Promise<VestibularBook[]> {
       const q = query(collection(db, VESTIBULAR_COLLECTION), orderBy("ordem", "asc"));
       const snap = await getDocs(q);
       if (!snap.empty) {
-        const list = snap.docs.map((d) => ({ ...(d.data() as VestibularBook), id: d.id }));
+        const list = snap.docs.map((d) =>
+          enrichVestibularBook({ ...(d.data() as VestibularBook), id: d.id }),
+        );
         saveLocal(LOCAL_VESTIBULAR_KEY, list);
         return list;
       }
@@ -166,7 +186,7 @@ export async function getVestibularBooks(): Promise<VestibularBook[]> {
     }
   }
   const local = readLocal<VestibularBook[]>(LOCAL_VESTIBULAR_KEY, []);
-  if (local.length > 0) return local;
+  if (local.length > 0) return local.map(enrichVestibularBook);
   return VESTIBULAR_BOOKS_SEED;
 }
 

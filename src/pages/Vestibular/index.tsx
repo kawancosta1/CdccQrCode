@@ -1,7 +1,23 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { BookOpen, ExternalLink, GraduationCap, MapPin, Search } from "lucide-react";
-import { getVestibularBooks } from "../../services/pagesService.ts";
+import {
+  BookOpen,
+  BookOpenCheck,
+  Check,
+  ExternalLink,
+  GraduationCap,
+  Info,
+  MapPin,
+  Pencil,
+  Save,
+  Search,
+  Sparkles,
+  X,
+} from "lucide-react";
+import { AuthService } from "../../admin/services/authService.ts";
+import { BookCover } from "../../components/BookCover/index.tsx";
+import { fetchBookCoverAndMetadata } from "../../services/bookMetadataService.ts";
+import { getVestibularBooks, saveVestibularBook } from "../../services/pagesService.ts";
 import type { VestibularBook, VestibularExamTag } from "../../types/content.ts";
 import styles from "./style.module.css";
 
@@ -13,11 +29,32 @@ const FILTER_TABS: Array<"Todas" | VestibularExamTag> = [
   "UNESP / Clássicos",
 ];
 
+const READ_STORAGE_KEY = "qrcodecdcc_vestibular_read_v1";
+
+function loadReadBookIds(): Set<string> {
+  if (typeof window === "undefined") return new Set();
+  try {
+    const raw = window.localStorage.getItem(READ_STORAGE_KEY);
+    if (!raw) return new Set();
+    const parsed = JSON.parse(raw) as unknown;
+    return Array.isArray(parsed) ? new Set(parsed.filter((v): v is string => typeof v === "string")) : new Set();
+  } catch {
+    return new Set();
+  }
+}
+
 export default function VestibularPage() {
   const [books, setBooks] = useState<VestibularBook[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<"Todas" | VestibularExamTag>("Todas");
   const [searchTerm, setSearchTerm] = useState("");
+  const [readIds, setReadIds] = useState<Set<string>>(loadReadBookIds);
+  const [selectedBook, setSelectedBook] = useState<VestibularBook | null>(null);
+  const [inlineDraft, setInlineDraft] = useState<VestibularBook | null>(null);
+  const [autoFetching, setAutoFetching] = useState(false);
+  const [savingInline, setSavingInline] = useState(false);
+  const [inlineMsg, setInlineMsg] = useState<string | null>(null);
+  const isAdmin = useMemo(() => AuthService.getSavedSession() !== null, []);
 
   useEffect(() => {
     let active = true;
@@ -33,20 +70,117 @@ export default function VestibularPage() {
     };
   }, []);
 
+  useEffect(() => {
+    if (!selectedBook) return;
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setSelectedBook(null);
+        setInlineDraft(null);
+      }
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [selectedBook]);
+
+  const toggleReadBook = (id: string) => {
+    setReadIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      try {
+        window.localStorage.setItem(READ_STORAGE_KEY, JSON.stringify([...next]));
+      } catch {
+        // ignore quota errors
+      }
+      return next;
+    });
+  };
+
+  const tabBooks = useMemo(
+    () => books.filter((b) => activeTab === "Todas" || b.vestibular === activeTab),
+    [books, activeTab],
+  );
+
+  const readInTabCount = useMemo(
+    () => tabBooks.filter((b) => readIds.has(b.id)).length,
+    [tabBooks, readIds],
+  );
+
+  const progressPct = tabBooks.length > 0 ? Math.round((readInTabCount / tabBooks.length) * 100) : 0;
+
   const filteredBooks = useMemo(() => {
     const q = searchTerm.trim().toLowerCase();
-    return books.filter((book) => {
-      const matchesTab = activeTab === "Todas" || book.vestibular === activeTab;
-      if (!matchesTab) return false;
+    return tabBooks.filter((book) => {
       if (!q) return true;
       return (
         book.titulo.toLowerCase().includes(q) ||
         book.autor.toLowerCase().includes(q) ||
         book.codigoDedalus.toLowerCase().includes(q) ||
-        book.vestibular.toLowerCase().includes(q)
+        book.vestibular.toLowerCase().includes(q) ||
+        (book.escolaLiteraria ?? "").toLowerCase().includes(q)
       );
     });
-  }, [books, activeTab, searchTerm]);
+  }, [tabBooks, searchTerm]);
+
+  const handleOpenBook = (book: VestibularBook, startEditing = false) => {
+    setSelectedBook(book);
+    setInlineMsg(null);
+    setInlineDraft(startEditing ? { ...book } : null);
+  };
+
+  const handleAutoFetchInline = async () => {
+    if (!inlineDraft) return;
+    setAutoFetching(true);
+    setInlineMsg(null);
+    try {
+      const meta = await fetchBookCoverAndMetadata({
+        titulo: inlineDraft.titulo,
+        autor: inlineDraft.autor,
+        isbn: inlineDraft.isbn,
+        skipCache: true,
+      });
+      if (!meta) {
+        setInlineMsg("Nenhum dado automático encontrado para este título.");
+        return;
+      }
+      setInlineDraft((prev) =>
+        prev
+          ? {
+              ...prev,
+              capaUrl: meta.coverUrl || prev.capaUrl,
+              sinopse: prev.sinopse || meta.sinopse,
+              anoPublicacao: prev.anoPublicacao || meta.anoPublicacao,
+              paginas: prev.paginas || meta.paginas,
+              isbn: prev.isbn || meta.isbn,
+            }
+          : null,
+      );
+      setInlineMsg("Dados preenchidos! Revise e clique em Salvar alterações.");
+    } finally {
+      setAutoFetching(false);
+    }
+  };
+
+  const handleSaveInline = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!inlineDraft) return;
+    setSavingInline(true);
+    setInlineMsg(null);
+    try {
+      const saved = await saveVestibularBook(inlineDraft);
+      setBooks((prev) => prev.map((b) => (b.id === saved.id ? saved : b)));
+      setSelectedBook(saved);
+      setInlineDraft(null);
+      setInlineMsg("Obra atualizada com sucesso!");
+    } catch {
+      setInlineMsg("Não foi possível salvar no momento.");
+    } finally {
+      setSavingInline(false);
+    }
+  };
 
   return (
     <main className={styles.page}>
@@ -58,9 +192,9 @@ export default function VestibularPage() {
           Obras Obrigatórias dos Vestibulares no CDCC
         </h1>
         <p className={styles.subtitle}>
-          Consulte rapidamente os livros cobrados pela FUVEST, UNICAMP, UNESP e clássicos do
-          ENEM/Provão Paulista disponíveis no acervo da Biblioteca do CDCC-USP. Clique em{" "}
-          <strong>Ver na Estante</strong> para abrir a localização exata no mapa.
+          Consulte capas, sinopses, temas cobrados nas provas e a localização exata na estante da
+          Biblioteca do CDCC-USP. Clique em qualquer obra para abrir a{" "}
+          <strong>Ficha Completa</strong> ou acompanhar seu checklist de leitura.
         </p>
       </section>
 
@@ -85,13 +219,36 @@ export default function VestibularPage() {
           <input
             type="search"
             className={styles.searchInput}
-            placeholder="Buscar obra, autor ou código CDU..."
+            placeholder="Buscar obra, autor, escola ou CDU..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             aria-label="Buscar obras obrigatórias"
           />
         </div>
       </div>
+
+      {!loading && tabBooks.length > 0 && (
+        <section className={styles.progressCard} aria-label="Progresso de leitura">
+          <div className={styles.progressHeader}>
+            <span className={styles.progressTitle}>
+              <BookOpenCheck size={16} aria-hidden="true" />
+              {activeTab === "Todas"
+                ? `Seu progresso geral: ${readInTabCount} de ${tabBooks.length} livros lidos`
+                : `Seu progresso em ${activeTab}: ${readInTabCount} de ${tabBooks.length} livros lidos`}
+            </span>
+            <span className={styles.progressPercent}>{progressPct}%</span>
+          </div>
+          <div
+            className={styles.progressTrack}
+            role="progressbar"
+            aria-valuenow={progressPct}
+            aria-valuemin={0}
+            aria-valuemax={100}
+          >
+            <div className={styles.progressFill} style={{ width: `${progressPct}%` }} />
+          </div>
+        </section>
+      )}
 
       {loading ? (
         <div className={styles.empty}>Carregando lista de leituras obrigatórias...</div>
@@ -104,79 +261,380 @@ export default function VestibularPage() {
         <section className={styles.grid} aria-label="Lista de livros do vestibular">
           {filteredBooks.map((book) => {
             const dedalusUrl = `https://dedalus.usp.br/F/?func=find-b&request=${encodeURIComponent(
-              book.titulo
+              book.titulo,
             )}`;
+            const isRead = readIds.has(book.id);
+            const examLabel =
+              book.anos && !book.vestibular.includes(book.anos)
+                ? `${book.vestibular} • ${book.anos}`
+                : book.vestibular;
+
             return (
               <article key={book.id} className={styles.card}>
                 <div className={styles.cardTop}>
-                  {book.capaUrl ? (
-                    <img
-                      src={book.capaUrl}
-                      alt={`Capa de ${book.titulo}`}
-                      className={styles.coverImg}
-                      loading="lazy"
-                    />
-                  ) : (
-                    <div
-                      className={styles.spine}
-                      style={{ backgroundColor: book.corCapa || "#1e3a8a" }}
-                      aria-hidden="true"
-                    >
-                      {book.codigoDedalus.split(" ")[0]}
-                    </div>
-                  )}
+                  <button
+                    type="button"
+                    className={styles.cardCoverTrigger}
+                    onClick={() => handleOpenBook(book)}
+                    aria-label={`Abrir ficha completa de ${book.titulo}`}
+                  >
+                    <BookCover book={book} size="md" />
+                  </button>
 
                   <div className={styles.meta}>
-                    <span className={styles.examTag}>
-                      {book.anos && !book.vestibular.includes(book.anos)
-                        ? `${book.vestibular} • ${book.anos}`
-                        : book.vestibular}
-                    </span>
-                    <h2 className={styles.bookTitle}>{book.titulo}</h2>
-                    <p className={styles.author}>{book.autor}</p>
+                    <div className={styles.metaTopRow}>
+                      <span className={styles.examTag}>{examLabel}</span>
+                      <button
+                        type="button"
+                        className={`${styles.readToggleBtn} ${isRead ? styles.readToggleActive : ""}`}
+                        onClick={() => toggleReadBook(book.id)}
+                        aria-pressed={isRead}
+                      >
+                        <Check size={12} aria-hidden="true" />
+                        {isRead ? "Já li" : "Marcar como lido"}
+                      </button>
+                    </div>
+                    <button
+                      type="button"
+                      className={styles.bookTitleBtn}
+                      onClick={() => handleOpenBook(book)}
+                    >
+                      <h2 className={styles.bookTitle}>{book.titulo}</h2>
+                    </button>
+                    <p className={styles.author}>
+                      {book.autor}
+                      {book.anoPublicacao ? ` • ${book.anoPublicacao}` : ""}
+                    </p>
                   </div>
                 </div>
 
                 <div className={styles.cardBody}>
                   <div className={styles.detailsRow}>
-                    <span className={styles.pill}>{book.genero}</span>
-                    <span className={styles.pill}>
-                      {book.sala} • {book.estante}
-                    </span>
+                    <span className={styles.pill}>{book.escolaLiteraria || book.genero}</span>
                     <span className={book.disponivel ? styles.statusAvail : styles.statusUnavail}>
                       {book.disponivel ? "No acervo" : "Consultar balcão"}
                     </span>
                   </div>
 
+                  {book.sinopse && <p className={styles.synopsisPreview}>{book.sinopse}</p>}
+
                   <div className={styles.codeBox}>
-                    <span>Código CDU / Dedalus:</span>
+                    <span>
+                      {book.sala} • {book.estante}
+                    </span>
                     <span className={styles.codeValue}>{book.codigoDedalus}</span>
                   </div>
-
-                  {book.observacao && <p className={styles.obs}>{book.observacao}</p>}
                 </div>
 
-                <div className={styles.cardActions}>
-                  <Link
-                    to={`/?q=${encodeURIComponent(book.codigoDedalus)}`}
-                    className={styles.primaryBtn}
+                <div className={styles.cardActionsGrid}>
+                  <button
+                    type="button"
+                    className={styles.detailsBtn}
+                    onClick={() => handleOpenBook(book)}
                   >
-                    <MapPin size={15} aria-hidden="true" /> Ver na Estante
-                  </Link>
-                  <a
-                    href={dedalusUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className={styles.secondaryBtn}
-                    title="Consultar disponibilidade no Dedalus USP"
-                  >
-                    Dedalus <ExternalLink size={14} aria-hidden="true" />
-                  </a>
+                    <Info size={14} aria-hidden="true" /> Ver Detalhes e Sinopse
+                  </button>
+
+                  <div className={styles.cardActionsRow}>
+                    <Link
+                      to={`/?q=${encodeURIComponent(book.codigoDedalus)}`}
+                      className={styles.primaryBtn}
+                    >
+                      <MapPin size={15} aria-hidden="true" /> Localizar Estante
+                    </Link>
+                    <a
+                      href={dedalusUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={styles.secondaryBtn}
+                      title="Consultar disponibilidade no Dedalus USP"
+                    >
+                      Dedalus <ExternalLink size={14} aria-hidden="true" />
+                    </a>
+                    {isAdmin && (
+                      <button
+                        type="button"
+                        className={styles.secondaryBtn}
+                        onClick={() => handleOpenBook(book, true)}
+                        title="Editar obra na tela"
+                        aria-label={`Editar ${book.titulo}`}
+                      >
+                        <Pencil size={14} aria-hidden="true" />
+                      </button>
+                    )}
+                  </div>
                 </div>
               </article>
             );
           })}
         </section>
+      )}
+
+      {selectedBook && (
+        <div
+          className={styles.modalBackdrop}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="ficha-obra-title"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) {
+              setSelectedBook(null);
+              setInlineDraft(null);
+            }
+          }}
+        >
+          <div className={styles.modalDialog}>
+            <button
+              type="button"
+              className={styles.modalCloseBtn}
+              onClick={() => {
+                setSelectedBook(null);
+                setInlineDraft(null);
+              }}
+              aria-label="Fechar ficha da obra"
+            >
+              <X size={18} aria-hidden="true" />
+            </button>
+
+            {inlineDraft ? (
+              <form onSubmit={handleSaveInline} style={{ display: "flex", flexDirection: "column", gap: "0.85rem" }}>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "0.5rem", paddingRight: "2.5rem" }}>
+                  <h2 id="ficha-obra-title" className={styles.modalTitle}>
+                    Edição Direta: {inlineDraft.titulo}
+                  </h2>
+                  <button
+                    type="button"
+                    className={styles.secondaryBtn}
+                    onClick={handleAutoFetchInline}
+                    disabled={autoFetching}
+                  >
+                    <Sparkles size={14} aria-hidden="true" />
+                    {autoFetching ? "Buscando..." : "✨ Buscar Capa e Sinopse Automaticamente"}
+                  </button>
+                </div>
+
+                {inlineMsg && (
+                  <p style={{ margin: 0, fontSize: "0.85rem", fontWeight: 600, color: "var(--color-brand)" }}>
+                    {inlineMsg}
+                  </p>
+                )}
+
+                <div className={styles.specsGrid}>
+                  <label style={{ display: "flex", flexDirection: "column", gap: 4, fontSize: "0.8rem", fontWeight: 600 }}>
+                    URL da Capa
+                    <input
+                      value={inlineDraft.capaUrl ?? ""}
+                      onChange={(e) => setInlineDraft((p) => (p ? { ...p, capaUrl: e.target.value } : null))}
+                      style={{ padding: "0.45rem 0.6rem", borderRadius: 8, border: "1px solid var(--color-border-strong)" }}
+                    />
+                  </label>
+                  <label style={{ display: "flex", flexDirection: "column", gap: 4, fontSize: "0.8rem", fontWeight: 600 }}>
+                    Escola Literária
+                    <input
+                      value={inlineDraft.escolaLiteraria ?? ""}
+                      onChange={(e) => setInlineDraft((p) => (p ? { ...p, escolaLiteraria: e.target.value } : null))}
+                      style={{ padding: "0.45rem 0.6rem", borderRadius: 8, border: "1px solid var(--color-border-strong)" }}
+                    />
+                  </label>
+                  <label style={{ display: "flex", flexDirection: "column", gap: 4, fontSize: "0.8rem", fontWeight: 600 }}>
+                    Código Dedalus/CDU
+                    <input
+                      value={inlineDraft.codigoDedalus}
+                      onChange={(e) => setInlineDraft((p) => (p ? { ...p, codigoDedalus: e.target.value } : null))}
+                      style={{ padding: "0.45rem 0.6rem", borderRadius: 8, border: "1px solid var(--color-border-strong)" }}
+                    />
+                  </label>
+                  <label style={{ display: "flex", flexDirection: "column", gap: 4, fontSize: "0.8rem", fontWeight: 600 }}>
+                    Estante
+                    <input
+                      value={inlineDraft.estante}
+                      onChange={(e) => setInlineDraft((p) => (p ? { ...p, estante: e.target.value } : null))}
+                      style={{ padding: "0.45rem 0.6rem", borderRadius: 8, border: "1px solid var(--color-border-strong)" }}
+                    />
+                  </label>
+                </div>
+
+                <label style={{ display: "flex", flexDirection: "column", gap: 4, fontSize: "0.8rem", fontWeight: 600 }}>
+                  Sinopse Completa
+                  <textarea
+                    rows={3}
+                    value={inlineDraft.sinopse ?? ""}
+                    onChange={(e) => setInlineDraft((p) => (p ? { ...p, sinopse: e.target.value } : null))}
+                    style={{ padding: "0.5rem 0.65rem", borderRadius: 8, border: "1px solid var(--color-border-strong)" }}
+                  />
+                </label>
+
+                <label style={{ display: "flex", flexDirection: "column", gap: 4, fontSize: "0.8rem", fontWeight: 600 }}>
+                  Temas do Vestibular (1 por linha)
+                  <textarea
+                    rows={3}
+                    value={(inlineDraft.temasVestibular ?? []).join("\n")}
+                    onChange={(e) =>
+                      setInlineDraft((p) =>
+                        p
+                          ? {
+                              ...p,
+                              temasVestibular: e.target.value
+                                .split("\n")
+                                .map((t) => t.trim())
+                                .filter(Boolean),
+                            }
+                          : null,
+                      )
+                    }
+                    style={{ padding: "0.5rem 0.65rem", borderRadius: 8, border: "1px solid var(--color-border-strong)" }}
+                  />
+                </label>
+
+                <label style={{ display: "flex", flexDirection: "column", gap: 4, fontSize: "0.8rem", fontWeight: 600 }}>
+                  Link Domínio Público / BBM-USP
+                  <input
+                    value={inlineDraft.dominioPublicoUrl ?? ""}
+                    onChange={(e) => setInlineDraft((p) => (p ? { ...p, dominioPublicoUrl: e.target.value } : null))}
+                    style={{ padding: "0.45rem 0.6rem", borderRadius: 8, border: "1px solid var(--color-border-strong)" }}
+                  />
+                </label>
+
+                <div className={styles.modalActions}>
+                  <button type="submit" className={styles.primaryBtn} disabled={savingInline} style={{ flex: "0 1 auto" }}>
+                    <Save size={15} aria-hidden="true" />
+                    {savingInline ? "Salvando..." : "Salvar alterações"}
+                  </button>
+                  <button type="button" className={styles.secondaryBtn} onClick={() => setInlineDraft(null)}>
+                    Cancelar
+                  </button>
+                </div>
+              </form>
+            ) : (
+              <div className={styles.modalLayout}>
+                <div className={styles.modalLeft}>
+                  <BookCover book={selectedBook} size="lg" />
+                  <button
+                    type="button"
+                    className={`${styles.readToggleBtn} ${
+                      readIds.has(selectedBook.id) ? styles.readToggleActive : ""
+                    }`}
+                    onClick={() => toggleReadBook(selectedBook.id)}
+                    style={{ padding: "0.4rem 0.8rem", fontSize: "0.8rem" }}
+                  >
+                    <Check size={14} aria-hidden="true" />
+                    {readIds.has(selectedBook.id) ? "Já li este livro" : "Marcar como lido"}
+                  </button>
+                </div>
+
+                <div className={styles.modalRight}>
+                  <div>
+                    <div className={styles.metaTopRow}>
+                      <span className={styles.examTag}>
+                        {selectedBook.anos && !selectedBook.vestibular.includes(selectedBook.anos)
+                          ? `${selectedBook.vestibular} • ${selectedBook.anos}`
+                          : selectedBook.vestibular}
+                      </span>
+                      {selectedBook.escolaLiteraria && (
+                        <span className={styles.pill}>{selectedBook.escolaLiteraria}</span>
+                      )}
+                    </div>
+                    <h2 id="ficha-obra-title" className={styles.modalTitle}>
+                      {selectedBook.titulo}
+                    </h2>
+                    <p className={styles.modalAuthor}>
+                      {selectedBook.autor}
+                      {selectedBook.anoPublicacao ? ` (${selectedBook.anoPublicacao})` : ""}
+                    </p>
+                  </div>
+
+                  {selectedBook.sinopse && (
+                    <section className={styles.modalSection}>
+                      <h3 className={styles.modalSectionTitle}>
+                        <BookOpen size={14} aria-hidden="true" /> Sinopse Completa
+                      </h3>
+                      <p className={styles.modalSynopsis}>{selectedBook.sinopse}</p>
+                    </section>
+                  )}
+
+                  {selectedBook.temasVestibular && selectedBook.temasVestibular.length > 0 && (
+                    <section className={styles.modalSection}>
+                      <h3 className={styles.modalSectionTitle}>
+                        <GraduationCap size={14} aria-hidden="true" /> Dicas para o Vestibular (Contexto &amp; Temas)
+                      </h3>
+                      <ul className={styles.themesList}>
+                        {selectedBook.temasVestibular.map((tema, idx) => (
+                          <li key={idx}>{tema}</li>
+                        ))}
+                      </ul>
+                    </section>
+                  )}
+
+                  <section className={styles.modalSection}>
+                    <h3 className={styles.modalSectionTitle}>Ficha Técnica no CDCC</h3>
+                    <div className={styles.specsGrid}>
+                      <div className={styles.specItem}>
+                        <span className={styles.specLabel}>Gênero</span>
+                        <span className={styles.specValue}>{selectedBook.genero}</span>
+                      </div>
+                      <div className={styles.specItem}>
+                        <span className={styles.specLabel}>Código Dedalus / CDU</span>
+                        <span className={styles.specValue}>{selectedBook.codigoDedalus}</span>
+                      </div>
+                      <div className={styles.specItem}>
+                        <span className={styles.specLabel}>Localização Física</span>
+                        <span className={styles.specValue}>
+                          {selectedBook.sala} • {selectedBook.estante}
+                        </span>
+                      </div>
+                      {selectedBook.anoPublicacao && (
+                        <div className={styles.specItem}>
+                          <span className={styles.specLabel}>Publicação Original</span>
+                          <span className={styles.specValue}>{selectedBook.anoPublicacao}</span>
+                        </div>
+                      )}
+                    </div>
+                  </section>
+
+                  <div className={styles.modalActions}>
+                    <Link
+                      to={`/?q=${encodeURIComponent(selectedBook.codigoDedalus)}`}
+                      className={styles.primaryBtn}
+                      style={{ flex: "0 1 auto" }}
+                    >
+                      <MapPin size={15} aria-hidden="true" /> Localizar Estante no Mapa
+                    </Link>
+                    <a
+                      href={`https://dedalus.usp.br/F/?func=find-b&request=${encodeURIComponent(
+                        selectedBook.titulo,
+                      )}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={styles.secondaryBtn}
+                    >
+                      Consultar no Dedalus <ExternalLink size={14} aria-hidden="true" />
+                    </a>
+                    {selectedBook.dominioPublicoUrl && (
+                      <a
+                        href={selectedBook.dominioPublicoUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={styles.publicDomainBtn}
+                      >
+                        📖 Ler Obra Gratuita (Domínio Público / BBM-USP)
+                        <ExternalLink size={13} aria-hidden="true" />
+                      </a>
+                    )}
+                    {isAdmin && (
+                      <button
+                        type="button"
+                        className={styles.secondaryBtn}
+                        onClick={() => setInlineDraft({ ...selectedBook })}
+                      >
+                        <Pencil size={14} aria-hidden="true" /> Editar Ficha
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
       )}
     </main>
   );

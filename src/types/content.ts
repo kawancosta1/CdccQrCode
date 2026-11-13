@@ -137,6 +137,10 @@ export interface VestibularBook {
   vestibular: VestibularExamTag;
   anos: string;
   genero: string;
+  escolaLiteraria?: string;
+  anoPublicacao?: string;
+  paginas?: number;
+  isbn?: string;
   codigoDedalus: string;
   sala: string;
   estante: string;
@@ -144,6 +148,9 @@ export interface VestibularBook {
   corCapa?: string;
   disponivel: boolean;
   observacao?: string;
+  sinopse?: string;
+  temasVestibular?: string[];
+  dominioPublicoUrl?: string;
   ordem: number;
   atualizadoEm?: string;
 }

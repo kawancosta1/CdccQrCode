@@ -7,8 +7,11 @@ import {
   Plus,
   RefreshCw,
   Save,
+  Sparkles,
   Trash2,
 } from "lucide-react";
+import { BookCover } from "../../../components/BookCover/index.tsx";
+import { fetchBookCoverAndMetadata } from "../../../services/bookMetadataService.ts";
 import {
   deleteCustomPage,
   deleteVestibularBook,
@@ -73,6 +76,7 @@ export default function AdminPages() {
   const [statusMsg, setStatusMsg] = useState<string | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const [autoFilling, setAutoFilling] = useState(false);
 
   const loadAll = async () => {
     const [p, v] = await Promise.all([getCustomPages(false), getVestibularBooks()]);
@@ -575,9 +579,56 @@ export default function AdminPages() {
           </section>
 
           <form className={styles.card} onSubmit={handleSaveBook}>
-            <h2 className={styles.cardTitle}>
-              {editingBook.id ? `Editando: ${editingBook.titulo}` : "Adicionar Obra de Vestibular"}
-            </h2>
+            <div
+              style={{
+                display: "flex",
+                flexWrap: "wrap",
+                alignItems: "center",
+                justifyContent: "space-between",
+                gap: "0.75rem",
+                marginBottom: "0.75rem",
+              }}
+            >
+              <h2 className={styles.cardTitle} style={{ margin: 0 }}>
+                {editingBook.id ? `Editando: ${editingBook.titulo}` : "Adicionar Obra de Vestibular"}
+              </h2>
+              <button
+                type="button"
+                className={styles.secondaryBtn}
+                disabled={autoFilling || (!editingBook.titulo.trim() && !editingBook.isbn?.trim())}
+                onClick={async () => {
+                  setAutoFilling(true);
+                  setStatusMsg(null);
+                  setErrorMsg(null);
+                  try {
+                    const meta = await fetchBookCoverAndMetadata({
+                      titulo: editingBook.titulo,
+                      autor: editingBook.autor,
+                      isbn: editingBook.isbn,
+                      skipCache: true,
+                    });
+                    if (!meta) {
+                      setErrorMsg("Nenhum dado encontrado na Google Books / Open Library para este título.");
+                      return;
+                    }
+                    setEditingBook((p) => ({
+                      ...p,
+                      capaUrl: meta.coverUrl || p.capaUrl,
+                      sinopse: meta.sinopse || p.sinopse,
+                      anoPublicacao: meta.anoPublicacao || p.anoPublicacao,
+                      paginas: meta.paginas || p.paginas,
+                      isbn: meta.isbn || p.isbn,
+                    }));
+                    setStatusMsg("Capa e metadados preenchidos automaticamente! Revise e salve.");
+                  } finally {
+                    setAutoFilling(false);
+                  }
+                }}
+              >
+                <Sparkles size={15} />
+                {autoFilling ? "Buscando..." : "✨ Buscar Capa e Sinopse Automaticamente"}
+              </button>
+            </div>
             <div className={styles.grid2}>
               <label className={styles.field}>
                 <span className={styles.label}>Título</span>
@@ -653,27 +704,110 @@ export default function AdminPages() {
                   onChange={(e) => setEditingBook((p) => ({ ...p, estante: e.target.value }))}
                 />
               </label>
-            </div>
-            <label className={styles.field}>
-              <span className={styles.label}>Capa do Livro (URL ou upload WebP)</span>
-              <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+              <label className={styles.field}>
+                <span className={styles.label}>Escola Literária</span>
                 <input
                   className={styles.input}
-                  placeholder="https://... (opcional)"
-                  value={editingBook.capaUrl ?? ""}
-                  onChange={(e) => setEditingBook((p) => ({ ...p, capaUrl: e.target.value }))}
+                  placeholder="Ex.: Realismo Brasileiro"
+                  value={editingBook.escolaLiteraria ?? ""}
+                  onChange={(e) => setEditingBook((p) => ({ ...p, escolaLiteraria: e.target.value }))}
                 />
+              </label>
+              <label className={styles.field}>
+                <span className={styles.label}>Ano de Publicação Original</span>
                 <input
-                  type="file"
-                  accept="image/*"
-                  onChange={async (e) => {
-                    const file = e.target.files?.[0];
-                    if (!file) return;
-                    const url = await uploadCmsImage(file, "vestibular");
-                    setEditingBook((p) => ({ ...p, capaUrl: url }));
-                  }}
+                  className={styles.input}
+                  placeholder="Ex.: 1891"
+                  value={editingBook.anoPublicacao ?? ""}
+                  onChange={(e) => setEditingBook((p) => ({ ...p, anoPublicacao: e.target.value }))}
                 />
+              </label>
+              <label className={styles.field}>
+                <span className={styles.label}>ISBN (opcional, melhora busca automática)</span>
+                <input
+                  className={styles.input}
+                  placeholder="Ex.: 9788535914849"
+                  value={editingBook.isbn ?? ""}
+                  onChange={(e) => setEditingBook((p) => ({ ...p, isbn: e.target.value }))}
+                />
+              </label>
+              <label className={styles.field}>
+                <span className={styles.label}>Páginas (opcional)</span>
+                <input
+                  type="number"
+                  className={styles.input}
+                  value={editingBook.paginas ?? ""}
+                  onChange={(e) =>
+                    setEditingBook((p) => ({
+                      ...p,
+                      paginas: e.target.value ? Number(e.target.value) : undefined,
+                    }))
+                  }
+                />
+              </label>
+            </div>
+            <div style={{ display: "flex", gap: "1rem", alignItems: "flex-start", flexWrap: "wrap", marginTop: "0.75rem" }}>
+              <BookCover book={editingBook} size="md" />
+              <div style={{ flex: 1, minWidth: 240 }}>
+                <label className={styles.field}>
+                  <span className={styles.label}>Capa do Livro (URL ou upload WebP — prioridade máxima)</span>
+                  <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                    <input
+                      className={styles.input}
+                      placeholder="https://... (deixe vazio para usar capa automática ou editorial)"
+                      value={editingBook.capaUrl ?? ""}
+                      onChange={(e) => setEditingBook((p) => ({ ...p, capaUrl: e.target.value }))}
+                    />
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={async (e) => {
+                        const file = e.target.files?.[0];
+                        if (!file) return;
+                        const url = await uploadCmsImage(file, "vestibular");
+                        setEditingBook((p) => ({ ...p, capaUrl: url }));
+                      }}
+                    />
+                  </div>
+                </label>
               </div>
+            </div>
+            <label className={styles.field}>
+              <span className={styles.label}>Sinopse Completa</span>
+              <textarea
+                className={styles.input}
+                rows={3}
+                placeholder="Resumo claro e envolvente da história/obra..."
+                value={editingBook.sinopse ?? ""}
+                onChange={(e) => setEditingBook((p) => ({ ...p, sinopse: e.target.value }))}
+              />
+            </label>
+            <label className={styles.field}>
+              <span className={styles.label}>Temas do Vestibular (1 tópico por linha)</span>
+              <textarea
+                className={styles.input}
+                rows={4}
+                placeholder="Contexto histórico, personagens principais, temas centrais..."
+                value={(editingBook.temasVestibular ?? []).join("\n")}
+                onChange={(e) =>
+                  setEditingBook((p) => ({
+                    ...p,
+                    temasVestibular: e.target.value
+                      .split("\n")
+                      .map((line) => line.trim())
+                      .filter(Boolean),
+                  }))
+                }
+              />
+            </label>
+            <label className={styles.field}>
+              <span className={styles.label}>Link de Domínio Público / BBM-USP (opcional)</span>
+              <input
+                className={styles.input}
+                placeholder="https://www.dominiopublico.gov.br/... ou https://digital.bbm.usp.br/..."
+                value={editingBook.dominioPublicoUrl ?? ""}
+                onChange={(e) => setEditingBook((p) => ({ ...p, dominioPublicoUrl: e.target.value }))}
+              />
             </label>
             <label className={styles.field}>
               <span className={styles.label}>Observação</span>
