@@ -218,10 +218,10 @@ export const ADMIN_SECTION_GUIDES: AdminSectionGuide[] = [
     publicImpact:
       "Define exatamente onde cada código CDU aparece iluminado na foto da estante (Spotlight) e onde cada estante fica posicionada no Mapa 3D interativo do visitante.",
     steps: [
-      "No editor Spotlight, selecione Sala e Estante e envie a foto limpa (sem marcações desenhadas à mão).",
-      "Ajuste as linhas divisórias das prateleiras e clique em um código CDU + um Preset (Linha Inteira, Metade, Terço) para marcar a região.",
-      "Use 'Testar como Aluno' para conferir o destaque visual e clique em 'Salvar Mapeamento'.",
-      "Abaixo, use o Mapa 3D e as regras extras se precisar ajustar pinos da planta ou faixas CDU.",
+      "Na aba '1. Fotos e Marcação das Estantes', escolha Sala e Estante e envie uma foto frontal limpa da estante.",
+      "Defina quantas prateleiras ela tem, selecione um código CDU e clique em um atalho (Linha Inteira, Metade ou Terço) para marcar a região.",
+      "Use 'Testar como Aluno' para conferir o destaque visual e clique em 'Salvar Estante'.",
+      "Use a aba '2. Posição das Estantes no Mapa' só se precisar mover o pino de uma estante na planta da sala.",
     ],
     tipsAndWarnings: [
       "Suba sempre a foto LIMPA da estante: o sistema aplica a iluminação automática sobre a prateleira certa.",
@@ -257,12 +257,6 @@ export const ADMIN_SECTION_GUIDES: AdminSectionGuide[] = [
         title: "5. Teste como aluno e salve",
         description:
           "Clique em 'Testar como Aluno' para visualizar exatamente o efeito Spotlight que o visitante verá antes de salvar no banco.",
-      },
-      {
-        selector: '[data-tour="mapping-3d-map"]',
-        title: "6. Posicione os pinos no Mapa 3D",
-        description:
-          "Nesta área você ajusta a posição de cada estante na planta 3D da sala e gerencia regras avançadas de faixas CDU.",
       },
     ],
   },

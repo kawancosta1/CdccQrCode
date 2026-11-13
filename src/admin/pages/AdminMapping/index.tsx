@@ -23,6 +23,9 @@ import adminStyles from "../../styles/admin.module.css";
 import styles from "../../styles/cms.module.css";
 
 export default function AdminMapping() {
+  const [activeSectionTab, setActiveSectionTab] = useState<"spotlight" | "mapa" | "regras">(
+    "spotlight",
+  );
   const [roomId, setRoomId] = useState<RoomId>(1);
   const [selectedShelf, setSelectedShelf] = useState<string>("1");
   const [overrides, setOverrides] = useState<DynamicMarkerOverride[]>([]);
@@ -147,75 +150,112 @@ export default function AdminMapping() {
     <div className={styles.page}>
       <header className={styles.header}>
         <div>
-          <h1 className={styles.title}>Regras de Busca Dedalus &amp; Mapa Click-to-Place</h1>
+          <h1 className={styles.title}>Mapeamento Visual &amp; Localização nas Salas</h1>
           <p className={styles.subtitle}>
-            Clique na planta baixa para reposicionar marcadores de estantes ou cadastre faixas de
-            código CDU customizadas.
+            Envie a foto limpa de cada estante e marque onde ficam os códigos das prateleiras, ou
+            ajuste a posição das estantes no mapa da sala.
           </p>
         </div>
       </header>
 
       {statusMsg && <div className={adminStyles.successBanner}>{statusMsg}</div>}
 
-      <ShelfSpotlightEditor />
-
-      <div className={styles.tabs}>
-        {([1, 2, 3] as RoomId[]).map((id) => (
-          <button
-            key={id}
-            type="button"
-            className={`${styles.tab} ${roomId === id ? styles.tabActive : ""}`}
-            onClick={() => {
-              setRoomId(id);
-              setSelectedShelf(String(ROOM_CONFIG[id].shelfNumbers[0] ?? "1"));
-            }}
-          >
-            {ROOM_CONFIG[id].label}
-          </button>
-        ))}
+      <div className={styles.tabs} role="tablist" aria-label="Módulos de mapeamento">
+        <button
+          type="button"
+          role="tab"
+          aria-selected={activeSectionTab === "spotlight"}
+          className={`${styles.tab} ${activeSectionTab === "spotlight" ? styles.tabActive : ""}`}
+          onClick={() => setActiveSectionTab("spotlight")}
+        >
+          1. Fotos e Marcação das Estantes
+        </button>
+        <button
+          type="button"
+          role="tab"
+          aria-selected={activeSectionTab === "mapa"}
+          className={`${styles.tab} ${activeSectionTab === "mapa" ? styles.tabActive : ""}`}
+          onClick={() => setActiveSectionTab("mapa")}
+        >
+          2. Posição das Estantes no Mapa
+        </button>
+        <button
+          type="button"
+          role="tab"
+          aria-selected={activeSectionTab === "regras"}
+          className={`${styles.tab} ${activeSectionTab === "regras" ? styles.tabActive : ""}`}
+          onClick={() => setActiveSectionTab("regras")}
+        >
+          3. Regras Extras &amp; Saúde do Acervo
+        </button>
       </div>
 
-      <section className={styles.card} data-tour="mapping-3d-map">
-        <h2 className={styles.cardTitle}>
-          <MapPin size={18} /> Reposicionar Marcadores na Planta ({room.label})
-        </h2>
-        <div style={{ display: "flex", flexWrap: "wrap", gap: 8, alignItems: "center" }}>
-          <span className={styles.label}>Estante selecionada para mover:</span>
-          <select
-            className={styles.select}
-            style={{ width: "auto", minWidth: 160 }}
-            value={selectedShelf}
-            onChange={(e) => setSelectedShelf(e.target.value)}
-          >
-            {room.shelfNumbers.map((num) => (
-              <option key={num} value={String(num)}>
-                Estante {num}
-              </option>
-            ))}
-          </select>
-          <span style={{ fontSize: "0.82rem", color: "#475569" }}>
-            Clique em qualquer ponto da planta abaixo para definir a posição do pino vermelho.
-          </span>
-        </div>
+      {activeSectionTab === "spotlight" && <ShelfSpotlightEditor />}
 
-        <div className={styles.mapCanvasWrap} onClick={handleMapClick}>
-          <img src={room.mapSrc} alt={`Planta ${room.label}`} className={styles.mapCanvasImg} />
-          {room.shelfNumbers.map((num) => {
-            const key = String(num);
-            const pos = getMarkerPosition(key);
-            const isActive = key === selectedShelf;
-            return (
-              <span
-                key={key}
-                className={`${styles.mapPin} ${isActive ? styles.mapPinActive : ""}`}
-                style={{ top: pos.top, left: pos.left }}
+      {activeSectionTab === "mapa" && (
+        <>
+          <div className={styles.tabs}>
+            {([1, 2, 3] as RoomId[]).map((id) => (
+              <button
+                key={id}
+                type="button"
+                className={`${styles.tab} ${roomId === id ? styles.tabActive : ""}`}
+                onClick={() => {
+                  setRoomId(id);
+                  setSelectedShelf(String(ROOM_CONFIG[id].shelfNumbers[0] ?? "1"));
+                }}
               >
-                {key}
+                {ROOM_CONFIG[id].label}
+              </button>
+            ))}
+          </div>
+
+          <section className={styles.card} data-tour="mapping-3d-map">
+            <h2 className={styles.cardTitle}>
+              <MapPin size={18} /> Reposicionar Marcadores na Planta ({room.label})
+            </h2>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 8, alignItems: "center" }}>
+              <span className={styles.label}>Estante selecionada para mover:</span>
+              <select
+                className={styles.select}
+                style={{ width: "auto", minWidth: 160 }}
+                value={selectedShelf}
+                onChange={(e) => setSelectedShelf(e.target.value)}
+              >
+                {room.shelfNumbers.map((num) => (
+                  <option key={num} value={String(num)}>
+                    Estante {num}
+                  </option>
+                ))}
+              </select>
+              <span style={{ fontSize: "0.82rem", color: "#475569" }}>
+                Clique em qualquer ponto da planta abaixo para definir a posição do pino vermelho.
               </span>
-            );
-          })}
-        </div>
-      </section>
+            </div>
+
+            <div className={styles.mapCanvasWrap} onClick={handleMapClick}>
+              <img src={room.mapSrc} alt={`Planta ${room.label}`} className={styles.mapCanvasImg} />
+              {room.shelfNumbers.map((num) => {
+                const key = String(num);
+                const pos = getMarkerPosition(key);
+                const isActive = key === selectedShelf;
+                return (
+                  <span
+                    key={key}
+                    className={`${styles.mapPin} ${isActive ? styles.mapPinActive : ""}`}
+                    style={{ top: pos.top, left: pos.left }}
+                  >
+                    {key}
+                  </span>
+                );
+              })}
+            </div>
+          </section>
+        </>
+      )}
+
+      {activeSectionTab === "regras" && (
+        <>
 
       <div className={styles.grid2}>
         <form className={styles.card} onSubmit={handleAddMapping}>
@@ -356,9 +396,7 @@ export default function AdminMapping() {
               setStatusMsg("Foto específica salva e aplicada imediatamente!");
             }}
           >
-            <ShelfSpotlightEditor />
-
-      <div className={styles.tabs}>
+            <div className={styles.tabs}>
               <button
                 type="button"
                 className={`${styles.tab} ${photoTargetType === "shelf" ? styles.tabActive : ""}`}
@@ -567,6 +605,8 @@ export default function AdminMapping() {
           </div>
         </div>
       </section>
+        </>
+      )}
     </div>
   );
 }

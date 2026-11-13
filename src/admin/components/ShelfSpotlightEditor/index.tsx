@@ -61,11 +61,14 @@ function buildEqualDividers(count: number): number[] {
 
 export function ShelfSpotlightEditor() {
   const [allMappings, setAllMappings] = useState<Record<string, ShelfMapping>>({});
-  const [roomId, setRoomId] = useState<RoomId>(2);
-  const [shelfNumber, setShelfNumber] = useState<number>(8);
+  const [roomId, setRoomId] = useState<RoomId>(1);
+  const [shelfNumber, setShelfNumber] = useState<number>(1);
   const [onlyPending, setOnlyPending] = useState(false);
+  const [useLegacyAsBase, setUseLegacyAsBase] = useState(false);
 
-  const [selectedCode, setSelectedCode] = useState<string>("");
+  const [selectedCode, setSelectedCode] = useState<string>(
+    () => getCodesForShelf(1, 1)[0] ?? "",
+  );
   const [customCodeInput, setCustomCodeInput] = useState<string>("");
   const [activeRow, setActiveRow] = useState<number>(1);
   const [snapEnabled, setSnapEnabled] = useState<boolean>(true);
@@ -75,9 +78,9 @@ export function ShelfSpotlightEditor() {
   const [statusMessage, setStatusMessage] = useState<string>("");
 
   const [draftMapping, setDraftMapping] = useState<ShelfMapping>(() => ({
-    shelfId: buildShelfId(2, 8),
-    roomId: 2,
-    shelfNumber: 8,
+    shelfId: buildShelfId(1, 1),
+    roomId: 1,
+    shelfNumber: 1,
     dividers: buildEqualDividers(5),
     regions: {},
   }));
@@ -98,7 +101,13 @@ export function ShelfSpotlightEditor() {
       .then((map) => {
         if (!active) return;
         setAllMappings(map);
-        const initial = map[buildShelfId(2, 8)];
+        const firstClean = Object.values(map).find((item) => Boolean(item.cleanImageUrl));
+        const targetRoom = firstClean?.roomId ?? 1;
+        const targetShelf = firstClean?.shelfNumber ?? 1;
+        const initial = map[buildShelfId(targetRoom, targetShelf)];
+        setRoomId(targetRoom);
+        setShelfNumber(targetShelf);
+        setSelectedCode(getCodesForShelf(targetRoom, targetShelf)[0] ?? "");
         if (initial) {
           setDraftMapping({
             ...initial,
@@ -115,6 +124,7 @@ export function ShelfSpotlightEditor() {
   const handleSelectRoomOrShelf = (nextRoom: RoomId, nextShelf: number) => {
     setRoomId(nextRoom);
     setShelfNumber(nextShelf);
+    setUseLegacyAsBase(false);
     const id = buildShelfId(nextRoom, nextShelf);
     const existing = allMappings[id];
     setDraftMapping(
@@ -186,8 +196,8 @@ export function ShelfSpotlightEditor() {
     }));
   }, [dividers]);
 
-  const activePhotoUrl =
-    draftMapping.cleanImageUrl || SHELF_OVERVIEW_IMAGES[roomId]?.[String(shelfNumber)] || "";
+  const legacyPhotoUrl = SHELF_OVERVIEW_IMAGES[roomId]?.[String(shelfNumber)] || "";
+  const activePhotoUrl = draftMapping.cleanImageUrl || (useLegacyAsBase ? legacyPhotoUrl : "");
 
   const handleUploadCleanPhoto = async (file: File) => {
     setUploading(true);
@@ -443,7 +453,7 @@ export function ShelfSpotlightEditor() {
         {/* Sidebar de Códigos e Presets */}
         <aside className={style.sidebar} data-tour="mapping-spotlight-presets">
           <div className={style.sideBlock}>
-            <span className={style.sideLabel}>1. Grade de Prateleiras</span>
+            <span className={style.sideLabel}>1. Quantas prateleiras tem a estante?</span>
             <div className={style.shelfCountBtns}>
               {[4, 5, 6, 7].map((count) => (
                 <button
@@ -474,7 +484,7 @@ export function ShelfSpotlightEditor() {
           </div>
 
           <div className={style.sideBlock}>
-            <span className={style.sideLabel}>2. Códigos da Estante {shelfNumber}</span>
+            <span className={style.sideLabel}>2. Código/assunto para marcar (Estante {shelfNumber})</span>
             <div className={style.codeList}>
               {shelfCodes.map((code) => {
                 const mapped = Boolean(draftMapping.regions[code]);
@@ -649,7 +659,37 @@ export function ShelfSpotlightEditor() {
             </div>
           ) : (
             <div className={style.noPhotoBox}>
-              Suba a foto limpa da Estante {shelfNumber} para começar a mapear.
+              <Upload size={28} aria-hidden="true" />
+              <h3 className={style.noPhotoTitle}>
+                Envie a foto da Estante {shelfNumber} ({ROOM_CONFIG[roomId].label})
+              </h3>
+              <p className={style.noPhotoDesc}>
+                Tire uma foto frontal da estante inteira (sem marcações desenhadas ou cartaz de QR Code).
+                O sistema comprime automaticamente e libera a marcação por prateleira na hora.
+              </p>
+              <label className={style.noPhotoUploadBtn}>
+                <Upload size={16} aria-hidden="true" />
+                {uploading ? "Comprimindo foto..." : "Escolher Foto da Estante (Auto WebP)"}
+                <input
+                  type="file"
+                  accept="image/*"
+                  hidden
+                  disabled={uploading}
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) void handleUploadCleanPhoto(file);
+                  }}
+                />
+              </label>
+              {legacyPhotoUrl && (
+                <button
+                  type="button"
+                  className={style.legacyBaseBtn}
+                  onClick={() => setUseLegacyAsBase(true)}
+                >
+                  Ou visualizar/usar foto antiga cadastrada como base temporária
+                </button>
+              )}
             </div>
           )}
         </div>

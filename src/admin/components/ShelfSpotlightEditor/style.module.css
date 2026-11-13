@@ -357,11 +357,66 @@
 
 .noPhotoBox {
   width: 100%;
-  padding: 3rem 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  min-height: 360px;
+  padding: 2.5rem 1.5rem;
   text-align: center;
   border-radius: var(--radius-md);
-  border: 1px dashed var(--color-border-strong);
+  border: 2px dashed var(--color-border-strong);
+  background: var(--color-surface);
   color: var(--color-text-muted);
+}
+
+.noPhotoTitle {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.noPhotoDesc {
+  margin: 0;
+  max-width: 440px;
+  font-size: 0.86rem;
+  line-height: 1.5;
+  color: var(--color-text-muted);
+}
+
+.noPhotoUploadBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin-top: 0.25rem;
+  padding: 0.65rem 1.15rem;
+  border-radius: var(--radius-sm);
+  background: var(--color-brand);
+  color: #ffffff;
+  font-size: 0.88rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.noPhotoUploadBtn:hover {
+  filter: brightness(1.06);
+}
+
+.legacyBaseBtn {
+  margin-top: 0.35rem;
+  padding: 0.25rem 0.5rem;
+  border: none;
+  background: transparent;
+  color: var(--color-text-muted);
+  font-size: 0.78rem;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.legacyBaseBtn:hover {
+  color: var(--color-text);
 }
 
 .previewBackdrop {
