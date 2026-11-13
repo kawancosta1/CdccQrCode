@@ -1,6 +1,6 @@
-import { useEffect, useState, type CSSProperties } from "react";
-import { Link } from "react-router-dom";
-import { ArrowRight, Clock, Dices, Sparkles, Users } from "lucide-react";
+import { useEffect, useMemo, useState, type CSSProperties } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { ArrowRight, Clock, Coins, Dices, Search, Shuffle, Sparkles, Users, X } from "lucide-react";
 import { Container } from "../../components/Container";
 import { GameEmblemSvg, getGameVisualSignature } from "../../components/games/GameArtwork";
 import BentinhoPensando from "../../components/img/Mascote/pensando.webp";
@@ -8,8 +8,15 @@ import { DEFAULT_GAMES, GamesService } from "../../services/gamesService";
 import type { GameItem } from "../../types/content";
 import styles from "./style.module.css";
 
+const DIGITAL_BOARD_SLUGS = new Set(["xadrez", "ludo", "batalhanaval", "batalha-naval"]);
+
 export function EspacoLudico() {
+  const navigate = useNavigate();
   const [games, setGames] = useState<GameItem[]>(() => [...DEFAULT_GAMES]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState<string>("Todos");
+  const [onlyAvailable, setOnlyAvailable] = useState(false);
+  const [quickRollResult, setQuickRollResult] = useState<string | null>(null);
 
   useEffect(() => {
     let isMounted = true;
@@ -27,6 +34,32 @@ export function EspacoLudico() {
       isMounted = false;
     };
   }, []);
+
+  const categories = useMemo(() => {
+    const unique = Array.from(new Set(games.map((g) => g.categoria).filter(Boolean)));
+    return ["Todos", ...unique];
+  }, [games]);
+
+  const filteredGames = useMemo(() => {
+    const q = searchTerm.trim().toLowerCase();
+    return games.filter((g) => {
+      if (selectedCategory !== "Todos" && g.categoria !== selectedCategory) return false;
+      if (onlyAvailable && g.emprStatus === "emprestado") return false;
+      if (!q) return true;
+      return (
+        g.nome.toLowerCase().includes(q) ||
+        g.descricao.toLowerCase().includes(q) ||
+        g.categoria.toLowerCase().includes(q)
+      );
+    });
+  }, [games, onlyAvailable, searchTerm, selectedCategory]);
+
+  const handleDrawRandomGame = () => {
+    const pool = filteredGames.length > 0 ? filteredGames : games;
+    if (pool.length === 0) return;
+    const picked = pool[Math.floor(Math.random() * pool.length)];
+    navigate(`/espacoludico/${picked.slug}`);
+  };
 
   return (
     <Container>
@@ -74,14 +107,112 @@ export function EspacoLudico() {
       </header>
 
       <div className={styles.sectionBar}>
-        <h2 className={styles.sectionTitle}>Jogos disponíveis na bancada</h2>
-        <span className={styles.sectionHint}>
-          {games.length} {games.length === 1 ? "jogo catalogado" : "jogos catalogados"}
-        </span>
+        <div>
+          <h2 className={styles.sectionTitle}>Jogos disponíveis na bancada</h2>
+          <span className={styles.sectionHint}>
+            Exibindo {filteredGames.length} de {games.length}{" "}
+            {games.length === 1 ? "jogo catalogado" : "jogos catalogados"}
+          </span>
+        </div>
+
+        <button
+          type="button"
+          className={styles.drawBtn}
+          onClick={handleDrawRandomGame}
+          title="Sortear um jogo aleatório para jogar agora"
+        >
+          <Shuffle size={15} aria-hidden="true" />
+          Sortear Jogo da Mesa
+        </button>
       </div>
 
+      {/* Barra de Filtros + Utilitário Rápido de Mesa */}
+      <div className={styles.controlsBar}>
+        <div className={styles.filterPills} role="group" aria-label="Filtrar jogos por categoria">
+          {categories.map((cat) => (
+            <button
+              key={cat}
+              type="button"
+              className={`${styles.filterPill} ${
+                selectedCategory === cat ? styles.filterPillActive : ""
+              }`}
+              onClick={() => setSelectedCategory(cat)}
+            >
+              {cat}
+            </button>
+          ))}
+          <button
+            type="button"
+            className={`${styles.filterPill} ${onlyAvailable ? styles.filterPillActive : ""}`}
+            onClick={() => setOnlyAvailable((v) => !v)}
+            aria-pressed={onlyAvailable}
+          >
+            Só na bancada
+          </button>
+        </div>
+
+        <div className={styles.searchInline}>
+          <Search size={15} className={styles.searchIcon} aria-hidden="true" />
+          <input
+            type="search"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            placeholder="Buscar jogo..."
+            aria-label="Buscar jogo no Espaço Lúdico"
+          />
+          {searchTerm && (
+            <button
+              type="button"
+              className={styles.clearInlineBtn}
+              onClick={() => setSearchTerm("")}
+              aria-label="Limpar busca de jogo"
+            >
+              <X size={13} aria-hidden="true" />
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* Utilitário Rápido: Decida quem começa */}
+      <section className={styles.quickDiceBar} aria-label="Utilitário rápido de mesa">
+        <span className={styles.quickDiceLabel}>
+          <Dices size={15} aria-hidden="true" />
+          Decida quem começa:
+        </span>
+        <div className={styles.quickDiceBtns}>
+          <button
+            type="button"
+            className={styles.diceBtn}
+            onClick={() => setQuickRollResult(`Dado D6: ${Math.floor(Math.random() * 6) + 1}`)}
+          >
+            <Dices size={14} aria-hidden="true" /> D6
+          </button>
+          <button
+            type="button"
+            className={styles.diceBtn}
+            onClick={() => setQuickRollResult(`Dado D20: ${Math.floor(Math.random() * 20) + 1}`)}
+          >
+            <Dices size={14} aria-hidden="true" /> D20
+          </button>
+          <button
+            type="button"
+            className={styles.diceBtn}
+            onClick={() =>
+              setQuickRollResult(`Moeda: ${Math.random() < 0.5 ? "Cara" : "Coroa"}`)
+            }
+          >
+            <Coins size={14} aria-hidden="true" /> Cara/Coroa
+          </button>
+        </div>
+        {quickRollResult && (
+          <span className={styles.diceResultBadge} role="status" aria-live="polite">
+            {quickRollResult}
+          </span>
+        )}
+      </section>
+
       <div className={styles.gamesGrid}>
-        {games.map((game, index) => {
+        {filteredGames.map((game, index) => {
           const sig = getGameVisualSignature(game.slug);
           const accent = game.accentColor || sig.accentColor;
           const complexity = game.complexity || sig.complexity;
@@ -118,6 +249,9 @@ export function EspacoLudico() {
               <div className={styles.cardBody}>
                 <div className={styles.cardHeaderMeta}>
                   <span className={styles.categoryTag}>{game.categoria}</span>
+                  {DIGITAL_BOARD_SLUGS.has(game.slug) && (
+                    <span className={styles.digitalTag}>Mesa Digital</span>
+                  )}
                   <span className={styles.complexityTag}>Nível: {complexity}</span>
                 </div>
 
