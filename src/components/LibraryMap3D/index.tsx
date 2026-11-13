@@ -283,13 +283,18 @@ export function LibraryMap3D({ roomId, shelves, className }: LibraryMap3DProps) 
     const southWalls =
       roomId === 1
         ? [
-            // Porta no canto inferior direito: parede sul ocupa da esquerda até x = +4.2
+            // Porta no canto inferior direito
             { w: WORLD_SPAN * 0.72, d: 0.22, x: -half + (WORLD_SPAN * 0.72) / 2, z: half },
           ]
-        : [
-            { w: WORLD_SPAN * 0.38, d: 0.22, x: -half * 0.62, z: half },
-            { w: WORLD_SPAN * 0.38, d: 0.22, x: half * 0.62, z: half },
-          ];
+        : roomId === 2
+          ? [
+              // Porta no canto inferior esquerdo (conexão com a Sala 1)
+              { w: WORLD_SPAN * 0.72, d: 0.22, x: half - (WORLD_SPAN * 0.72) / 2, z: half },
+            ]
+          : [
+              { w: WORLD_SPAN * 0.38, d: 0.22, x: -half * 0.62, z: half },
+              { w: WORLD_SPAN * 0.38, d: 0.22, x: half * 0.62, z: half },
+            ];
 
     const wallConfigs = [
       { w: WORLD_SPAN + 0.3, d: 0.22, x: 0, z: -half }, // parede norte
