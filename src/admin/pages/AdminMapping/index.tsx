@@ -175,7 +175,7 @@ export default function AdminMapping() {
         ))}
       </div>
 
-      <section className={styles.card}>
+      <section className={styles.card} data-tour="mapping-3d-map">
         <h2 className={styles.cardTitle}>
           <MapPin size={18} /> Reposicionar Marcadores na Planta ({room.label})
         </h2>

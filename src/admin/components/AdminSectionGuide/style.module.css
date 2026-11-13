@@ -1,0 +1,342 @@
+.wrapper {
+  margin-bottom: 1.25rem;
+}
+
+.topStrip {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.65rem 0.9rem;
+  border-radius: 12px;
+  border: 1px solid var(--color-border, #e2d9cd);
+  background: var(--color-surface, #fffdf9);
+}
+
+.topStripLeft {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  min-width: 0;
+}
+
+.sectionBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--color-brand, #8b3a2b);
+  background: color-mix(in srgb, var(--color-brand, #8b3a2b) 10%, transparent);
+  padding: 0.25rem 0.6rem;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.sectionSubtitle {
+  margin: 0;
+  font-size: 0.86rem;
+  color: var(--color-text-muted, #5d534a);
+  line-height: 1.35;
+}
+
+.topStripActions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.helpToggleBtn,
+.tourStartBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.42rem 0.78rem;
+  border-radius: 8px;
+  font-size: 0.84rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.16s ease, border-color 0.16s ease, transform 0.16s ease;
+}
+
+.helpToggleBtn {
+  border: 1px solid var(--color-border, #d8cec0);
+  background: var(--color-bg, #faf6ef);
+  color: var(--color-text, #231f1b);
+}
+
+.helpToggleBtn:hover,
+.helpToggleBtn:focus-visible {
+  border-color: var(--color-brand, #8b3a2b);
+  background: color-mix(in srgb, var(--color-brand, #8b3a2b) 8%, var(--color-bg, #faf6ef));
+  outline: 2px solid transparent;
+}
+
+.helpToggleBtn:focus-visible,
+.tourStartBtn:focus-visible,
+.dismissBtn:focus-visible,
+.tourNavBtn:focus-visible,
+.tourPrimaryBtn:focus-visible,
+.tourCloseBtn:focus-visible {
+  outline: 2px solid var(--color-brand, #8b3a2b);
+  outline-offset: 2px;
+}
+
+.tourStartBtn {
+  border: 1px solid var(--color-brand, #8b3a2b);
+  background: var(--color-brand, #8b3a2b);
+  color: #ffffff;
+}
+
+.tourStartBtn:hover {
+  filter: brightness(1.06);
+}
+
+.guideCard {
+  margin-top: 0.75rem;
+  padding: 1.1rem 1.2rem;
+  border-radius: 14px;
+  border: 1px solid color-mix(in srgb, var(--color-brand, #8b3a2b) 28%, var(--color-border, #e2d9cd));
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--color-brand, #8b3a2b) 4%, var(--color-surface, #fffdf9)),
+    var(--color-surface, #fffdf9)
+  );
+  box-shadow: 0 8px 24px rgba(35, 31, 27, 0.06);
+}
+
+.guideHeader {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.9rem;
+}
+
+.guideTitle {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--color-text, #231f1b);
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.firstVisitPill {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  padding: 0.16rem 0.5rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--color-brand, #8b3a2b) 14%, transparent);
+  color: var(--color-brand, #8b3a2b);
+}
+
+.dismissBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.35rem 0.7rem;
+  border-radius: 8px;
+  border: 1px solid var(--color-border, #d8cec0);
+  background: var(--color-surface, #fffdf9);
+  color: var(--color-text, #231f1b);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.dismissBtn:hover {
+  border-color: var(--color-brand, #8b3a2b);
+}
+
+.guideGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.9rem;
+}
+
+@media (max-width: 960px) {
+  .guideGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.guideBlock {
+  padding: 0.85rem 0.95rem;
+  border-radius: 10px;
+  border: 1px solid var(--color-border, #e5ddd1);
+  background: var(--color-bg, #faf6ef);
+}
+
+.guideBlockTitle {
+  margin: 0 0 0.45rem;
+  font-size: 0.83rem;
+  font-weight: 700;
+  color: var(--color-text, #231f1b);
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.guideText {
+  margin: 0;
+  font-size: 0.84rem;
+  line-height: 1.48;
+  color: var(--color-text-muted, #4f463e);
+}
+
+.guideList {
+  margin: 0;
+  padding-left: 1.15rem;
+  font-size: 0.83rem;
+  line-height: 1.48;
+  color: var(--color-text-muted, #4f463e);
+}
+
+.guideList li + li {
+  margin-top: 0.35rem;
+}
+
+/* Spotlight Tour Overlay */
+.tourBackdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 9990;
+  pointer-events: auto;
+}
+
+.tourDimFull {
+  position: fixed;
+  inset: 0;
+  background: rgba(18, 16, 14, 0.62);
+}
+
+.tourSpotlight {
+  position: fixed;
+  border-radius: 12px;
+  border: 2.5px solid var(--color-brand, #c2410c);
+  box-shadow:
+    0 0 0 9999px rgba(18, 16, 14, 0.62),
+    0 0 0 6px color-mix(in srgb, var(--color-brand, #c2410c) 24%, transparent);
+  transition: top 0.22s ease, left 0.22s ease, width 0.22s ease, height 0.22s ease;
+  pointer-events: none;
+  z-index: 9991;
+}
+
+.tourPopover {
+  position: fixed;
+  z-index: 9995;
+  width: min(390px, calc(100vw - 24px));
+  padding: 1.05rem 1.15rem;
+  border-radius: 14px;
+  border: 1px solid var(--color-border, #e2d9cd);
+  background: var(--color-surface, #fffdf9);
+  color: var(--color-text, #231f1b);
+  box-shadow: 0 20px 44px rgba(18, 16, 14, 0.28);
+}
+
+.tourPopoverHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.45rem;
+}
+
+.tourStepCounter {
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: var(--color-brand, #8b3a2b);
+  background: color-mix(in srgb, var(--color-brand, #8b3a2b) 10%, transparent);
+  padding: 0.18rem 0.55rem;
+  border-radius: 999px;
+}
+
+.tourCloseBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--color-text-muted, #5d534a);
+  cursor: pointer;
+}
+
+.tourCloseBtn:hover {
+  background: var(--color-bg, #faf6ef);
+  color: var(--color-text, #231f1b);
+}
+
+.tourTitle {
+  margin: 0 0 0.4rem;
+  font-size: 0.98rem;
+  font-weight: 700;
+  color: var(--color-text, #231f1b);
+}
+
+.tourDescription {
+  margin: 0 0 0.9rem;
+  font-size: 0.86rem;
+  line-height: 1.48;
+  color: var(--color-text-muted, #4f463e);
+}
+
+.tourFallbackNote {
+  margin: 0 0 0.75rem;
+  padding: 0.45rem 0.65rem;
+  border-radius: 8px;
+  font-size: 0.78rem;
+  background: color-mix(in srgb, var(--color-brand, #8b3a2b) 8%, var(--color-bg, #faf6ef));
+  color: var(--color-text-muted, #5d534a);
+}
+
+.tourFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.tourActionsRight {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.tourNavBtn,
+.tourPrimaryBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.42rem 0.8rem;
+  border-radius: 8px;
+  font-size: 0.83rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.tourNavBtn {
+  border: 1px solid var(--color-border, #d8cec0);
+  background: var(--color-bg, #faf6ef);
+  color: var(--color-text, #231f1b);
+}
+
+.tourNavBtn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.tourPrimaryBtn {
+  border: 1px solid var(--color-brand, #8b3a2b);
+  background: var(--color-brand, #8b3a2b);
+  color: #ffffff;
+}

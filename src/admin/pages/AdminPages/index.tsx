@@ -198,7 +198,7 @@ export default function AdminPages() {
       {statusMsg && <div className={adminStyles.successBanner}>{statusMsg}</div>}
       {errorMsg && <div className={adminStyles.errorBanner}>{errorMsg}</div>}
 
-      <div className={styles.tabs}>
+      <div className={styles.tabs} data-tour="pages-tabs">
         <button
           type="button"
           className={`${styles.tab} ${activeTab === "paginas" ? styles.tabActive : ""}`}
@@ -290,7 +290,7 @@ export default function AdminPages() {
             </div>
           </section>
 
-          <form className={styles.card} onSubmit={handleSavePage}>
+          <form className={styles.card} onSubmit={handleSavePage} data-tour="pages-form">
             <h2 className={styles.cardTitle}>
               {editingPage.id ? `Editando: ${editingPage.titulo}` : "Nova Página Dinâmica"}
             </h2>
@@ -379,7 +379,7 @@ export default function AdminPages() {
               </label>
             </div>
 
-            <div className={styles.subBox}>
+            <div className={styles.subBox} data-tour="pages-blocks">
               <div style={{ display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: 8 }}>
                 <strong>Blocos de Conteúdo ({editingPage.blocos.length})</strong>
                 <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
@@ -497,7 +497,7 @@ export default function AdminPages() {
               ))}
             </div>
 
-            <button type="submit" className={styles.primaryBtn} disabled={saving}>
+            <button type="submit" className={styles.primaryBtn} disabled={saving} data-tour="pages-save">
               <Save size={16} /> {saving ? "Salvando..." : "Salvar Página"}
             </button>
           </form>

@@ -341,7 +341,7 @@ export function ShelfSpotlightEditor() {
   return (
     <section className={style.editorCard}>
       {/* Barra de Progresso do Acervo */}
-      <div className={style.progressHeader}>
+      <div className={style.progressHeader} data-tour="mapping-spotlight-progress">
         <div>
           <h2 className={style.editorTitle}>Editor Visual Spotlight (Foto Única Limpa)</h2>
           <p className={style.editorSubtitle}>
@@ -366,7 +366,7 @@ export function ShelfSpotlightEditor() {
       </div>
 
       {/* Seletor de Sala e Estante */}
-      <div className={style.selectorRow}>
+      <div className={style.selectorRow} data-tour="mapping-spotlight-selector">
         <label className={style.inlineField}>
           <span>Sala</span>
           <select
@@ -414,32 +414,34 @@ export function ShelfSpotlightEditor() {
           />
         </label>
 
-        <button
-          type="button"
-          className={style.previewBtn}
-          disabled={!activePhotoUrl}
-          onClick={() => setPreviewOpen(true)}
-        >
-          <Eye size={15} />
-          Testar como Aluno
-        </button>
+        <div data-tour="mapping-spotlight-actions" style={{ display: "inline-flex", gap: "0.5rem", flexWrap: "wrap" }}>
+          <button
+            type="button"
+            className={style.previewBtn}
+            disabled={!activePhotoUrl}
+            onClick={() => setPreviewOpen(true)}
+          >
+            <Eye size={15} />
+            Testar como Aluno
+          </button>
 
-        <button
-          type="button"
-          className={style.saveBtn}
-          disabled={saving}
-          onClick={handleSave}
-        >
-          <Save size={15} />
-          {saving ? "Salvando..." : "Salvar Estante"}
-        </button>
+          <button
+            type="button"
+            className={style.saveBtn}
+            disabled={saving}
+            onClick={handleSave}
+          >
+            <Save size={15} />
+            {saving ? "Salvando..." : "Salvar Estante"}
+          </button>
+        </div>
       </div>
 
       {statusMessage && <p className={style.statusBar}>{statusMessage}</p>}
 
       <div className={style.workspaceGrid}>
         {/* Sidebar de Códigos e Presets */}
-        <aside className={style.sidebar}>
+        <aside className={style.sidebar} data-tour="mapping-spotlight-presets">
           <div className={style.sideBlock}>
             <span className={style.sideLabel}>1. Grade de Prateleiras</span>
             <div className={style.shelfCountBtns}>
@@ -580,7 +582,7 @@ export function ShelfSpotlightEditor() {
         </aside>
 
         {/* Palco Visual Interativo */}
-        <div className={style.canvasArea}>
+        <div className={style.canvasArea} data-tour="mapping-spotlight-canvas">
           {activePhotoUrl ? (
             <div
               ref={stageRef}

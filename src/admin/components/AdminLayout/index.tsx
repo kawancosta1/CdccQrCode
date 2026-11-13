@@ -1,4 +1,4 @@
-import { Link, NavLink, Outlet, useNavigate } from "react-router-dom";
+import { Link, NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 import {
   BookOpen,
   Building2,
@@ -21,8 +21,10 @@ import {
   Sparkles,
 } from "lucide-react";
 import { useAdminAuth } from "../../context/adminAuthStore";
+import { resolveAdminSectionGuide } from "../../data/adminSectionGuides.ts";
 import { ADMIN_ROLES, ROLE_METADATA } from "../../services/permissionService";
 import type { AdminRole, Permission } from "../../types/admin";
+import { AdminSectionGuide } from "../AdminSectionGuide/index.tsx";
 import style from "../../styles/admin.module.css";
 
 interface AdminNavItem {
@@ -56,8 +58,11 @@ const ADMIN_NAV_ITEMS: AdminNavItem[] = [
 export function AdminLayout() {
   const { user, logout, simulateRole, hasPermission } = useAdminAuth();
   const navigate = useNavigate();
+  const location = useLocation();
 
   if (!user) return null;
+
+  const activeGuide = resolveAdminSectionGuide(location.pathname);
 
   const visibleNavItems = ADMIN_NAV_ITEMS.filter(
     (item) => !item.permission || hasPermission(item.permission),
@@ -138,6 +143,7 @@ export function AdminLayout() {
         </nav>
 
         <div className={style.mainPanel}>
+          <AdminSectionGuide key={activeGuide.id} guide={activeGuide} />
           <Outlet />
         </div>
       </div>
