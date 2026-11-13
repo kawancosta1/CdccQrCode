@@ -1,6 +1,18 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { NavLink, Link, useLocation } from "react-router-dom";
-import { ExternalLink, Menu, Search, X } from "lucide-react";
+import {
+  BookOpen,
+  Compass,
+  ExternalLink,
+  Gamepad2,
+  Home,
+  Menu,
+  Search,
+  Sparkles,
+  Volume2,
+  VolumeX,
+  X,
+} from "lucide-react";
 import {
   SearchAutocompleteDropdown,
   type AutocompleteEntry,
@@ -12,18 +24,23 @@ import { useSiteConfig } from "../../context/siteConfigStore";
 import { SEASON_METADATA } from "../../domain/seasonEngine";
 import { getCustomPages } from "../../services/pagesService";
 import type { CustomPage } from "../../types/content";
+import {
+  isTactileSoundEnabled,
+  playPaperClickSound,
+  setTactileSoundEnabled,
+} from "../../utils/tactileSound";
 import logoCdcc from "../img/CdccLogo.webp";
+import bentinhoPeekImg from "../img/Mascote/bentinhoPuxando.webp";
 import style from "./style.module.css";
 
 interface NavSearchFormProps {
   inputId: string;
-  formClassName: string;
-  ariaLabel: string;
   value: string;
   hasError: boolean;
   errorId?: string;
   entries: AutocompleteEntry[];
   dedalusSearchUrl: string;
+  autoFocus?: boolean;
   onChange: (value: string) => void;
   onClear: () => void;
   onSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
@@ -32,13 +49,12 @@ interface NavSearchFormProps {
 
 function NavSearchForm({
   inputId,
-  formClassName,
-  ariaLabel,
   value,
   hasError,
   errorId,
   entries,
   dedalusSearchUrl,
+  autoFocus = false,
   onChange,
   onClear,
   onSubmit,
@@ -46,6 +62,13 @@ function NavSearchForm({
 }: NavSearchFormProps) {
   const [open, setOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(-1);
+  const inputRef = useRef<HTMLInputElement | null>(null);
+
+  useEffect(() => {
+    if (autoFocus) {
+      inputRef.current?.focus();
+    }
+  }, [autoFocus]);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (!open || entries.length === 0) return;
@@ -68,24 +91,25 @@ function NavSearchForm({
 
   return (
     <form
-      className={formClassName}
+      className={style.searchForm}
       onSubmit={(e) => {
         setOpen(false);
         setActiveIndex(-1);
         onSubmit(e);
       }}
       role="search"
-      aria-label={ariaLabel}
+      aria-label="Busca rápida no acervo"
     >
-      <div className={style.searchInputWrapper} style={{ position: "relative" }}>
+      <div className={style.searchInputWrapper}>
         <Search size={16} className={style.searchIcon} aria-hidden="true" />
         <label htmlFor={inputId} className="sr-only">
           Pesquisar código Dedalus ou nome do livro
         </label>
         <input
+          ref={inputRef}
           id={inputId}
           type="search"
-          placeholder="Nome, autor ou código (ex: 530)"
+          placeholder="Título, autor ou código (ex: 530)"
           aria-invalid={hasError}
           aria-describedby={hasError ? errorId : undefined}
           className={style.searchInput}
@@ -135,20 +159,39 @@ function NavSearchForm({
   );
 }
 
-const INTERNAL_NAV_LINKS = [
-  { to: "/", label: "Início", end: true },
-  { to: "/estantes", label: "Estantes", end: false },
-  { to: "/vestibular", label: "Vestibular", end: false },
-  { to: "/espacoludico", label: "Espaço Lúdico", end: false },
-] as const;
+interface DesktopNavItemConfig {
+  code: string;
+  label: string;
+  to?: string;
+  href?: string;
+  end?: boolean;
+}
+
+const DESKTOP_NAV_ITEMS: DesktopNavItemConfig[] = [
+  { code: "01.", label: "Início", to: "/", end: true },
+  { code: "02.", label: "Acervo Dedalus", href: "https://dedalus.usp.br/" },
+  { code: "03.", label: "Mapa 3D", to: "/estantes", end: false },
+  { code: "04.", label: "Vestibular", to: "/vestibular", end: false },
+  { code: "05.", label: "Espaço Lúdico", to: "/espacoludico", end: false },
+];
 
 /**
- * Barra de navegação principal com acesso às seções e busca rápida por código Dedalus.
+ * Barra de navegação editorial tátil ("Warm Academic Editorial & Tactile UI")
+ * com arquitetura distinta para Desktop (Lombadas CDU + Fita Marcadora)
+ * e Mobile (Dock "Livro Aberto" + Gaveta "Abertura de Capa Dura").
  */
 export function Nav() {
   const location = useLocation();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [searchPopoverOpen, setSearchPopoverOpen] = useState(false);
+  const [a11yPopoverOpen, setA11yPopoverOpen] = useState(false);
+  const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const [menuPages, setMenuPages] = useState<CustomPage[]>([]);
+  const [scrollProgress, setScrollProgress] = useState(0);
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [soundEnabled, setSoundEnabled] = useState(() => isTactileSoundEnabled());
+  const utilitiesRef = useRef<HTMLDivElement | null>(null);
+
   const {
     config,
     getImageSrc,
@@ -156,7 +199,19 @@ export function Nav() {
     visitorParticlesEnabled,
     toggleVisitorParticles,
   } = useSiteConfig();
-  const { isPanelOpen, activeCount, togglePanel } = useAccessibility();
+  const {
+    fontScale,
+    highContrast,
+    reducedMotion,
+    vlibrasEnabled,
+    activeCount,
+    openPanel,
+    setFontScale,
+    setHighContrast,
+    setReducedMotion,
+    setVlibrasEnabled,
+  } = useAccessibility();
+
   const {
     searchValue,
     searchError,
@@ -174,15 +229,7 @@ export function Nav() {
     ...autocompleteSuggestions.map((code): AutocompleteEntry => ({ type: "code", code })),
   ];
 
-  const handleSelectDropdownEntry = (entry: AutocompleteEntry) => {
-    setMenuOpen(false);
-    if (entry.type === "name") {
-      submitSearch(entry.item.code, entry.item);
-    } else {
-      submitSearch(entry.code);
-    }
-  };
-
+  // Carrega páginas customizadas marcadas para o menu
   useEffect(() => {
     let active = true;
     getCustomPages(true)
@@ -195,311 +242,736 @@ export function Nav() {
     };
   }, []);
 
+  // Progresso de leitura ("Corte de Folhas") e estado de rolagem do Bentinho
   useEffect(() => {
-    if (!menuOpen) return;
-    const handleEsc = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setMenuOpen(false);
+    let rafId = 0;
+    const updateScroll = () => {
+      rafId = 0;
+      const y = window.scrollY || 0;
+      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+      const ratio = docHeight > 0 ? Math.min(1, Math.max(0, y / docHeight)) : 0;
+      setScrollProgress(ratio);
+      setIsScrolled(y > 24);
     };
+
+    const handleScroll = () => {
+      if (!rafId) {
+        rafId = window.requestAnimationFrame(updateScroll);
+      }
+    };
+
+    updateScroll();
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    window.addEventListener("resize", handleScroll, { passive: true });
+    return () => {
+      if (rafId) window.cancelAnimationFrame(rafId);
+      window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("resize", handleScroll);
+    };
+  }, [location.pathname]);
+
+  // Fecha menus/popovers com Escape ou clique fora
+  useEffect(() => {
+    const handleEsc = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setMenuOpen(false);
+        setSearchPopoverOpen(false);
+        setA11yPopoverOpen(false);
+        setMobileSearchOpen(false);
+      }
+    };
+    const handleClickOutside = (e: MouseEvent) => {
+      if (
+        utilitiesRef.current &&
+        e.target instanceof Node &&
+        !utilitiesRef.current.contains(e.target)
+      ) {
+        setSearchPopoverOpen(false);
+        setA11yPopoverOpen(false);
+      }
+    };
+
     window.addEventListener("keydown", handleEsc);
-    return () => window.removeEventListener("keydown", handleEsc);
-  }, [menuOpen]);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      window.removeEventListener("keydown", handleEsc);
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  const triggerTabSound = () => {
+    playPaperClickSound(reducedMotion);
+  };
+
+  const handleSelectDropdownEntry = (entry: AutocompleteEntry) => {
+    setMenuOpen(false);
+    setSearchPopoverOpen(false);
+    setMobileSearchOpen(false);
+    if (entry.type === "name") {
+      submitSearch(entry.item.code, entry.item);
+    } else {
+      submitSearch(entry.code);
+    }
+  };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const found = submitSearch(searchValue);
     if (found) {
       setMenuOpen(false);
+      setSearchPopoverOpen(false);
+      setMobileSearchOpen(false);
     }
   };
 
-  const closeMenu = () => setMenuOpen(false);
+  const closeAllOverlays = () => {
+    setMenuOpen(false);
+    setSearchPopoverOpen(false);
+    setA11yPopoverOpen(false);
+    setMobileSearchOpen(false);
+  };
 
-  const navLinkClass = ({ isActive }: { isActive: boolean }) =>
-    `${style.navItem} ${isActive ? style.navItemActive : ""}`;
-
-  const renderLinks = (onNavigate?: () => void) => (
-    <>
-      {INTERNAL_NAV_LINKS.map((item) => (
-        <NavLink
-          key={item.to}
-          to={item.to}
-          end={item.end}
-          className={navLinkClass}
-          onClick={onNavigate}
-        >
-          {item.label}
-        </NavLink>
-      ))}
-      {menuPages.map((pg) => (
-        <NavLink
-          key={pg.id}
-          to={`/p/${pg.slug}`}
-          className={navLinkClass}
-          onClick={onNavigate}
-        >
-          {pg.titulo}
-        </NavLink>
-      ))}
-      <a
-        href="https://dedalus.usp.br/"
-        target="_blank"
-        rel="noopener noreferrer"
-        className={style.navItem}
-        onClick={onNavigate}
-      >
-        Dedalus USP
-        <ExternalLink size={14} aria-hidden="true" />
-      </a>
-    </>
-  );
+  const handleToggleSound = () => {
+    const next = !soundEnabled;
+    setSoundEnabled(next);
+    setTactileSoundEnabled(next);
+    if (next) {
+      playPaperClickSound(reducedMotion);
+    }
+  };
 
   const errorBannerId = "nav-search-error";
   const resolvedLogo = getImageSrc("bentinho_logo", config.logoUrl || logoCdcc);
+  const progressStyle: CSSProperties = {
+    transform: `scaleX(${scrollProgress.toFixed(4)})`,
+  };
+
+  const allDesktopItems: DesktopNavItemConfig[] = [
+    ...DESKTOP_NAV_ITEMS,
+    ...menuPages.map((pg, idx) => ({
+      code: `${String(DESKTOP_NAV_ITEMS.length + idx + 1).padStart(2, "0")}.`,
+      label: pg.titulo,
+      to: `/p/${pg.slug}`,
+      end: false,
+    })),
+  ];
+
+  const mobileExtraLinks = [
+    { to: "/vestibular", label: "Obras do Vestibular", code: "04." },
+    { to: "/novidades", label: "Novos no Acervo", code: "06." },
+    { to: "/sugerir", label: "Sugerir Compra de Livro", code: "07." },
+    ...menuPages.map((pg, idx) => ({
+      to: `/p/${pg.slug}`,
+      label: pg.titulo,
+      code: `${String(8 + idx).padStart(2, "0")}.`,
+    })),
+  ];
 
   return (
-    <header className={style.header}>
-      {config.noticeBanner.enabled && config.noticeBanner.text && (
-        <div
-          role="region"
-          aria-label="Aviso importante"
-          style={{
-            backgroundColor: config.noticeBanner.color || "#145399",
-            color: "#ffffff",
-            padding: "0.45rem 1rem",
-            fontSize: "0.84rem",
-            fontWeight: 600,
-            textAlign: "center",
-            display: "flex",
-            flexWrap: "wrap",
-            alignItems: "center",
-            justifyContent: "center",
-            gap: "0.65rem",
-          }}
-        >
-          <span>{config.noticeBanner.text}</span>
-          {config.noticeBanner.linkUrl && (
-            <Link
-              to={config.noticeBanner.linkUrl}
-              style={{
-                color: "#ffffff",
-                textDecoration: "underline",
-                fontWeight: 800,
-              }}
-            >
-              {config.noticeBanner.linkLabel || "Saiba mais"} →
-            </Link>
-          )}
-        </div>
-      )}
-      <nav className={style.navBar} aria-label="Navegação principal">
-        <div className={style.navInner}>
-          <Link
-            to="/"
-            className={style.brandLink}
-            onClick={closeMenu}
-            aria-label={`${config.portalName} — Página inicial`}
+    <>
+      <header className={style.header}>
+        {config.noticeBanner.enabled && config.noticeBanner.text && (
+          <div
+            role="region"
+            aria-label="Aviso importante"
+            className={style.noticeBanner}
+            style={{ backgroundColor: config.noticeBanner.color || "#8a3354" }}
           >
-            <img src={resolvedLogo} alt={`Logo ${config.portalName}`} className={style.logo} />
-          </Link>
+            <span>{config.noticeBanner.text}</span>
+            {config.noticeBanner.linkUrl && (
+              <Link to={config.noticeBanner.linkUrl} className={style.noticeLink}>
+                {config.noticeBanner.linkLabel || "Saiba mais"} →
+              </Link>
+            )}
+          </div>
+        )}
 
-          <NavSearchForm
-            inputId="nav-search-desktop"
-            formClassName={style.desktopSearchForm}
-            ariaLabel="Busca rápida por nome ou código Dedalus"
-            value={searchValue}
-            hasError={Boolean(searchError)}
-            errorId={errorBannerId}
-            entries={dropdownEntries}
-            dedalusSearchUrl={dedalusSearchUrl}
-            onChange={handleSearchChange}
-            onClear={clearSearch}
-            onSubmit={handleSubmit}
-            onSelectEntry={handleSelectDropdownEntry}
-          />
-
-          <div className={style.desktopLinks}>
-            {renderLinks()}
-            {activeSeason && (
-              <button
-                type="button"
-                className={style.a11yTriggerBtn}
-                onClick={toggleVisitorParticles}
-                aria-pressed={visitorParticlesEnabled}
-                aria-label={`${SEASON_METADATA[activeSeason].badgeText} — ${
-                  visitorParticlesEnabled ? "Desativar" : "Ativar"
-                } efeitos visuais da estação`}
-                title={`${SEASON_METADATA[activeSeason].badgeText} — Clique para ${
-                  visitorParticlesEnabled ? "pausar" : "ativar"
-                } os efeitos da estação`}
-                style={{
-                  minWidth: "40px",
-                  padding: "0.35rem 0.65rem",
-                  opacity: visitorParticlesEnabled ? 1 : 0.65,
+        <nav className={style.navBar} aria-label="Navegação principal">
+          <div className={style.navInner}>
+            {/* Identidade Editorial + Mascote Bentinho */}
+            <div className={style.brandGroup}>
+              <Link
+                to="/"
+                className={style.brandLink}
+                data-scrolled={isScrolled ? "true" : "false"}
+                onClick={() => {
+                  triggerTabSound();
+                  closeAllOverlays();
                 }}
+                aria-label={`${config.portalName} — Página inicial`}
               >
-                <span aria-hidden="true" style={{ fontSize: "1rem", lineHeight: 1 }}>
-                  {SEASON_METADATA[activeSeason].emoji}
+                <img src={resolvedLogo} alt={`Logo ${config.portalName}`} className={style.logo} />
+                <span className={style.brandTextBlock}>
+                  <span className={style.brandTitle}>Biblioteca CDCC</span>
+                  <span className={style.brandSub}>USP São Carlos</span>
                 </span>
-              </button>
-            )}
-            <button
-              type="button"
-              className={style.a11yTriggerBtn}
-              onClick={togglePanel}
-              aria-expanded={isPanelOpen}
-              aria-controls="a11y-drawer"
-              aria-label={`Abrir painel de acessibilidade${
-                activeCount > 0 ? ` (${activeCount} recursos ativos)` : ""
-              }`}
-              title="Acessibilidade (Alt + A)"
-            >
-              <UniversalAccessibilityIcon size={18} />
-              <span className={style.a11yBtnLabel}>Acessibilidade</span>
-              {activeCount > 0 && (
-                <span className={style.a11yBadge} aria-hidden="true">
-                  {activeCount}
+                <span className={style.bentinhoWrap} aria-hidden="true">
+                  <img src={bentinhoPeekImg} alt="" className={style.bentinhoImg} />
                 </span>
-              )}
-            </button>
-          </div>
+              </Link>
+            </div>
 
-          <div className={style.mobileActionGroup}>
-            {activeSeason && (
+            {/* Arquitetura Desktop: Marcadores de Página & Lombadas CDU */}
+            <div className={style.desktopNavList}>
+              {allDesktopItems.map((item) =>
+                item.href ? (
+                  <a
+                    key={item.code + item.label}
+                    href={item.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={style.navItem}
+                    onClick={triggerTabSound}
+                  >
+                    <span className={style.ribbonPeek} aria-hidden="true" />
+                    <span className={style.catalogIndex}>{item.code}</span>
+                    <span>{item.label}</span>
+                    <ExternalLink size={13} aria-hidden="true" />
+                  </a>
+                ) : (
+                  <NavLink
+                    key={item.to}
+                    to={item.to ?? "/"}
+                    end={item.end}
+                    className={({ isActive }) =>
+                      `${style.navItem} ${isActive ? style.navItemActive : ""}`
+                    }
+                    onClick={() => {
+                      triggerTabSound();
+                      closeAllOverlays();
+                    }}
+                  >
+                    {({ isActive }) => (
+                      <>
+                        {isActive ? (
+                          <span className={style.activeRibbon} aria-hidden="true" />
+                        ) : (
+                          <span className={style.ribbonPeek} aria-hidden="true" />
+                        )}
+                        <span className={style.catalogIndex}>{item.code}</span>
+                        <span>{item.label}</span>
+                      </>
+                    )}
+                  </NavLink>
+                ),
+              )}
+            </div>
+
+            {/* Utilitários à Direita (Desktop): Carimbo Busca + Popover Acessibilidade */}
+            <div className={style.desktopUtilities} ref={utilitiesRef}>
               <button
                 type="button"
-                className={style.a11yMobileBtn}
-                onClick={toggleVisitorParticles}
-                aria-pressed={visitorParticlesEnabled}
-                aria-label={`${SEASON_METADATA[activeSeason].badgeText} — ${
-                  visitorParticlesEnabled ? "Pausar" : "Ativar"
-                } efeitos da estação`}
-                title={`${SEASON_METADATA[activeSeason].badgeText} (${
-                  visitorParticlesEnabled ? "efeitos ativos" : "efeitos pausados"
-                })`}
-                style={{ opacity: visitorParticlesEnabled ? 1 : 0.6 }}
+                className={`${style.stampBtn} ${searchPopoverOpen ? style.stampBtnActive : ""}`}
+                onClick={() => {
+                  triggerTabSound();
+                  setSearchPopoverOpen((prev) => !prev);
+                  setA11yPopoverOpen(false);
+                }}
+                aria-expanded={searchPopoverOpen}
+                aria-label="Abrir busca rápida"
               >
-                <span aria-hidden="true" style={{ fontSize: "1.05rem", lineHeight: 1 }}>
-                  {SEASON_METADATA[activeSeason].emoji}
-                </span>
+                <Search size={15} aria-hidden="true" />
+                <span>Buscar</span>
               </button>
-            )}
-            <button
-              type="button"
-              className={style.a11yMobileBtn}
-              onClick={togglePanel}
-              aria-expanded={isPanelOpen}
-              aria-controls="a11y-drawer"
-              aria-label={`Acessibilidade${activeCount > 0 ? ` (${activeCount} ativos)` : ""}`}
-              title="Acessibilidade (Alt + A)"
-            >
-              <UniversalAccessibilityIcon size={20} />
-              {activeCount > 0 && (
-                <span className={style.a11yBadge} aria-hidden="true">
-                  {activeCount}
-                </span>
-              )}
-            </button>
 
-            <button
-              type="button"
-              className={style.hamburger}
-              onClick={() => setMenuOpen((prev) => !prev)}
-              aria-label={menuOpen ? "Fechar menu de navegação" : "Abrir menu de navegação"}
-              aria-expanded={menuOpen}
-              aria-controls="mobile-nav-menu"
-            >
-              {menuOpen ? <X size={22} aria-hidden="true" /> : <Menu size={22} aria-hidden="true" />}
-            </button>
-          </div>
-        </div>
+              <button
+                type="button"
+                className={`${style.stampBtn} ${a11yPopoverOpen ? style.stampBtnActive : ""}`}
+                onClick={() => {
+                  triggerTabSound();
+                  setA11yPopoverOpen((prev) => !prev);
+                  setSearchPopoverOpen(false);
+                }}
+                aria-expanded={a11yPopoverOpen}
+                aria-label={`Controles de acessibilidade e tema${
+                  activeCount > 0 ? ` (${activeCount} ativos)` : ""
+                }`}
+                title="Acessibilidade e Tema (Alt + A)"
+              >
+                <UniversalAccessibilityIcon size={17} />
+                {activeCount > 0 && (
+                  <span className={style.a11yBadge} aria-hidden="true">
+                    {activeCount}
+                  </span>
+                )}
+              </button>
 
-        {searchError && location.pathname !== "/" && (
-          <div id={errorBannerId} className={style.errorBanner} role="alert">
-            <div style={{ display: "flex", flexDirection: "column", gap: "0.45rem", flex: 1 }}>
-              <span>{searchError}</span>
-              {(matchedNameOptions.length > 0 || searchValue.trim().length >= 2) && (
-                <div style={{ display: "flex", flexWrap: "wrap", gap: "0.35rem" }}>
-                  {matchedNameOptions.map((item) => (
+              {searchPopoverOpen && (
+                <div
+                  className={style.popoverPanel}
+                  role="dialog"
+                  aria-label="Busca rápida no acervo"
+                >
+                  <div className={style.popoverHeader}>
+                    <h2 className={style.popoverTitle}>Busca Rápida Dedalus / CDU</h2>
                     <button
-                      key={item.id}
                       type="button"
-                      onClick={() => {
-                        submitSearch(item.code, item);
-                        setMenuOpen(false);
-                      }}
-                      style={{
-                        padding: "0.25rem 0.6rem",
-                        borderRadius: "9999px",
-                        border: "1px solid rgba(255,255,255,0.35)",
-                        background: "rgba(255,255,255,0.14)",
-                        color: "inherit",
-                        fontSize: "0.75rem",
-                        fontWeight: 600,
-                        cursor: "pointer",
-                      }}
+                      className={style.popoverClose}
+                      onClick={() => setSearchPopoverOpen(false)}
+                      aria-label="Fechar busca"
                     >
-                      {item.title} ({item.code})
+                      <X size={15} aria-hidden="true" />
                     </button>
-                  ))}
-                  {searchValue.trim().length >= 2 && (
-                    <a
-                      href={dedalusSearchUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      style={{
-                        display: "inline-flex",
-                        alignItems: "center",
-                        gap: "0.3rem",
-                        padding: "0.25rem 0.6rem",
-                        borderRadius: "9999px",
-                        border: "1px solid rgba(255,255,255,0.45)",
-                        background: "rgba(255,255,255,0.22)",
-                        color: "inherit",
-                        fontSize: "0.75rem",
-                        fontWeight: 600,
-                        textDecoration: "none",
+                  </div>
+                  <NavSearchForm
+                    inputId="nav-search-desktop"
+                    value={searchValue}
+                    hasError={Boolean(searchError)}
+                    errorId={errorBannerId}
+                    entries={dropdownEntries}
+                    dedalusSearchUrl={dedalusSearchUrl}
+                    autoFocus
+                    onChange={handleSearchChange}
+                    onClear={clearSearch}
+                    onSubmit={handleSubmit}
+                    onSelectEntry={handleSelectDropdownEntry}
+                  />
+                </div>
+              )}
+
+              {a11yPopoverOpen && (
+                <div
+                  className={style.popoverPanel}
+                  role="dialog"
+                  aria-label="Controles rápidos de acessibilidade"
+                >
+                  <div className={style.popoverHeader}>
+                    <h2 className={style.popoverTitle}>Leitura, Tema &amp; Acessibilidade</h2>
+                    <button
+                      type="button"
+                      className={style.popoverClose}
+                      onClick={() => setA11yPopoverOpen(false)}
+                      aria-label="Fechar controles"
+                    >
+                      <X size={15} aria-hidden="true" />
+                    </button>
+                  </div>
+
+                  <div className={style.a11yGrid}>
+                    <div className={style.a11yRow}>
+                      <span>Tamanho do texto</span>
+                      <div className={style.fontScaleGroup}>
+                        {(["100", "115", "130"] as const).map((scale) => (
+                          <button
+                            key={scale}
+                            type="button"
+                            className={`${style.miniChoiceBtn} ${
+                              fontScale === scale ? style.miniChoiceBtnActive : ""
+                            }`}
+                            onClick={() => setFontScale(scale)}
+                          >
+                            {scale}%
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className={style.a11yRow}>
+                      <span>Alto Contraste</span>
+                      <button
+                        type="button"
+                        className={`${style.miniChoiceBtn} ${
+                          highContrast ? style.miniChoiceBtnActive : ""
+                        }`}
+                        aria-pressed={highContrast}
+                        onClick={() => setHighContrast(!highContrast)}
+                      >
+                        {highContrast ? "Ativo" : "Desativado"}
+                      </button>
+                    </div>
+
+                    <div className={style.a11yRow}>
+                      <span>Reduzir Movimento</span>
+                      <button
+                        type="button"
+                        className={`${style.miniChoiceBtn} ${
+                          reducedMotion ? style.miniChoiceBtnActive : ""
+                        }`}
+                        aria-pressed={reducedMotion}
+                        onClick={() => setReducedMotion(!reducedMotion)}
+                      >
+                        {reducedMotion ? "Ativo" : "Normal"}
+                      </button>
+                    </div>
+
+                    <div className={style.a11yRow}>
+                      <span>VLibras (Libras)</span>
+                      <button
+                        type="button"
+                        className={`${style.miniChoiceBtn} ${
+                          vlibrasEnabled ? style.miniChoiceBtnActive : ""
+                        }`}
+                        aria-pressed={vlibrasEnabled}
+                        onClick={() => setVlibrasEnabled(!vlibrasEnabled)}
+                      >
+                        {vlibrasEnabled ? "Visível" : "Oculto"}
+                      </button>
+                    </div>
+
+                    {activeSeason && (
+                      <div className={style.a11yRow}>
+                        <span>
+                          {SEASON_METADATA[activeSeason].emoji}{" "}
+                          {SEASON_METADATA[activeSeason].badgeText}
+                        </span>
+                        <button
+                          type="button"
+                          className={`${style.miniChoiceBtn} ${
+                            visitorParticlesEnabled ? style.miniChoiceBtnActive : ""
+                          }`}
+                          aria-pressed={visitorParticlesEnabled}
+                          onClick={toggleVisitorParticles}
+                        >
+                          {visitorParticlesEnabled ? "Efeitos ON" : "Pausado"}
+                        </button>
+                      </div>
+                    )}
+
+                    <div className={style.a11yRow}>
+                      <span style={{ display: "inline-flex", alignItems: "center", gap: "0.35rem" }}>
+                        {soundEnabled ? (
+                          <Volume2 size={14} aria-hidden="true" />
+                        ) : (
+                          <VolumeX size={14} aria-hidden="true" />
+                        )}
+                        Som tátil de papel
+                      </span>
+                      <button
+                        type="button"
+                        className={`${style.miniChoiceBtn} ${
+                          soundEnabled ? style.miniChoiceBtnActive : ""
+                        }`}
+                        aria-pressed={soundEnabled}
+                        onClick={handleToggleSound}
+                      >
+                        {soundEnabled ? "Ligado" : "Mudo"}
+                      </button>
+                    </div>
+
+                    <button
+                      type="button"
+                      className={style.a11yFullBtn}
+                      onClick={() => {
+                        setA11yPopoverOpen(false);
+                        openPanel();
                       }}
                     >
-                      <ExternalLink size={12} aria-hidden="true" />
-                      Pesquisar &ldquo;{searchValue.trim()}&rdquo; no Dedalus USP
-                    </a>
-                  )}
+                      Abrir painel completo de Acessibilidade (Alt + A)
+                    </button>
+                  </div>
                 </div>
               )}
             </div>
+
+            {/* Mobile Top Bar Minimalista (< 768px) */}
+            <div className={style.mobileTopActions}>
+              <button
+                type="button"
+                className={style.mobileIconBtn}
+                onClick={() => {
+                  triggerTabSound();
+                  setMobileSearchOpen((prev) => !prev);
+                }}
+                aria-expanded={mobileSearchOpen}
+                aria-label="Busca rápida"
+              >
+                {mobileSearchOpen ? <X size={18} aria-hidden="true" /> : <Search size={18} aria-hidden="true" />}
+              </button>
+
+              <button
+                type="button"
+                className={style.mobileIconBtn}
+                onClick={() => {
+                  triggerTabSound();
+                  openPanel();
+                }}
+                aria-label={`Acessibilidade${activeCount > 0 ? ` (${activeCount} ativos)` : ""}`}
+                title="Acessibilidade"
+              >
+                <UniversalAccessibilityIcon size={19} />
+                {activeCount > 0 && (
+                  <span
+                    className={style.a11yBadge}
+                    style={{ position: "absolute", top: -5, right: -5 }}
+                    aria-hidden="true"
+                  >
+                    {activeCount}
+                  </span>
+                )}
+              </button>
+            </div>
+          </div>
+
+          {mobileSearchOpen && (
+            <div className={style.mobileSearchSheet}>
+              <NavSearchForm
+                inputId="nav-search-mobile"
+                value={searchValue}
+                hasError={Boolean(searchError)}
+                errorId={errorBannerId}
+                entries={dropdownEntries}
+                dedalusSearchUrl={dedalusSearchUrl}
+                autoFocus
+                onChange={handleSearchChange}
+                onClear={clearSearch}
+                onSubmit={handleSubmit}
+                onSelectEntry={handleSelectDropdownEntry}
+              />
+            </div>
+          )}
+
+          {searchError && location.pathname !== "/" && (
+            <div id={errorBannerId} className={style.errorBanner} role="alert">
+              <div style={{ display: "flex", flexDirection: "column", gap: "0.45rem", flex: 1 }}>
+                <span>{searchError}</span>
+                {(matchedNameOptions.length > 0 || searchValue.trim().length >= 2) && (
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: "0.35rem" }}>
+                    {matchedNameOptions.map((item) => (
+                      <button
+                        key={item.id}
+                        type="button"
+                        onClick={() => {
+                          submitSearch(item.code, item);
+                          closeAllOverlays();
+                        }}
+                        style={{
+                          padding: "0.25rem 0.6rem",
+                          borderRadius: "9999px",
+                          border: "1px solid rgba(255,255,255,0.35)",
+                          background: "rgba(255,255,255,0.14)",
+                          color: "inherit",
+                          fontSize: "0.75rem",
+                          fontWeight: 600,
+                          cursor: "pointer",
+                        }}
+                      >
+                        {item.title} ({item.code})
+                      </button>
+                    ))}
+                    {searchValue.trim().length >= 2 && (
+                      <a
+                        href={dedalusSearchUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: "0.3rem",
+                          padding: "0.25rem 0.6rem",
+                          borderRadius: "9999px",
+                          border: "1px solid rgba(255,255,255,0.45)",
+                          background: "rgba(255,255,255,0.22)",
+                          color: "inherit",
+                          fontSize: "0.75rem",
+                          fontWeight: 600,
+                          textDecoration: "none",
+                        }}
+                      >
+                        <ExternalLink size={12} aria-hidden="true" />
+                        Pesquisar &ldquo;{searchValue.trim()}&rdquo; no Dedalus USP
+                      </a>
+                    )}
+                  </div>
+                )}
+              </div>
+              <button
+                type="button"
+                onClick={clearSearch}
+                className={style.errorClose}
+                aria-label="Fechar aviso"
+              >
+                <X size={16} aria-hidden="true" />
+              </button>
+            </div>
+          )}
+
+          {/* Linha dupla editorial + Progresso "Corte de Folhas" no Desktop */}
+          <div className={style.doubleRuleBottom} aria-hidden="true" />
+          <div className={style.pageEdgeTrack} aria-hidden="true">
+            <div className={style.pageEdgeFill} style={progressStyle} />
+          </div>
+        </nav>
+      </header>
+
+      {/* Mobile Bottom Navigation Dock ("Livro Aberto") */}
+      <nav className={style.mobileDock} aria-label="Navegação rápida mobile">
+        <div className={style.mobileDockEdgeWrap}>
+          <div className={style.pageEdgeTrack} aria-hidden="true">
+            <div className={style.pageEdgeFill} style={progressStyle} />
+          </div>
+        </div>
+
+        <div className={style.mobileDockGrid}>
+          <NavLink
+            to="/"
+            end
+            className={({ isActive }) =>
+              `${style.dockItem} ${isActive ? style.dockItemActive : ""}`
+            }
+            onClick={() => {
+              triggerTabSound();
+              closeAllOverlays();
+            }}
+          >
+            <Home size={19} aria-hidden="true" />
+            <span>Início</span>
+          </NavLink>
+
+          <a
+            href="https://dedalus.usp.br/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className={style.dockItem}
+            onClick={triggerTabSound}
+          >
+            <BookOpen size={19} aria-hidden="true" />
+            <span>Dedalus</span>
+          </a>
+
+          <NavLink
+            to="/estantes"
+            className={({ isActive }) =>
+              `${style.dockItem} ${style.dockCenterBtn} ${isActive ? style.dockItemActive : ""}`
+            }
+            onClick={() => {
+              triggerTabSound();
+              closeAllOverlays();
+            }}
+          >
+            <Compass size={20} aria-hidden="true" />
+            <span>Mapa 3D</span>
+          </NavLink>
+
+          <NavLink
+            to="/espacoludico"
+            className={({ isActive }) =>
+              `${style.dockItem} ${isActive ? style.dockItemActive : ""}`
+            }
+            onClick={() => {
+              triggerTabSound();
+              closeAllOverlays();
+            }}
+          >
+            <Gamepad2 size={19} aria-hidden="true" />
+            <span>Lúdico</span>
+          </NavLink>
+
+          <button
+            type="button"
+            className={`${style.dockItem} ${menuOpen ? style.dockItemActive : ""}`}
+            onClick={() => {
+              triggerTabSound();
+              setMenuOpen((prev) => !prev);
+            }}
+            aria-expanded={menuOpen}
+            aria-controls="mobile-hardcover-drawer"
+          >
+            {menuOpen ? <X size={19} aria-hidden="true" /> : <Menu size={19} aria-hidden="true" />}
+            <span>Mais</span>
+          </button>
+        </div>
+      </nav>
+
+      {/* Mobile Full Menu ("Abertura de Capa Dura") */}
+      <div
+        id="mobile-hardcover-drawer"
+        className={`${style.hardcoverBackdrop} ${menuOpen ? style.hardcoverBackdropOpen : ""}`}
+        role="dialog"
+        aria-modal="true"
+        aria-label="Menu completo da biblioteca"
+        aria-hidden={!menuOpen}
+        onClick={(e) => {
+          if (e.target === e.currentTarget) setMenuOpen(false);
+        }}
+      >
+        <div className={style.hardcoverBook}>
+          <div className={style.hardcoverHeader}>
+            <h2 className={style.hardcoverTitle}>Índice do Portal</h2>
             <button
               type="button"
-              onClick={clearSearch}
-              className={style.errorClose}
-              aria-label="Fechar aviso"
+              className={style.popoverClose}
+              onClick={() => setMenuOpen(false)}
+              aria-label="Fechar índice"
             >
               <X size={16} aria-hidden="true" />
             </button>
           </div>
-        )}
 
-        <div
-          id="mobile-nav-menu"
-          className={`${style.mobileDrawer} ${menuOpen ? style.mobileDrawerOpen : ""}`}
-        >
-          <NavSearchForm
-            inputId="nav-search-mobile"
-            formClassName={style.mobileSearchForm}
-            ariaLabel="Busca rápida mobile"
-            value={searchValue}
-            hasError={Boolean(searchError)}
-            errorId={errorBannerId}
-            entries={dropdownEntries}
-            dedalusSearchUrl={dedalusSearchUrl}
-            onChange={handleSearchChange}
-            onClear={clearSearch}
-            onSubmit={handleSubmit}
-            onSelectEntry={handleSelectDropdownEntry}
-          />
+          <div className={style.hardcoverList}>
+            {mobileExtraLinks.map((item, idx) => (
+              <NavLink
+                key={item.to}
+                to={item.to}
+                className={({ isActive }) =>
+                  `${style.staggerPageLink} ${isActive ? style.staggerPageLinkActive : ""}`
+                }
+                style={{ "--stagger-index": idx } as CSSProperties}
+                onClick={() => {
+                  triggerTabSound();
+                  setMenuOpen(false);
+                }}
+              >
+                <span>
+                  <span className={style.catalogIndex} style={{ marginRight: "0.45rem" }}>
+                    {item.code}
+                  </span>
+                  {item.label}
+                </span>
+              </NavLink>
+            ))}
 
-          <div className={style.mobileLinks}>{renderLinks(closeMenu)}</div>
+            <button
+              type="button"
+              className={style.staggerPageLink}
+              style={{ "--stagger-index": mobileExtraLinks.length } as CSSProperties}
+              onClick={() => {
+                triggerTabSound();
+                setMenuOpen(false);
+                openPanel();
+              }}
+            >
+              <span>Acessibilidade &amp; Leitura</span>
+              <UniversalAccessibilityIcon size={17} />
+            </button>
+
+            {activeSeason && (
+              <button
+                type="button"
+                className={style.staggerPageLink}
+                style={{ "--stagger-index": mobileExtraLinks.length + 1 } as CSSProperties}
+                onClick={() => {
+                  triggerTabSound();
+                  toggleVisitorParticles();
+                }}
+              >
+                <span>
+                  {SEASON_METADATA[activeSeason].emoji} {SEASON_METADATA[activeSeason].badgeText}
+                </span>
+                <Sparkles size={15} aria-hidden="true" />
+              </button>
+            )}
+
+            <NavLink
+              to="/admin"
+              className={({ isActive }) =>
+                `${style.staggerPageLink} ${isActive ? style.staggerPageLinkActive : ""}`
+              }
+              style={{ "--stagger-index": mobileExtraLinks.length + 2 } as CSSProperties}
+              onClick={() => {
+                triggerTabSound();
+                setMenuOpen(false);
+              }}
+            >
+              <span>
+                <span className={style.catalogIndex} style={{ marginRight: "0.45rem" }}>
+                  ADM
+                </span>
+                Painel Administrativo
+              </span>
+            </NavLink>
+          </div>
         </div>
-      </nav>
-    </header>
+      </div>
+    </>
   );
 }

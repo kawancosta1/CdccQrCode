@@ -227,8 +227,14 @@ html.vlibras-enabled div[vw] {
   z-index: 800 !important;
 }
 
+@media (max-width: 767px) {
+  .app-main {
+    padding-bottom: 5.75rem;
+  }
+}
+
 @media (max-width: 768px) {
   html.vlibras-enabled .app-main {
-    padding-bottom: 5rem;
+    padding-bottom: 6.5rem;
   }
 }
