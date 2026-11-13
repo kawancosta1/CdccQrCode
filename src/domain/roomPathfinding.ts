@@ -86,10 +86,22 @@ export function findRoomPath(
   for (const obs of shelfObstacles) {
     const ox = toGridIndex(obs.x);
     const oy = toGridIndex(obs.y);
-    if ((ox === startGx && oy === startGy) || (ox === goalGx && oy === goalGy)) {
-      continue;
+    // Bloqueia a área física real da estante (~12.5% largura x 7.5% profundidade)
+    for (let dx = -2; dx <= 2; dx += 1) {
+      for (let dy = -1; dy <= 1; dy += 1) {
+        const bx = ox + dx;
+        const by = oy + dy;
+        if (bx < 0 || bx >= GRID_SIZE || by < 0 || by >= GRID_SIZE) continue;
+        if ((bx === startGx && by === startGy) || (bx === goalGx && by === goalGy)) {
+          continue;
+        }
+        // Não bloqueia células imediatamente adjacentes ao alvo para permitir acesso pelo corredor
+        if (Math.abs(bx - goalGx) <= 1 && Math.abs(by - goalGy) <= 1) {
+          continue;
+        }
+        blocked.add(`${bx},${by}`);
+      }
     }
-    blocked.add(`${ox},${oy}`);
   }
 
   const open: AStarNode[] = [

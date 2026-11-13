@@ -327,10 +327,10 @@ export function LibraryMap3D({ roomId, shelves, className }: LibraryMap3DProps) 
       if (linkSprite.material.map) disposableTextures.push(linkSprite.material.map);
     }
 
-    // Estantes 3D + livros coloridos na face frontal
-    const shelfGeo = new THREE.BoxGeometry(1.16, 1.45, 0.7);
-    const shelfCapGeo = new THREE.BoxGeometry(1.24, 0.1, 0.76);
-    const spineGeo = new THREE.BoxGeometry(0.92, 0.32, 0.06);
+    // Estantes 3D proporcionais ao tamanho real no mapa 2D + livros coloridos na face frontal
+    const shelfGeo = new THREE.BoxGeometry(2.25, 1.55, 1.05);
+    const shelfCapGeo = new THREE.BoxGeometry(2.35, 0.12, 1.13);
+    const spineGeo = new THREE.BoxGeometry(1.9, 0.34, 0.08);
 
     const normalMat = new THREE.MeshStandardMaterial({ color: 0x7a5c43, roughness: 0.78 });
     const normalCapMat = new THREE.MeshStandardMaterial({ color: 0x5c4330, roughness: 0.7 });
@@ -353,7 +353,7 @@ export function LibraryMap3D({ roomId, shelves, className }: LibraryMap3DProps) 
     for (const node of shelfNodes) {
       const { x, z } = toWorldXZ(node.point);
       const body = new THREE.Mesh(shelfGeo, node.isTarget ? targetMat : normalMat);
-      body.position.set(x, 0.725, z);
+      body.position.set(x, 0.775, z);
       body.castShadow = true;
       body.receiveShadow = true;
       body.userData = { shelfKey: node.key };
@@ -361,26 +361,26 @@ export function LibraryMap3D({ roomId, shelves, className }: LibraryMap3DProps) 
       clickableMeshes.push(body);
 
       const cap = new THREE.Mesh(shelfCapGeo, node.isTarget ? targetCapMat : normalCapMat);
-      cap.position.set(x, 1.5, z);
+      cap.position.set(x, 1.61, z);
       scene.add(cap);
 
       // Faixa frontal de livros para indicar orientação
       const spineRowTop = new THREE.Mesh(spineGeo, spineMatA);
-      spineRowTop.position.set(x, 1.05, z + 0.36);
+      spineRowTop.position.set(x, 1.12, z + 0.54);
       scene.add(spineRowTop);
 
       const spineRowBot = new THREE.Mesh(spineGeo, spineMatB);
-      spineRowBot.position.set(x, 0.52, z + 0.36);
+      spineRowBot.position.set(x, 0.54, z + 0.54);
       scene.add(spineRowBot);
 
       const label = createShelfLabelSprite(node.key, node.isTarget);
-      label.position.set(x, node.isTarget ? 2.45 : 2.05, z);
+      label.position.set(x, node.isTarget ? 2.55 : 2.15, z);
       scene.add(label);
       disposableMaterials.push(label.material);
       if (label.material.map) disposableTextures.push(label.material.map);
 
       if (node.isTarget) {
-        const ringGeo = new THREE.RingGeometry(0.9, 1.25, 32);
+        const ringGeo = new THREE.RingGeometry(1.35, 1.72, 32);
         const ringMat = new THREE.MeshBasicMaterial({
           color: 0xf59e0b,
           side: THREE.DoubleSide,
