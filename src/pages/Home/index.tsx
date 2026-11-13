@@ -673,7 +673,7 @@ export function Home() {
                   position: "absolute",
                   bottom: "-4px",
                   left: "-10px",
-                  color: "#8a3354",
+                  color: "var(--color-brand)",
                   filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.12))",
                 }}
               >

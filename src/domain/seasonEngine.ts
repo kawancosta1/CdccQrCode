@@ -4,12 +4,42 @@ export type SeasonalMode = "auto" | SeasonId | "off";
 
 export type ParticleIntensity = "suave" | "normal" | "intenso";
 
+export interface SeasonPalette {
+  brandColor: string;
+  accentColor: string;
+  bgColor: string;
+}
+
 export interface SeasonalConfig {
   mode: SeasonalMode;
   intensity: ParticleIntensity;
   nightEffectEnabled: boolean;
   greetings: Record<SeasonId, string>;
+  palettes?: Partial<Record<SeasonId, SeasonPalette>>;
 }
+
+export const DEFAULT_SEASON_PALETTES: Record<SeasonId, SeasonPalette> = {
+  outono: {
+    brandColor: "#8C3B2B",
+    accentColor: "#D97706",
+    bgColor: "#FAF5EE",
+  },
+  inverno: {
+    brandColor: "#5B2C4A",
+    accentColor: "#0284C7",
+    bgColor: "#F2F6FA",
+  },
+  primavera: {
+    brandColor: "#9D2B5B",
+    accentColor: "#2F855A",
+    bgColor: "#F7FAF5",
+  },
+  verao: {
+    brandColor: "#8A3354",
+    accentColor: "#EA580C",
+    bgColor: "#FFFBF2",
+  },
+};
 
 export interface SeasonMetadata {
   id: SeasonId;
@@ -64,6 +94,12 @@ export const DEFAULT_SEASONAL_CONFIG: SeasonalConfig = {
     inverno: SEASON_METADATA.inverno.defaultGreeting,
     primavera: SEASON_METADATA.primavera.defaultGreeting,
     verao: SEASON_METADATA.verao.defaultGreeting,
+  },
+  palettes: {
+    outono: { ...DEFAULT_SEASON_PALETTES.outono },
+    inverno: { ...DEFAULT_SEASON_PALETTES.inverno },
+    primavera: { ...DEFAULT_SEASON_PALETTES.primavera },
+    verao: { ...DEFAULT_SEASON_PALETTES.verao },
   },
 };
 

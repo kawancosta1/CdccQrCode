@@ -1,6 +1,9 @@
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
-import { DEFAULT_SEASONAL_CONFIG } from "../domain/seasonEngine.ts";
+import {
+  DEFAULT_SEASON_PALETTES,
+  DEFAULT_SEASONAL_CONFIG,
+} from "../domain/seasonEngine.ts";
 import { getFirebaseStorageInstance, getFirestoreDb } from "../lib/firebase.ts";
 import type { SiteConfig } from "../types/content.ts";
 
@@ -258,6 +261,12 @@ export function mergeWithDefaultSiteConfig(partial?: Partial<SiteConfig> | null)
       greetings: {
         ...DEFAULT_SEASONAL_CONFIG.greetings,
         ...(partial.estacao?.greetings ?? {}),
+      },
+      palettes: {
+        outono: { ...DEFAULT_SEASON_PALETTES.outono, ...(partial.estacao?.palettes?.outono ?? {}) },
+        inverno: { ...DEFAULT_SEASON_PALETTES.inverno, ...(partial.estacao?.palettes?.inverno ?? {}) },
+        primavera: { ...DEFAULT_SEASON_PALETTES.primavera, ...(partial.estacao?.palettes?.primavera ?? {}) },
+        verao: { ...DEFAULT_SEASON_PALETTES.verao, ...(partial.estacao?.palettes?.verao ?? {}) },
       },
     },
   };

@@ -6,8 +6,10 @@ import {
   type ReactNode,
 } from "react";
 import {
+  DEFAULT_SEASON_PALETTES,
   isNightTime,
   resolveActiveSeason,
+  type SeasonId,
 } from "../domain/seasonEngine.ts";
 import {
   DEFAULT_SITE_CONFIG,
@@ -30,24 +32,117 @@ function readVisitorParticlesPref(): boolean {
   return true;
 }
 
-function applyCssVariables(config: SiteConfig): void {
+const DYNAMIC_THEME_STYLE_ID = "cdcc-dynamic-theme";
+
+function isSafeCssColor(value: string | undefined): value is string {
+  if (!value) return false;
+  return /^#[0-9a-fA-F]{3,8}$/.test(value.trim());
+}
+
+function applyCssVariables(config: SiteConfig, activeSeason: SeasonId | null): void {
   const root = document.documentElement;
-  if (config.brandColor && config.brandColor !== DEFAULT_SITE_CONFIG.brandColor) {
-    root.style.setProperty("--color-brand", config.brandColor);
+  // Limpa estilos inline legados para garantir que Alto Contraste sempre vença
+  root.style.removeProperty("--color-brand");
+  root.style.removeProperty("--color-accent");
+  root.style.removeProperty("--color-bg");
+
+  const rules: string[] = [];
+
+  if (activeSeason) {
+    const customPalette = config.estacao?.palettes?.[activeSeason];
+    const defaultPalette = DEFAULT_SEASON_PALETTES[activeSeason];
+    const declarations: string[] = [];
+
+    if (
+      customPalette &&
+      isSafeCssColor(customPalette.brandColor) &&
+      customPalette.brandColor.toLowerCase() !== defaultPalette.brandColor.toLowerCase()
+    ) {
+      const b = customPalette.brandColor.trim();
+      declarations.push(
+        `--color-brand: ${b};`,
+        `--color-brand-hover: color-mix(in srgb, ${b} 82%, #000000);`,
+        `--color-brand-active: color-mix(in srgb, ${b} 68%, #000000);`,
+        `--color-brand-soft: color-mix(in srgb, ${b} 9%, #ffffff);`,
+        `--color-brand-border: color-mix(in srgb, ${b} 28%, #ffffff);`,
+        `--color-brand-text: color-mix(in srgb, ${b} 85%, #000000);`,
+        `--color-brand-ring: color-mix(in srgb, ${b} 16%, transparent);`,
+        `--focus-ring-color: ${b};`,
+      );
+    }
+
+    if (
+      customPalette &&
+      isSafeCssColor(customPalette.accentColor) &&
+      customPalette.accentColor.toLowerCase() !== defaultPalette.accentColor.toLowerCase()
+    ) {
+      const a = customPalette.accentColor.trim();
+      declarations.push(
+        `--color-accent: ${a};`,
+        `--color-accent-soft: color-mix(in srgb, ${a} 12%, #ffffff);`,
+      );
+    }
+
+    if (
+      customPalette &&
+      isSafeCssColor(customPalette.bgColor) &&
+      customPalette.bgColor.toLowerCase() !== defaultPalette.bgColor.toLowerCase()
+    ) {
+      const bg = customPalette.bgColor.trim();
+      declarations.push(
+        `--color-bg: ${bg};`,
+        `--color-surface-subtle: color-mix(in srgb, ${bg} 94%, #000000);`,
+      );
+    }
+
+    if (declarations.length > 0) {
+      rules.push(
+        `html[data-season="${activeSeason}"]:not(.high-contrast):not(.high-contrast-dark):not(.high-contrast-light) {\n  ${declarations.join("\n  ")}\n}`,
+      );
+    }
   } else {
-    root.style.removeProperty("--color-brand");
+    const declarations: string[] = [];
+    if (
+      isSafeCssColor(config.brandColor) &&
+      config.brandColor.toLowerCase() !== DEFAULT_SITE_CONFIG.brandColor.toLowerCase()
+    ) {
+      const b = config.brandColor.trim();
+      declarations.push(
+        `--color-brand: ${b};`,
+        `--color-brand-hover: color-mix(in srgb, ${b} 82%, #000000);`,
+        `--color-brand-ring: color-mix(in srgb, ${b} 16%, transparent);`,
+        `--focus-ring-color: ${b};`,
+      );
+    }
+    if (
+      isSafeCssColor(config.accentColor) &&
+      config.accentColor.toLowerCase() !== DEFAULT_SITE_CONFIG.accentColor.toLowerCase()
+    ) {
+      declarations.push(`--color-accent: ${config.accentColor.trim()};`);
+    }
+    if (
+      isSafeCssColor(config.bgColor) &&
+      config.bgColor.toLowerCase() !== DEFAULT_SITE_CONFIG.bgColor.toLowerCase()
+    ) {
+      declarations.push(`--color-bg: ${config.bgColor.trim()};`);
+    }
+    if (declarations.length > 0) {
+      rules.push(
+        `html:not([data-season]):not(.high-contrast):not(.high-contrast-dark):not(.high-contrast-light) {\n  ${declarations.join("\n  ")}\n}`,
+      );
+    }
   }
 
-  if (config.accentColor && config.accentColor !== DEFAULT_SITE_CONFIG.accentColor) {
-    root.style.setProperty("--color-accent", config.accentColor);
-  } else {
-    root.style.removeProperty("--color-accent");
-  }
-
-  if (config.bgColor && config.bgColor !== DEFAULT_SITE_CONFIG.bgColor) {
-    root.style.setProperty("--color-bg", config.bgColor);
-  } else {
-    root.style.removeProperty("--color-bg");
+  let styleEl = document.getElementById(DYNAMIC_THEME_STYLE_ID) as HTMLStyleElement | null;
+  if (rules.length > 0) {
+    if (!styleEl) {
+      styleEl = document.createElement("style");
+      styleEl.id = DYNAMIC_THEME_STYLE_ID;
+      document.head.appendChild(styleEl);
+    }
+    styleEl.textContent = rules.join("\n");
+  } else if (styleEl) {
+    styleEl.remove();
   }
 
   if (config.borderRadiusScale !== DEFAULT_SITE_CONFIG.borderRadiusScale) {
@@ -111,7 +206,7 @@ export function SiteConfigProvider({ children }: { children: ReactNode }) {
     try {
       const loaded = await getSiteConfig();
       setConfig(loaded);
-      applyCssVariables(loaded);
+      applyCssVariables(loaded, resolveActiveSeason(loaded.estacao?.mode));
     } finally {
       setLoading(false);
     }
@@ -122,20 +217,20 @@ export function SiteConfigProvider({ children }: { children: ReactNode }) {
   }, [reloadConfig]);
 
   useEffect(() => {
-    applyCssVariables(config);
-  }, [config]);
+    applyCssVariables(config, activeSeason);
+  }, [config, activeSeason]);
 
   const updateConfig = useCallback(async (next: SiteConfig) => {
     const saved = await saveSiteConfig(next);
     setConfig(saved);
-    applyCssVariables(saved);
+    applyCssVariables(saved, resolveActiveSeason(saved.estacao?.mode));
     return saved;
   }, []);
 
   const resetConfig = useCallback(async () => {
     const fresh = await resetSiteConfig();
     setConfig(fresh);
-    applyCssVariables(fresh);
+    applyCssVariables(fresh, resolveActiveSeason(fresh.estacao?.mode));
     return fresh;
   }, []);
 

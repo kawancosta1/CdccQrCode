@@ -6,6 +6,7 @@
   --color-brand-soft: #f9eff3;
   --color-brand-border: #e5c3d0;
   --color-brand-text: #6e223f;
+  --color-brand-ring: rgba(138, 51, 84, 0.14);
 
   --color-accent: #0f5298;
   --color-accent-soft: #eff6ff;
@@ -17,6 +18,14 @@
   --color-surface: #ffffff;
   --color-surface-subtle: #f4efe9;
   --color-surface-hover: #ece5dc;
+
+  /* Hero Gradient */
+  --gradient-hero: radial-gradient(
+      ellipse 80% 55% at 50% -10%,
+      rgba(138, 51, 84, 0.08),
+      transparent 70%
+    ),
+    var(--color-surface);
 
   /* Borders */
   --color-border: rgba(138, 51, 84, 0.12);
@@ -100,23 +109,192 @@
    Atmosfera Sazonal (Hemisfério Sul) — Sobrescrita pelo Alto Contraste abaixo
    ========================================================================== */
 html[data-season="outono"] {
-  --color-bg: #f9f4ec;
+  --color-brand: #8c3b2b;
+  --color-brand-hover: #722e21;
+  --color-brand-active: #5a2218;
+  --color-brand-soft: #fdf1eb;
+  --color-brand-border: #e8c5b5;
+  --color-brand-text: #722e21;
+  --color-brand-ring: rgba(140, 59, 43, 0.16);
+
+  --color-accent: #d97706;
+  --color-accent-soft: #fef3c7;
+
+  --color-bg: #faf5ee;
+  --color-surface: #fffdf9;
   --color-surface-subtle: #f3eadc;
+  --color-surface-hover: #eae0ce;
+
+  --color-border: rgba(140, 59, 43, 0.14);
+  --color-border-strong: rgba(140, 59, 43, 0.28);
+  --focus-ring-color: #8c3b2b;
+
+  --gradient-hero: radial-gradient(
+      ellipse 85% 60% at 50% -10%,
+      rgba(217, 119, 6, 0.14),
+      transparent 68%
+    ),
+    radial-gradient(
+      ellipse 65% 45% at 15% 0%,
+      rgba(140, 59, 43, 0.09),
+      transparent 70%
+    ),
+    var(--color-surface);
+
+  --shadow-sm:
+    0 1px 2px rgba(45, 24, 16, 0.04),
+    0 4px 12px -2px rgba(140, 59, 43, 0.07),
+    0 8px 20px -6px rgba(45, 24, 16, 0.05);
+  --shadow-md:
+    0 1px 2px rgba(45, 24, 16, 0.04),
+    0 8px 24px -4px rgba(140, 59, 43, 0.09),
+    0 20px 40px -12px rgba(45, 24, 16, 0.06);
+  --shadow-lg:
+    0 2px 4px rgba(45, 24, 16, 0.05),
+    0 14px 34px -6px rgba(140, 59, 43, 0.13),
+    0 28px 56px -14px rgba(45, 24, 16, 0.12);
 }
 
 html[data-season="inverno"] {
-  --color-bg: #f5f7fa;
-  --color-surface-subtle: #ebeef4;
+  --color-brand: #5b2c4a;
+  --color-brand-hover: #472139;
+  --color-brand-active: #36172b;
+  --color-brand-soft: #f6eef4;
+  --color-brand-border: #d9c0d1;
+  --color-brand-text: #472139;
+  --color-brand-ring: rgba(91, 44, 74, 0.16);
+
+  --color-accent: #0284c7;
+  --color-accent-soft: #e0f2fe;
+
+  --color-bg: #f2f6fa;
+  --color-surface: #ffffff;
+  --color-surface-subtle: #e7eef6;
+  --color-surface-hover: #dce6f1;
+
+  --color-border: rgba(2, 132, 199, 0.14);
+  --color-border-strong: rgba(2, 132, 199, 0.28);
+  --focus-ring-color: #5b2c4a;
+
+  --gradient-hero: radial-gradient(
+      ellipse 85% 60% at 50% -10%,
+      rgba(2, 132, 199, 0.12),
+      transparent 68%
+    ),
+    radial-gradient(
+      ellipse 65% 45% at 85% 0%,
+      rgba(91, 44, 74, 0.08),
+      transparent 70%
+    ),
+    var(--color-surface);
+
+  --shadow-sm:
+    0 1px 2px rgba(15, 23, 42, 0.04),
+    0 4px 12px -2px rgba(2, 132, 199, 0.07),
+    0 8px 20px -6px rgba(15, 23, 42, 0.05);
+  --shadow-md:
+    0 1px 2px rgba(15, 23, 42, 0.04),
+    0 8px 24px -4px rgba(91, 44, 74, 0.08),
+    0 20px 40px -12px rgba(15, 23, 42, 0.06);
+  --shadow-lg:
+    0 2px 4px rgba(15, 23, 42, 0.05),
+    0 14px 34px -6px rgba(91, 44, 74, 0.12),
+    0 28px 56px -14px rgba(15, 23, 42, 0.12);
 }
 
 html[data-season="primavera"] {
-  --color-bg: #faf8f4;
-  --color-surface-subtle: #f4efe8;
+  --color-brand: #9d2b5b;
+  --color-brand-hover: #7e2048;
+  --color-brand-active: #631738;
+  --color-brand-soft: #fdf0f5;
+  --color-brand-border: #e8c0d1;
+  --color-brand-text: #7e2048;
+  --color-brand-ring: rgba(157, 43, 91, 0.16);
+
+  --color-accent: #2f855a;
+  --color-accent-soft: #ecfdf5;
+  --color-amber: #eab308;
+
+  --color-bg: #f7faf5;
+  --color-surface: #ffffff;
+  --color-surface-subtle: #edf4e9;
+  --color-surface-hover: #e2ece0;
+
+  --color-border: rgba(47, 133, 90, 0.14);
+  --color-border-strong: rgba(47, 133, 90, 0.28);
+  --focus-ring-color: #9d2b5b;
+
+  --gradient-hero: radial-gradient(
+      ellipse 80% 58% at 20% -5%,
+      rgba(157, 43, 91, 0.1),
+      transparent 66%
+    ),
+    radial-gradient(
+      ellipse 80% 58% at 80% -5%,
+      rgba(47, 133, 90, 0.1),
+      transparent 68%
+    ),
+    var(--color-surface);
+
+  --shadow-sm:
+    0 1px 2px rgba(22, 34, 24, 0.04),
+    0 4px 12px -2px rgba(47, 133, 90, 0.07),
+    0 8px 20px -6px rgba(22, 34, 24, 0.05);
+  --shadow-md:
+    0 1px 2px rgba(22, 34, 24, 0.04),
+    0 8px 24px -4px rgba(157, 43, 91, 0.08),
+    0 20px 40px -12px rgba(22, 34, 24, 0.06);
+  --shadow-lg:
+    0 2px 4px rgba(22, 34, 24, 0.05),
+    0 14px 34px -6px rgba(157, 43, 91, 0.12),
+    0 28px 56px -14px rgba(22, 34, 24, 0.11);
 }
 
 html[data-season="verao"] {
-  --color-bg: #fbf9f2;
-  --color-surface-subtle: #f5efe1;
+  --color-brand: #8a3354;
+  --color-brand-hover: #6f2743;
+  --color-brand-active: #571c33;
+  --color-brand-soft: #f9eff3;
+  --color-brand-border: #e5c3d0;
+  --color-brand-text: #6f2743;
+  --color-brand-ring: rgba(138, 51, 84, 0.16);
+
+  --color-accent: #ea580c;
+  --color-accent-soft: #fff7ed;
+
+  --color-bg: #fffbf2;
+  --color-surface: #ffffff;
+  --color-surface-subtle: #f9f0df;
+  --color-surface-hover: #f2e5ce;
+
+  --color-border: rgba(234, 88, 12, 0.14);
+  --color-border-strong: rgba(234, 88, 12, 0.28);
+  --focus-ring-color: #8a3354;
+
+  --gradient-hero: radial-gradient(
+      ellipse 85% 60% at 50% -12%,
+      rgba(234, 88, 12, 0.12),
+      transparent 68%
+    ),
+    radial-gradient(
+      ellipse 70% 50% at 80% 0%,
+      rgba(245, 158, 11, 0.1),
+      transparent 70%
+    ),
+    var(--color-surface);
+
+  --shadow-sm:
+    0 1px 2px rgba(28, 22, 24, 0.04),
+    0 4px 12px -2px rgba(234, 88, 12, 0.07),
+    0 8px 20px -6px rgba(28, 22, 24, 0.05);
+  --shadow-md:
+    0 1px 2px rgba(28, 22, 24, 0.04),
+    0 8px 24px -4px rgba(138, 51, 84, 0.08),
+    0 20px 40px -12px rgba(28, 22, 24, 0.06);
+  --shadow-lg:
+    0 2px 4px rgba(28, 22, 24, 0.05),
+    0 14px 34px -6px rgba(138, 51, 84, 0.12),
+    0 28px 56px -14px rgba(28, 22, 24, 0.12);
 }
 
 /* ==========================================================================
@@ -158,6 +336,8 @@ html.high-contrast-dark {
   --focus-ring-color: #ffd60a;
   --focus-ring-width: 3px;
   --focus-ring-offset: 3px;
+  --gradient-hero: var(--color-surface);
+  --color-brand-ring: rgba(255, 214, 10, 0.25);
 }
 
 /* ==========================================================================
@@ -190,4 +370,6 @@ html.high-contrast-light {
   --focus-ring-color: #000000;
   --focus-ring-width: 3px;
   --focus-ring-offset: 3px;
+  --gradient-hero: var(--color-surface);
+  --color-brand-ring: rgba(0, 0, 0, 0.2);
 }

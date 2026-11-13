@@ -10,6 +10,7 @@
   border: 1px solid var(--color-border);
   box-shadow: var(--shadow-sm);
   overflow: hidden;
+  transition: background-color 0.5s ease, color 0.4s ease, border-color 0.4s ease;
 }
 
 .heroContent {

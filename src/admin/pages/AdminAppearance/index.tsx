@@ -2,11 +2,13 @@ import { useEffect, useState } from "react";
 import { CloudSun, Image as ImageIcon, Palette, RefreshCw, Save } from "lucide-react";
 import { useSiteConfig } from "../../../context/siteConfigStore.ts";
 import {
+  DEFAULT_SEASON_PALETTES,
   DEFAULT_SEASONAL_CONFIG,
   SEASON_METADATA,
   type ParticleIntensity,
   type SeasonalMode,
   type SeasonId,
+  type SeasonPalette,
 } from "../../../domain/seasonEngine.ts";
 import {
   GLOBAL_IMAGE_SLOTS,
@@ -17,8 +19,9 @@ import adminStyles from "../../styles/admin.module.css";
 import styles from "../../styles/cms.module.css";
 
 export default function AdminAppearance() {
-  const { config, updateConfig, resetConfig } = useSiteConfig();
+  const { config, activeSeason, updateConfig, resetConfig } = useSiteConfig();
   const [draft, setDraft] = useState<SiteConfig>(config);
+  const [editingSeason, setEditingSeason] = useState<SeasonId>(activeSeason ?? "outono");
   const [saving, setSaving] = useState(false);
   const [statusMsg, setStatusMsg] = useState<string | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -256,6 +259,152 @@ export default function AdminAppearance() {
               />
             </label>
           ))}
+        </div>
+
+        <div className={styles.subBox} style={{ marginTop: "1.25rem" }}>
+          <div
+            style={{
+              display: "flex",
+              flexWrap: "wrap",
+              alignItems: "center",
+              justifyContent: "space-between",
+              gap: "0.75rem",
+              marginBottom: "0.9rem",
+            }}
+          >
+            <div>
+              <strong style={{ fontSize: "0.95rem" }}>
+                Paleta de Cores por Estação (CSS Variables)
+              </strong>
+              <p className={styles.subtitle} style={{ marginTop: "0.2rem" }}>
+                Personalize as cores de cada estação no Firestore. O modo Alto Contraste continua
+                tendo prioridade máxima.
+              </p>
+            </div>
+            <button
+              type="button"
+              className={styles.secondaryBtn}
+              onClick={() => {
+                setDraft((p) => {
+                  const base = p.estacao ?? DEFAULT_SEASONAL_CONFIG;
+                  return {
+                    ...p,
+                    estacao: {
+                      ...base,
+                      palettes: {
+                        ...(base.palettes ?? DEFAULT_SEASON_PALETTES),
+                        [editingSeason]: { ...DEFAULT_SEASON_PALETTES[editingSeason] },
+                      },
+                    },
+                  };
+                });
+              }}
+            >
+              <RefreshCw size={14} /> Restaurar Cores Padrão da Estação
+            </button>
+          </div>
+
+          <div
+            style={{
+              display: "flex",
+              flexWrap: "wrap",
+              gap: "0.5rem",
+              marginBottom: "1rem",
+            }}
+          >
+            {(["outono", "inverno", "primavera", "verao"] as SeasonId[]).map((s) => {
+              const isSelected = editingSeason === s;
+              const meta = SEASON_METADATA[s];
+              return (
+                <button
+                  key={s}
+                  type="button"
+                  onClick={() => setEditingSeason(s)}
+                  className={isSelected ? styles.primaryBtn : styles.secondaryBtn}
+                  style={{ padding: "0.45rem 0.85rem", fontSize: "0.85rem" }}
+                >
+                  {meta.emoji} Editar Cores — {meta.label}
+                </button>
+              );
+            })}
+          </div>
+
+          {(() => {
+            const currentPalette: SeasonPalette =
+              draft.estacao?.palettes?.[editingSeason] ?? DEFAULT_SEASON_PALETTES[editingSeason];
+            const updatePaletteField = (field: keyof SeasonPalette, value: string) => {
+              setDraft((p) => {
+                const base = p.estacao ?? DEFAULT_SEASONAL_CONFIG;
+                const prevPalette =
+                  base.palettes?.[editingSeason] ?? DEFAULT_SEASON_PALETTES[editingSeason];
+                return {
+                  ...p,
+                  estacao: {
+                    ...base,
+                    palettes: {
+                      ...(base.palettes ?? DEFAULT_SEASON_PALETTES),
+                      [editingSeason]: {
+                        ...prevPalette,
+                        [field]: value,
+                      },
+                    },
+                  },
+                };
+              });
+            };
+
+            return (
+              <div className={styles.grid3}>
+                <label className={styles.field}>
+                  <span className={styles.label}>--color-brand ({SEASON_METADATA[editingSeason].label})</span>
+                  <div className={styles.colorRow}>
+                    <input
+                      type="color"
+                      value={currentPalette.brandColor}
+                      onChange={(e) => updatePaletteField("brandColor", e.target.value)}
+                    />
+                    <input
+                      className={styles.input}
+                      value={currentPalette.brandColor}
+                      onChange={(e) => updatePaletteField("brandColor", e.target.value)}
+                    />
+                  </div>
+                </label>
+
+                <label className={styles.field}>
+                  <span className={styles.label}>--color-accent ({SEASON_METADATA[editingSeason].label})</span>
+                  <div className={styles.colorRow}>
+                    <input
+                      type="color"
+                      value={currentPalette.accentColor}
+                      onChange={(e) => updatePaletteField("accentColor", e.target.value)}
+                    />
+                    <input
+                      className={styles.input}
+                      value={currentPalette.accentColor}
+                      onChange={(e) => updatePaletteField("accentColor", e.target.value)}
+                    />
+                  </div>
+                </label>
+
+                <label className={styles.field}>
+                  <span className={styles.label}>--color-bg ({SEASON_METADATA[editingSeason].label})</span>
+                  <div className={styles.colorRow}>
+                    <input
+                      type="color"
+                      value={currentPalette.bgColor}
+                      onChange={(e) => updatePaletteField("bgColor", e.target.value)}
+                    />
+                    <input
+                      className={styles.input}
+                      value={currentPalette.bgColor}
+                      onChange={(e) => updatePaletteField("bgColor", e.target.value)}
+                    />
+                  </div>
+                </label>
+              </div>
+            );
+          })()}
         </div>
       </section>
 

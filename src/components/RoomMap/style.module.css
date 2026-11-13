@@ -31,7 +31,7 @@
   width: 34px;
   height: 34px;
   border-radius: var(--radius-full);
-  background-color: rgba(138, 51, 84, 0.28);
+  background-color: var(--color-brand-ring);
   border: 2px solid var(--color-brand);
   animation: markerPulse 1.8s ease-out 260ms infinite;
 }
