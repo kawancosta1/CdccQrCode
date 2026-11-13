@@ -2,8 +2,6 @@ import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import {
   BookOpen,
-  BookOpenCheck,
-  Check,
   ExternalLink,
   GraduationCap,
   Info,
@@ -29,26 +27,11 @@ const FILTER_TABS: Array<"Todas" | VestibularExamTag> = [
   "UNESP / Clássicos",
 ];
 
-const READ_STORAGE_KEY = "qrcodecdcc_vestibular_read_v1";
-
-function loadReadBookIds(): Set<string> {
-  if (typeof window === "undefined") return new Set();
-  try {
-    const raw = window.localStorage.getItem(READ_STORAGE_KEY);
-    if (!raw) return new Set();
-    const parsed = JSON.parse(raw) as unknown;
-    return Array.isArray(parsed) ? new Set(parsed.filter((v): v is string => typeof v === "string")) : new Set();
-  } catch {
-    return new Set();
-  }
-}
-
 export default function VestibularPage() {
   const [books, setBooks] = useState<VestibularBook[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<"Todas" | VestibularExamTag>("Todas");
   const [searchTerm, setSearchTerm] = useState("");
-  const [readIds, setReadIds] = useState<Set<string>>(loadReadBookIds);
   const [selectedBook, setSelectedBook] = useState<VestibularBook | null>(null);
   const [inlineDraft, setInlineDraft] = useState<VestibularBook | null>(null);
   const [autoFetching, setAutoFetching] = useState(false);
@@ -82,34 +65,10 @@ export default function VestibularPage() {
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [selectedBook]);
 
-  const toggleReadBook = (id: string) => {
-    setReadIds((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) {
-        next.delete(id);
-      } else {
-        next.add(id);
-      }
-      try {
-        window.localStorage.setItem(READ_STORAGE_KEY, JSON.stringify([...next]));
-      } catch {
-        // ignore quota errors
-      }
-      return next;
-    });
-  };
-
   const tabBooks = useMemo(
     () => books.filter((b) => activeTab === "Todas" || b.vestibular === activeTab),
     [books, activeTab],
   );
-
-  const readInTabCount = useMemo(
-    () => tabBooks.filter((b) => readIds.has(b.id)).length,
-    [tabBooks, readIds],
-  );
-
-  const progressPct = tabBooks.length > 0 ? Math.round((readInTabCount / tabBooks.length) * 100) : 0;
 
   const filteredBooks = useMemo(() => {
     const q = searchTerm.trim().toLowerCase();
@@ -227,29 +186,6 @@ export default function VestibularPage() {
         </div>
       </div>
 
-      {!loading && tabBooks.length > 0 && (
-        <section className={styles.progressCard} aria-label="Progresso de leitura">
-          <div className={styles.progressHeader}>
-            <span className={styles.progressTitle}>
-              <BookOpenCheck size={16} aria-hidden="true" />
-              {activeTab === "Todas"
-                ? `Seu progresso geral: ${readInTabCount} de ${tabBooks.length} livros lidos`
-                : `Seu progresso em ${activeTab}: ${readInTabCount} de ${tabBooks.length} livros lidos`}
-            </span>
-            <span className={styles.progressPercent}>{progressPct}%</span>
-          </div>
-          <div
-            className={styles.progressTrack}
-            role="progressbar"
-            aria-valuenow={progressPct}
-            aria-valuemin={0}
-            aria-valuemax={100}
-          >
-            <div className={styles.progressFill} style={{ width: `${progressPct}%` }} />
-          </div>
-        </section>
-      )}
-
       {loading ? (
         <div className={styles.empty}>Carregando lista de leituras obrigatórias...</div>
       ) : filteredBooks.length === 0 ? (
@@ -263,7 +199,6 @@ export default function VestibularPage() {
             const dedalusUrl = `https://dedalus.usp.br/F/?func=find-b&request=${encodeURIComponent(
               book.titulo,
             )}`;
-            const isRead = readIds.has(book.id);
             const examLabel =
               book.anos && !book.vestibular.includes(book.anos)
                 ? `${book.vestibular} • ${book.anos}`
@@ -284,15 +219,6 @@ export default function VestibularPage() {
                   <div className={styles.meta}>
                     <div className={styles.metaTopRow}>
                       <span className={styles.examTag}>{examLabel}</span>
-                      <button
-                        type="button"
-                        className={`${styles.readToggleBtn} ${isRead ? styles.readToggleActive : ""}`}
-                        onClick={() => toggleReadBook(book.id)}
-                        aria-pressed={isRead}
-                      >
-                        <Check size={12} aria-hidden="true" />
-                        {isRead ? "Já li" : "Marcar como lido"}
-                      </button>
                     </div>
                     <button
                       type="button"
@@ -509,17 +435,6 @@ export default function VestibularPage() {
               <div className={styles.modalLayout}>
                 <div className={styles.modalLeft}>
                   <BookCover book={selectedBook} size="lg" />
-                  <button
-                    type="button"
-                    className={`${styles.readToggleBtn} ${
-                      readIds.has(selectedBook.id) ? styles.readToggleActive : ""
-                    }`}
-                    onClick={() => toggleReadBook(selectedBook.id)}
-                    style={{ padding: "0.4rem 0.8rem", fontSize: "0.8rem" }}
-                  >
-                    <Check size={14} aria-hidden="true" />
-                    {readIds.has(selectedBook.id) ? "Já li este livro" : "Marcar como lido"}
-                  </button>
                 </div>
 
                 <div className={styles.modalRight}>
