@@ -1,45 +1,136 @@
-.pageHeader {
+.pageWrap {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  padding-bottom: var(--space-8);
+}
+
+.heroBanner {
+  border-radius: var(--radius-xl);
+  padding: 1.6rem 1.75rem;
+  background: var(--gradient-hero);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.heroTop {
   display: flex;
   flex-wrap: wrap;
   align-items: flex-end;
   justify-content: space-between;
-  gap: var(--space-4);
-  padding-bottom: var(--space-5);
-  border-bottom: 1px solid var(--color-border);
+  gap: 1.25rem;
+}
+
+.heroEyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.74rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  color: var(--color-brand-text);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  padding: 0.25rem 0.7rem;
 }
 
 .pageTitle {
-  font-size: clamp(1.5rem, 3vw, 2rem);
-  font-weight: 700;
+  margin: 0.55rem 0 0;
+  font-size: clamp(1.55rem, 3vw, 2.15rem);
+  font-weight: 800;
   letter-spacing: -0.025em;
   color: var(--color-text-primary);
 }
 
 .pageSubtitle {
-  margin-top: var(--space-2);
-  font-size: 0.9375rem;
+  margin-top: 0.4rem;
+  font-size: 0.94rem;
   color: var(--color-text-secondary);
-  max-width: 600px;
+  max-width: 620px;
+  line-height: 1.5;
+}
+
+.searchBox {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-width: min(320px, 100%);
+  flex: 1 1 280px;
+  max-width: 400px;
+}
+
+.searchIcon {
+  position: absolute;
+  left: 0.85rem;
+  color: var(--color-text-muted);
+  pointer-events: none;
+}
+
+.searchInput {
+  width: 100%;
+  min-height: 44px;
+  padding: 0.5rem 2.25rem 0.5rem 2.4rem;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border-strong);
+  background: var(--color-surface);
+  color: var(--color-text-primary);
+  font-size: 0.88rem;
+  font-weight: 500;
+  box-shadow: var(--shadow-xs);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.searchInput:focus {
+  outline: none;
+  border-color: var(--color-brand);
+  box-shadow: 0 0 0 3px var(--color-brand-ring);
+}
+
+.clearSearchBtn {
+  position: absolute;
+  right: 0.55rem;
+  width: 26px;
+  height: 26px;
+  border-radius: var(--radius-full);
+  border: none;
+  background: var(--color-surface-subtle);
+  color: var(--color-text-muted);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.filterBar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
 }
 
 .filterGroup {
   display: inline-flex;
   flex-wrap: wrap;
   gap: var(--space-1);
-  padding: 0.25rem;
+  padding: 0.28rem;
   background-color: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
 }
 
 .filterBtn {
-  min-height: 38px;
-  padding: 0.375rem 0.875rem;
+  min-height: 36px;
+  padding: 0.35rem 0.85rem;
   border: none;
   border-radius: var(--radius-sm);
   background-color: transparent;
   color: var(--color-text-secondary);
-  font-size: 0.875rem;
+  font-size: 0.85rem;
   font-weight: 600;
   cursor: pointer;
   transition: background-color var(--duration-fast) var(--ease-out),
@@ -75,76 +166,225 @@
 
 .roomHeader {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: var(--space-3);
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.roomTitleBlock {
+  display: flex;
+  align-items: center;
 }
 
 .roomTitleWrap {
   display: inline-flex;
   align-items: center;
-  gap: var(--space-2);
+  gap: 0.75rem;
 }
 
-.roomIcon {
-  color: var(--color-brand);
+.roomIconBadge {
+  width: 38px;
+  height: 38px;
+  border-radius: var(--radius-md);
+  background: var(--color-brand-soft);
+  color: var(--color-brand-text);
+  border: 1px solid var(--color-border);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .roomTitle {
+  margin: 0;
   font-size: 1.25rem;
-  font-weight: 700;
+  font-weight: 800;
   color: var(--color-text-primary);
 }
 
+.roomArea {
+  margin: 0.1rem 0 0;
+  font-size: 0.84rem;
+  color: var(--color-text-muted);
+  font-weight: 500;
+}
+
+.roomActions {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+}
+
 .roomCount {
-  font-size: 0.8125rem;
-  font-weight: 600;
+  font-size: 0.8rem;
+  font-weight: 700;
   color: var(--color-text-secondary);
   background-color: var(--color-surface-subtle);
   border: 1px solid var(--color-border);
-  padding: 0.25rem 0.625rem;
+  padding: 0.3rem 0.7rem;
   border-radius: var(--radius-full);
+}
+
+.mapToggleBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.38rem 0.8rem;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--color-border-strong);
+  background: var(--color-surface);
+  color: var(--color-brand-text);
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+.mapToggleBtn:hover,
+.mapToggleBtnActive {
+  background: var(--color-brand);
+  color: var(--color-white);
+  border-color: var(--color-brand);
+}
+
+.roomMapCard {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  box-shadow: var(--shadow-sm);
+}
+
+.roomMapHint {
+  font-size: 0.84rem;
+  color: var(--color-text-secondary);
+  text-align: center;
+}
+
+.roomMapFrame {
+  max-width: 540px;
+  width: 100%;
+  display: flex;
+  justify-content: center;
 }
 
 .gridEstantes {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(168px, 1fr));
-  gap: var(--space-3);
+  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  gap: 0.9rem;
 }
 
 .shelfCard {
   display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  min-height: 52px;
-  padding: 0.75rem var(--space-4);
+  flex-direction: column;
+  overflow: hidden;
   background-color: var(--color-surface);
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-lg);
   text-decoration: none;
   color: var(--color-text-primary);
-  font-weight: 600;
-  font-size: 0.9375rem;
   box-shadow: var(--shadow-xs);
   transition: border-color var(--duration-fast) ease,
-    background-color var(--duration-fast) ease,
-    color var(--duration-fast) ease,
-    transform var(--duration-press) var(--ease-out),
+    transform var(--duration-fast) var(--ease-out),
     box-shadow var(--duration-fast) ease;
 }
 
-.shelfCard:active,
-.filterBtn:active {
-  transform: scale(0.97);
+.shelfThumbWrap {
+  position: relative;
+  height: 112px;
+  background: var(--color-surface-subtle);
+  overflow: hidden;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.shelfThumb {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.35s var(--ease-out);
+}
+
+.shelfThumbPlaceholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-brand-text);
+  background: var(--color-brand-soft);
+}
+
+.shelfNumberPill {
+  position: absolute;
+  top: 0.5rem;
+  left: 0.5rem;
+  padding: 0.18rem 0.5rem;
+  border-radius: var(--radius-pill);
+  background: rgba(15, 23, 42, 0.76);
+  color: #ffffff;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 800;
+  backdrop-filter: blur(4px);
+}
+
+.shelfCardBody {
+  padding: 0.78rem 0.9rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.24rem;
+}
+
+.shelfCardTopRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.35rem;
+}
+
+.shelfCardLabel {
+  font-weight: 800;
+  font-size: 0.95rem;
+  color: var(--color-text-primary);
+}
+
+.shelfCardArrow {
+  color: var(--color-text-muted);
+  transition: transform var(--duration-fast) var(--ease-out), color var(--duration-fast) ease;
+}
+
+.shelfRange {
+  font-family: var(--font-mono);
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: var(--color-brand-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.shelfCodeCount {
+  font-size: 0.74rem;
+  color: var(--color-text-muted);
+  font-weight: 500;
 }
 
 @media (hover: hover) and (pointer: fine) {
   .shelfCard:hover {
-    border-color: var(--color-brand-border);
-    background-color: var(--color-brand-soft);
-    color: var(--color-brand-text);
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-sm);
+    border-color: var(--color-brand);
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-md);
+  }
+
+  .shelfCard:hover .shelfThumb {
+    transform: scale(1.06);
   }
 
   .shelfCard:hover .shelfCardArrow {
@@ -153,28 +393,37 @@
   }
 }
 
-.shelfCardIcon {
-  color: var(--color-brand);
-  display: inline-flex;
+.emptyState {
+  padding: 2.5rem 1rem;
+  text-align: center;
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  color: var(--color-text-secondary);
 }
 
-.shelfCardLabel {
-  flex: 1;
+.resetBtn {
+  margin-top: 0.75rem;
+  padding: 0.55rem 1rem;
+  border-radius: var(--radius-sm);
+  border: none;
+  background: var(--color-brand);
+  color: var(--color-white);
+  font-weight: 700;
+  cursor: pointer;
 }
 
-.shelfCardArrow {
-  color: var(--color-text-muted);
-  transition: transform var(--duration-fast) var(--ease-out), color var(--duration-fast) ease;
-}
-
-@media (max-width: 480px) {
-  .gridEstantes {
-    grid-template-columns: repeat(2, 1fr);
-    gap: var(--space-2);
+@media (max-width: 640px) {
+  .heroBanner {
+    padding: 1.2rem;
   }
 
-  .shelfCard {
-    padding: 0.75rem var(--space-3);
-    font-size: 0.875rem;
+  .gridEstantes {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.65rem;
+  }
+
+  .shelfThumbWrap {
+    height: 88px;
   }
 }
