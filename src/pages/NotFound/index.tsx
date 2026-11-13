@@ -1,6 +1,6 @@
-import { Link } from "react-router-dom";
 import { Home as HomeIcon, Layers } from "lucide-react";
 import { Container } from "../../components/Container";
+import { HighlighterLink } from "../../components/editorial";
 import BentinhoPensando from "../../components/img/Mascote/pensando.webp";
 import style from "./style.module.css";
 
@@ -22,14 +22,14 @@ export function NotFound() {
           O endereço acessado não existe ou o QR Code está desatualizado.
         </p>
         <div className={style.actions}>
-          <Link to="/" className={style.primaryLink}>
+          <HighlighterLink to="/" className={style.primaryLink}>
             <HomeIcon size={16} aria-hidden="true" />
             Ir para a Home
-          </Link>
-          <Link to="/estantes" className={style.secondaryLink}>
+          </HighlighterLink>
+          <HighlighterLink to="/estantes" tone="mint" className={style.secondaryLink}>
             <Layers size={16} aria-hidden="true" />
             Ver Estantes
-          </Link>
+          </HighlighterLink>
         </div>
       </div>
     </Container>

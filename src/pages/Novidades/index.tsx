@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link } from "react-router-dom";
 import {
   Gift,
   MailPlus,
@@ -10,6 +9,7 @@ import {
 } from "lucide-react";
 import { BookCover } from "../../components/BookCover";
 import { Container } from "../../components/Container";
+import { HighlighterLink, IndexCardTabs } from "../../components/editorial";
 import { ROOM_CONFIG } from "../../config/rooms";
 import { useBookSearchContext } from "../../context/bookSearchStore";
 import { useVisitRoute } from "../../context/visitRouteStore";
@@ -92,43 +92,49 @@ export function Novidades() {
             </p>
           </div>
 
-          <Link to="/sugerir" className={style.suggestCta}>
+          <HighlighterLink to="/sugerir" tone="pink" className={style.suggestCta}>
             <MailPlus size={18} aria-hidden="true" />
             Sugerir compra de livro
-          </Link>
+          </HighlighterLink>
         </header>
 
-        <div className={style.toolbar} role="tablist" aria-label="Filtrar por origem">
-          <button
-            type="button"
-            role="tab"
-            aria-selected={filter === "todos"}
-            className={`${style.filterTab} ${filter === "todos" ? style.filterTabActive : ""}`}
-            onClick={() => setFilter("todos")}
-          >
-            Todos ({counts.todos})
-          </button>
-          <button
-            type="button"
-            role="tab"
-            aria-selected={filter === "compra"}
-            className={`${style.filterTab} ${filter === "compra" ? style.filterTabActive : ""}`}
-            onClick={() => setFilter("compra")}
-          >
-            <ShoppingBag size={14} aria-hidden="true" />
-            Compras ({counts.compra})
-          </button>
-          <button
-            type="button"
-            role="tab"
-            aria-selected={filter === "doacao"}
-            className={`${style.filterTab} ${filter === "doacao" ? style.filterTabActive : ""}`}
-            onClick={() => setFilter("doacao")}
-          >
-            <Gift size={14} aria-hidden="true" />
-            Doações ({counts.doacao})
-          </button>
-        </div>
+        <IndexCardTabs
+          ariaLabel="Filtrar por origem"
+          activeId={filter}
+          onChange={(id) => setFilter(id as OriginFilter)}
+          items={[
+            {
+              id: "todos",
+              code: "01.",
+              label: `Todos (${counts.todos})`,
+              content: (
+                <p style={{ margin: 0, fontSize: "0.86rem", color: "var(--color-text-secondary)" }}>
+                  Todas as aquisições recentes incorporadas ao acervo da biblioteca.
+                </p>
+              ),
+            },
+            {
+              id: "compra",
+              code: "02.",
+              label: `Compras (${counts.compra})`,
+              content: (
+                <p style={{ margin: 0, fontSize: "0.86rem", color: "var(--color-text-secondary)" }}>
+                  Livros adquiridos por compra institucional ou sugestões da comunidade.
+                </p>
+              ),
+            },
+            {
+              id: "doacao",
+              code: "03.",
+              label: `Doações (${counts.doacao})`,
+              content: (
+                <p style={{ margin: 0, fontSize: "0.86rem", color: "var(--color-text-secondary)" }}>
+                  Obras recebidas por doação e catalogadas pela equipe do CDCC-USP.
+                </p>
+              ),
+            },
+          ]}
+        />
 
         {loading ? (
           <p className={style.loading}>Carregando novidades do acervo...</p>

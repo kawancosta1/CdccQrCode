@@ -1,5 +1,5 @@
-import { Link } from "react-router-dom";
 import { useSiteConfig } from "../../context/siteConfigStore";
+import { HighlighterLink } from "../editorial";
 import styles from "./style.module.css";
 
 export function Footer() {
@@ -14,29 +14,30 @@ export function Footer() {
         <p className={styles.license}>
           {config.footerLinkUrl && (
             <>
-              <a
+              <HighlighterLink
                 href={config.footerLinkUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className={styles.link}
               >
                 {config.footerLinkLabel || "Portal Oficial"}
-              </a>{" "}
+              </HighlighterLink>{" "}
               ·{" "}
             </>
           )}
-          <a
+          <HighlighterLink
             href={`${import.meta.env.BASE_URL}LICENSE`}
             target="_blank"
             rel="noopener noreferrer"
+            tone="mint"
             className={styles.link}
           >
             Apache License 2.0
-          </a>{" "}
+          </HighlighterLink>{" "}
           ·{" "}
-          <Link to="/admin" className={styles.link}>
+          <HighlighterLink to="/admin" tone="pink" className={styles.link}>
             Área Administrativa
-          </Link>
+          </HighlighterLink>
         </p>
       </div>
     </footer>

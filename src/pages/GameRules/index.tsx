@@ -7,12 +7,12 @@ import {
   Clock,
   Compass,
   Dices,
-  ListOrdered,
   Sparkles,
   Trophy,
   Users,
 } from "lucide-react";
 import { Container } from "../../components/Container";
+import { BookSpineAccordion } from "../../components/editorial";
 import { ChessTable } from "../../components/games/ChessTable";
 import { GameEmblemSvg, getGameVisualSignature } from "../../components/games/GameArtwork";
 import { LudoTable } from "../../components/games/LudoTable";
@@ -209,14 +209,7 @@ export function GameRules() {
         </div>
 
         {game.regras && game.regras.length > 0 && (
-          <section className={styles.rulesCard} aria-labelledby="rules-heading">
-            <div className={styles.cardHeader}>
-              <ListOrdered size={18} className={styles.cardIcon} aria-hidden="true" />
-              <h3 id="rules-heading" className={styles.cardTitle}>
-                Regras Passo a Passo
-              </h3>
-            </div>
-
+          <BookSpineAccordion title="Regras Passo a Passo" code="MANUAL" defaultOpen>
             <ol className={styles.rulesList}>
               {game.regras.map((rule, index) => (
                 <li key={`${game.slug}-rule-${index}`} className={styles.ruleItem}>
@@ -225,7 +218,7 @@ export function GameRules() {
                 </li>
               ))}
             </ol>
-          </section>
+          </BookSpineAccordion>
         )}
 
         {game.condicaoVitoria && (

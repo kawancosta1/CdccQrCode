@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState, type CSSProperties } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { ArrowRight, Clock, Coins, Dices, Search, Shuffle, Sparkles, Users, X } from "lucide-react";
 import { Container } from "../../components/Container";
+import { StampButton } from "../../components/editorial";
 import { GameEmblemSvg, getGameVisualSignature } from "../../components/games/GameArtwork";
 import BentinhoPensando from "../../components/img/Mascote/pensando.webp";
 import { DEFAULT_GAMES, GamesService } from "../../services/gamesService";
@@ -115,15 +116,17 @@ export function EspacoLudico() {
           </span>
         </div>
 
-        <button
+        <StampButton
           type="button"
+          variant="primary"
+          stampLabel="SORTEADO!"
           className={styles.drawBtn}
           onClick={handleDrawRandomGame}
           title="Sortear um jogo aleatório para jogar agora"
         >
           <Shuffle size={15} aria-hidden="true" />
           Sortear Jogo da Mesa
-        </button>
+        </StampButton>
       </div>
 
       {/* Barra de Filtros + Utilitário Rápido de Mesa */}

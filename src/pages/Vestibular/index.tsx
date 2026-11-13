@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { AuthService } from "../../admin/services/authService.ts";
 import { BookCover } from "../../components/BookCover/index.tsx";
+import { IndexCardTabs } from "../../components/editorial";
 import type { RoomId } from "../../config/roomConstants.ts";
 import { useVisitRoute } from "../../context/visitRouteStore.ts";
 import { fetchBookCoverAndMetadata } from "../../services/bookMetadataService.ts";
@@ -161,21 +162,26 @@ export default function VestibularPage() {
         </p>
       </section>
 
-      <div className={styles.controls}>
-        <div className={styles.tabs} role="tablist" aria-label="Filtrar por vestibular">
-          {FILTER_TABS.map((tab) => (
-            <button
-              key={tab}
-              type="button"
-              role="tab"
-              aria-selected={activeTab === tab}
-              className={`${styles.tab} ${activeTab === tab ? styles.tabActive : ""}`}
-              onClick={() => setActiveTab(tab)}
-            >
-              {tab}
-            </button>
-          ))}
-        </div>
+      <div className={styles.controls} style={{ flexDirection: "column", alignItems: "stretch" }}>
+        <IndexCardTabs
+          ariaLabel="Filtrar por vestibular"
+          activeId={activeTab}
+          onChange={(id) => setActiveTab(id as "Todas" | VestibularExamTag)}
+          items={FILTER_TABS.map((tab, idx) => {
+            const count = books.filter((b) => tab === "Todas" || b.vestibular === tab).length;
+            return {
+              id: tab,
+              code: `${String(idx).padStart(2, "0")}.`,
+              label: tab,
+              content: (
+                <p style={{ margin: 0, fontSize: "0.86rem", color: "var(--color-text-secondary)" }}>
+                  Exibindo <strong>{count}</strong> {count === 1 ? "obra catalogada" : "obras catalogadas"} para{" "}
+                  <strong>{tab}</strong>. Use a busca abaixo para filtrar por título, autor ou CDU.
+                </p>
+              ),
+            };
+          })}
+        />
 
         <div className={styles.searchWrap}>
           <Search size={16} className={styles.searchIcon} aria-hidden="true" />

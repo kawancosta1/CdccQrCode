@@ -10,6 +10,7 @@ import {
   X,
 } from "lucide-react";
 import { Container } from "../../components/Container";
+import { StampButton } from "../../components/editorial";
 import { RoomMap } from "../../components/RoomMap";
 import { ROOM_CONFIG, ROOM_IDS, type RoomId } from "../../config/rooms";
 import { SHELF_OVERVIEW_IMAGES } from "../../config/shelfImages";
@@ -211,8 +212,9 @@ export function Estantes() {
             <p>
               Nenhuma estante encontrada para <strong>&ldquo;{searchTerm}&rdquo;</strong>.
             </p>
-            <button
+            <StampButton
               type="button"
+              stampLabel="LIMPO"
               className={style.resetBtn}
               onClick={() => {
                 setSearchTerm("");
@@ -220,7 +222,7 @@ export function Estantes() {
               }}
             >
               Mostrar todas as estantes
-            </button>
+            </StampButton>
           </div>
         ) : (
           <div className={style.roomsList}>

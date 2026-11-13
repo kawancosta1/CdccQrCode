@@ -21,6 +21,7 @@ import {
   X,
 } from "lucide-react";
 import { HeroCarousel, type HeroSlide } from "../../components/HeroCarousel";
+import { StampButton } from "../../components/editorial";
 import { ImageLightbox } from "../../components/ImageLightbox";
 import {
   SearchAutocompleteDropdown,
@@ -458,9 +459,9 @@ export function Home() {
               )}
             </div>
 
-            <button type="submit" className={styles.heroSubmitBtn}>
+            <StampButton type="submit" variant="primary" stampLabel="BUSCA • CDCC" className={styles.heroSubmitBtn}>
               Localizar livro
-            </button>
+            </StampButton>
           </form>
 
           {searchError ? (

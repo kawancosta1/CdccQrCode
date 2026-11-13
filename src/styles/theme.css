@@ -14,10 +14,10 @@
   --color-amber-soft: #fef3c7;
 
   /* Surfaces (Warm Academic Editorial Paper) */
-  --color-bg: #faf8f5;
+  --color-bg: #faf7f2;
   --color-surface: #ffffff;
-  --color-surface-subtle: #f4efe9;
-  --color-surface-hover: #ece5dc;
+  --color-surface-subtle: #efece4;
+  --color-surface-hover: #e7e1d5;
 
   /* Hero Gradient */
   --gradient-hero: radial-gradient(
@@ -27,9 +27,9 @@
     ),
     var(--color-surface);
 
-  /* Borders */
-  --color-border: rgba(138, 51, 84, 0.12);
-  --color-border-strong: rgba(138, 51, 84, 0.24);
+  /* Borders (Ink / Sepia) */
+  --color-border: rgba(44, 34, 24, 0.14);
+  --color-border-strong: rgba(44, 34, 24, 0.24);
 
   /* Typography (Warm Ink) */
   --color-text-primary: #1c1618;

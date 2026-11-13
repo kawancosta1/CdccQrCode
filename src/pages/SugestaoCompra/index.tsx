@@ -1,7 +1,7 @@
 import { useState, type FormEvent } from "react";
-import { Link } from "react-router-dom";
 import { ArrowLeft, BookPlus, CheckCircle2, Copy, Mail, Send } from "lucide-react";
 import { Container } from "../../components/Container";
+import { DogEarCard, HighlighterLink, StampButton } from "../../components/editorial";
 import {
   buildSuggestionMailtoUrl,
   LIBRARY_SUGGESTION_EMAIL,
@@ -82,10 +82,10 @@ export function SugestaoCompra() {
   return (
     <Container>
       <div className={style.page}>
-        <Link to="/novidades" className={style.backLink}>
+        <HighlighterLink to="/novidades" className={style.backLink}>
           <ArrowLeft size={16} aria-hidden="true" />
           Voltar para Novos no Acervo
-        </Link>
+        </HighlighterLink>
 
         <div className={style.layout}>
           <section className={style.card}>
@@ -208,10 +208,15 @@ export function SugestaoCompra() {
                 </div>
 
                 <div className={style.submitRow}>
-                  <button type="submit" className={style.submitBtn} disabled={submitting}>
+                  <StampButton
+                    type="submit"
+                    variant="primary"
+                    stampLabel="REGISTRADO • CDCC"
+                    disabled={submitting}
+                  >
                     <Send size={16} aria-hidden="true" />
                     {submitting ? "Enviando..." : "Registrar sugestão"}
-                  </button>
+                  </StampButton>
                   <a
                     href={buildSuggestionMailtoUrl({
                       titulo: titulo || "(Informe o título)",
@@ -233,21 +238,21 @@ export function SugestaoCompra() {
           </section>
 
           <aside className={style.infoPanel}>
-            <h2 className={style.infoTitle}>Contato direto da Biblioteca</h2>
-            <p className={style.infoText}>
-              Você também pode escrever diretamente para a equipe bibliotecária do CDCC-USP:
-            </p>
-            <div className={style.emailBox}>
-              <code>{LIBRARY_SUGGESTION_EMAIL}</code>
-              <button type="button" className={style.copyBtn} onClick={handleCopyEmail}>
-                <Copy size={14} aria-hidden="true" />
-                {copiedEmail ? "Copiado!" : "Copiar"}
-              </button>
-            </div>
-            <p className={style.infoNote}>
-              Todas as sugestões passam por avaliação de orçamento, demanda didática e disponibilidade
-              no sistema Dedalus USP.
-            </p>
+            <DogEarCard
+              title="Contato direto da Biblioteca"
+              footnote="Todas as sugestões passam por avaliação de orçamento, demanda didática e disponibilidade no sistema Dedalus USP."
+            >
+              <p className={style.infoText}>
+                Você também pode escrever diretamente para a equipe bibliotecária do CDCC-USP:
+              </p>
+              <div className={style.emailBox}>
+                <code>{LIBRARY_SUGGESTION_EMAIL}</code>
+                <StampButton stampLabel="COPIADO" onClick={handleCopyEmail}>
+                  <Copy size={14} aria-hidden="true" />
+                  {copiedEmail ? "Copiado!" : "Copiar"}
+                </StampButton>
+              </div>
+            </DogEarCard>
           </aside>
         </div>
       </div>
