@@ -24,6 +24,7 @@ import { UniversalAccessibilityIcon } from "../icons/UniversalAccessibilityIcon"
 import { useAccessibility } from "../../context/accessibilityStore";
 import { useBookSearchContext } from "../../context/bookSearchStore";
 import { useSiteConfig } from "../../context/siteConfigStore";
+import { useScrollProgress } from "../../hooks/useScrollProgress";
 import { SEASON_METADATA } from "../../domain/seasonEngine";
 import { getCustomPages } from "../../services/pagesService";
 import type { CustomPage } from "../../types/content";
@@ -194,8 +195,7 @@ export function Nav() {
   const [a11yPopoverOpen, setA11yPopoverOpen] = useState(false);
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const [menuPages, setMenuPages] = useState<CustomPage[]>([]);
-  const [scrollProgress, setScrollProgress] = useState(0);
-  const [isScrolled, setIsScrolled] = useState(false);
+  const { progress: scrollProgress, isScrolled } = useScrollProgress();
   const [soundEnabled, setSoundEnabled] = useState(() => isTactileSoundEnabled());
   const utilitiesRef = useRef<HTMLDivElement | null>(null);
 
@@ -248,34 +248,6 @@ export function Nav() {
       active = false;
     };
   }, []);
-
-  // Progresso de leitura ("Corte de Folhas") e estado de rolagem do Bentinho
-  useEffect(() => {
-    let rafId = 0;
-    const updateScroll = () => {
-      rafId = 0;
-      const y = window.scrollY || 0;
-      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
-      const ratio = docHeight > 0 ? Math.min(1, Math.max(0, y / docHeight)) : 0;
-      setScrollProgress(ratio);
-      setIsScrolled(y > 24);
-    };
-
-    const handleScroll = () => {
-      if (!rafId) {
-        rafId = window.requestAnimationFrame(updateScroll);
-      }
-    };
-
-    updateScroll();
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    window.addEventListener("resize", handleScroll, { passive: true });
-    return () => {
-      if (rafId) window.cancelAnimationFrame(rafId);
-      window.removeEventListener("scroll", handleScroll);
-      window.removeEventListener("resize", handleScroll);
-    };
-  }, [location.pathname]);
 
   // Fecha menus/popovers com Escape ou clique fora
   useEffect(() => {

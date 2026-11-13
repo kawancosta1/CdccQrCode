@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { lazy, Suspense, useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import {
   ArrowLeft,
@@ -11,7 +11,6 @@ import {
 } from "lucide-react";
 import { Container } from "../../components/Container";
 import { ImageLightbox } from "../../components/ImageLightbox";
-import { LibraryMap3D } from "../../components/LibraryMap3D";
 import { RoomMap } from "../../components/RoomMap";
 import { ShelfRackGuide } from "../../components/ShelfRackGuide";
 import { ShelfSpotlightViewer } from "../../components/ShelfSpotlightViewer";
@@ -22,6 +21,10 @@ import { getPhotoOverrides, type PhotoOverrideRecord } from "../../services/mapp
 import { getShelfMapping } from "../../services/shelfSpotlightService";
 import type { ShelfMapping } from "../../types/shelfMapping";
 import style from "./style.module.css";
+
+const LibraryMap3D = lazy(() =>
+  import("../../components/LibraryMap3D").then((m) => ({ default: m.LibraryMap3D })),
+);
 
 /**
  * Página unificada de detalhe de estante (foto + mapa) para qualquer sala configurada.
@@ -263,7 +266,18 @@ export function ShelfDetail() {
           <div className={style.mediaBox}>
             {mapMode === "3d" ? (
               <div style={{ width: "100%", height: "340px" }}>
-                <LibraryMap3D roomId={room.id} shelves={[numero]} />
+                <Suspense
+                  fallback={
+                    <RoomMap
+                      roomId={room.id}
+                      shelves={[numero]}
+                      imageClassName={style.mapImage}
+                      interactive
+                    />
+                  }
+                >
+                  <LibraryMap3D roomId={room.id} shelves={[numero]} />
+                </Suspense>
               </div>
             ) : (
               <RoomMap

@@ -22,6 +22,10 @@ export function setTactileSoundEnabled(enabled: boolean): void {
   }
 }
 
+interface WindowWithWebkitAudio extends Window {
+  webkitAudioContext?: typeof AudioContext;
+}
+
 /**
  * Dispara um micro-som seco e sutil de papel/clique tátil (~40ms) via Web Audio API.
  * Nunca lança erro nem bloqueia a navegação caso o navegador bloqueie áudio automático.
@@ -32,8 +36,7 @@ export function playPaperClickSound(reducedMotion = false): void {
 
   try {
     const AudioCtx =
-      window.AudioContext ||
-      (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+      window.AudioContext || (window as WindowWithWebkitAudio).webkitAudioContext;
     if (!AudioCtx) return;
 
     if (!sharedAudioCtx) {

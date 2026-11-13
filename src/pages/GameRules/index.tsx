@@ -1,4 +1,4 @@
-import { useEffect, useState, type CSSProperties } from "react";
+import { lazy, Suspense, useEffect, useState, type CSSProperties } from "react";
 import { Link, useParams } from "react-router-dom";
 import {
   ArrowLeft,
@@ -13,15 +13,22 @@ import {
 } from "lucide-react";
 import { Container } from "../../components/Container";
 import { BookSpineAccordion } from "../../components/editorial";
-import { ChessTable } from "../../components/games/ChessTable";
 import { GameEmblemSvg, getGameVisualSignature } from "../../components/games/GameArtwork";
-import { LudoTable } from "../../components/games/LudoTable";
-import { NavalTable } from "../../components/games/NavalTable";
 import { TabletopCompanion } from "../../components/games/TabletopCompanion";
 import { getGameBySlug as getStaticGameBySlug } from "../../config/games";
 import { DEFAULT_GAMES, GamesService } from "../../services/gamesService";
 import type { GameItem } from "../../types/content";
 import styles from "./style.module.css";
+
+const ChessTable = lazy(() =>
+  import("../../components/games/ChessTable").then((m) => ({ default: m.ChessTable })),
+);
+const LudoTable = lazy(() =>
+  import("../../components/games/LudoTable").then((m) => ({ default: m.LudoTable })),
+);
+const NavalTable = lazy(() =>
+  import("../../components/games/NavalTable").then((m) => ({ default: m.NavalTable })),
+);
 
 /**
  * Página unificada de Mesa Interativa + Manual de Regras para os jogos do Espaço Lúdico.
@@ -168,10 +175,12 @@ export function GameRules() {
           <span className={styles.sectionSub}>Toque nas casas ou peças para jogar no navegador</span>
         </div>
 
-        {sig.themeKey === "chess" && <ChessTable />}
-        {sig.themeKey === "ludo" && <LudoTable />}
-        {sig.themeKey === "naval" && <NavalTable />}
-        {sig.themeKey === "classic" && <TabletopCompanion gameName={game.nome} />}
+        <Suspense fallback={<div style={{ padding: "1.5rem", textAlign: "center" }}>Carregando mesa interativa...</div>}>
+          {sig.themeKey === "chess" && <ChessTable />}
+          {sig.themeKey === "ludo" && <LudoTable />}
+          {sig.themeKey === "naval" && <NavalTable />}
+          {sig.themeKey === "classic" && <TabletopCompanion gameName={game.nome} />}
+        </Suspense>
 
         {/* Official Rulebook Section */}
         <div className={styles.sectionHeader}>

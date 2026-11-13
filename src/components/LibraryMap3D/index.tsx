@@ -7,12 +7,6 @@ import { ROOM_CONFIG, type RoomId } from "../../config/rooms";
 import { useAccessibility } from "../../context/accessibilityStore";
 import { useSiteConfig } from "../../context/siteConfigStore";
 import {
-  imageDatabaseSala1,
-  imageDatabaseSala2,
-  imageDatabaseSala3,
-  type ImageData,
-} from "../../data";
-import {
   buildSmoothedPathPoints,
   findRoomPath,
   resolveShelfPercentPoint,
@@ -22,6 +16,13 @@ import {
 import { getMarkerOverrides } from "../../services/mappingService";
 import type { DynamicMarkerOverride } from "../../types/content";
 import { RoomMap } from "../RoomMap";
+import {
+  createShelfLabelSprite,
+  getShelfSummary,
+  toWorldXZ,
+  WORLD_SPAN,
+  type SelectedShelfInfo,
+} from "./shelfSummary";
 import style from "./style.module.css";
 
 interface LibraryMap3DProps {
@@ -33,86 +34,6 @@ interface LibraryMap3DProps {
 interface CameraGoal {
   position: THREE.Vector3;
   target: THREE.Vector3;
-}
-
-interface SelectedShelfInfo {
-  key: string;
-  rangeSummary: string;
-  codeCount: number;
-}
-
-const WORLD_SPAN = 18; // Mapa mapeado em [-9, +9] no eixo X e Z
-
-const ROOM_DATABASES: Record<RoomId, Record<string, ImageData>> = {
-  1: imageDatabaseSala1,
-  2: imageDatabaseSala2,
-  3: imageDatabaseSala3,
-};
-
-function toWorldXZ(pt: Point2D): { x: number; z: number } {
-  return {
-    x: ((pt.x - 50) / 100) * WORLD_SPAN,
-    z: ((pt.y - 50) / 100) * WORLD_SPAN,
-  };
-}
-
-function getShelfSummary(roomId: RoomId, shelfKey: string): SelectedShelfInfo {
-  const db = ROOM_DATABASES[roomId] ?? {};
-  const cleanKey = shelfKey.trim().toUpperCase();
-  const codes: string[] = [];
-
-  for (const [code, data] of Object.entries(db)) {
-    const match = data.shelf.match(/\d+|R\d*/i);
-    const normalized = match ? match[0].toUpperCase() : data.shelf.trim().toUpperCase();
-    if (normalized === cleanKey) {
-      codes.push(code);
-    }
-  }
-
-  codes.sort((a, b) => a.localeCompare(b, "pt-BR", { numeric: true }));
-  const rangeSummary =
-    codes.length === 0
-      ? "Acervo geral"
-      : codes.length === 1
-        ? `CDU ${codes[0]}`
-        : `CDU ${codes[0]} – ${codes[codes.length - 1]}`;
-
-  return {
-    key: shelfKey,
-    rangeSummary,
-    codeCount: codes.length,
-  };
-}
-
-function createShelfLabelSprite(text: string, isTarget: boolean, bgOverride?: string): THREE.Sprite {
-  const canvas = document.createElement("canvas");
-  canvas.width = 160;
-  canvas.height = 64;
-  const ctx = canvas.getContext("2d");
-
-  if (ctx) {
-    ctx.fillStyle = bgOverride ?? (isTarget ? "#b45309" : "#2c2218");
-    ctx.beginPath();
-    ctx.roundRect(10, 8, 140, 48, 14);
-    ctx.fill();
-
-    ctx.strokeStyle = isTarget ? "#fef3c7" : "#e7decb";
-    ctx.lineWidth = 4;
-    ctx.stroke();
-
-    ctx.fillStyle = "#faf7f2";
-    ctx.font = "700 24px system-ui, -apple-system, sans-serif";
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-    ctx.fillText(text, 80, 33);
-  }
-
-  const texture = new THREE.CanvasTexture(canvas);
-  texture.needsUpdate = true;
-  const material = new THREE.SpriteMaterial({ map: texture, transparent: true });
-  const sprite = new THREE.Sprite(material);
-  sprite.scale.set(1.55, 0.64, 1);
-  return sprite;
 }
 
 /**
@@ -329,10 +250,15 @@ export function LibraryMap3D({ roomId, shelves, className }: LibraryMap3DProps) 
     disposableGeometries.push(floorGeo);
     disposableMaterials.push(floorMat);
 
+    let isDisposed = false;
     const textureLoader = new THREE.TextureLoader();
     textureLoader.load(
       floorMapUrl,
       (tex) => {
+        if (isDisposed) {
+          tex.dispose();
+          return;
+        }
         tex.colorSpace = THREE.SRGBColorSpace;
         floorMat.map = tex;
         floorMat.color.setHex(0xffffff);
@@ -645,6 +571,7 @@ export function LibraryMap3D({ roomId, shelves, className }: LibraryMap3DProps) 
     animate();
 
     return () => {
+      isDisposed = true;
       window.cancelAnimationFrame(frameId);
       renderer.domElement.removeEventListener("pointerdown", handlePointerDown);
       renderer.domElement.removeEventListener("pointerup", handlePointerUp);
@@ -653,6 +580,7 @@ export function LibraryMap3D({ roomId, shelves, className }: LibraryMap3DProps) 
       for (const geo of disposableGeometries) geo.dispose();
       for (const mat of disposableMaterials) mat.dispose();
       for (const tex of disposableTextures) tex.dispose();
+      scene.clear();
       renderer.dispose();
       host.innerHTML = "";
     };

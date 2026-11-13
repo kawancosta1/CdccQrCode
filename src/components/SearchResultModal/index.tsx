@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
@@ -24,15 +24,19 @@ import { useAccessibility } from "../../context/accessibilityStore";
 import type { NameMatchItem } from "../../domain/nameSearch";
 import { extractShelves, type SearchResultsByRoom } from "../../domain/searchParser";
 import { useFocusTrap } from "../../hooks/useFocusTrap";
+import { useSpeechGuide } from "../../hooks/useSpeechGuide";
 import { getPhotoOverrides, type PhotoOverrideRecord } from "../../services/mappingService";
 import { getShelfMapping } from "../../services/shelfSpotlightService";
 import type { ShelfMapping } from "../../types/shelfMapping";
 import { BookPagesTransition } from "../BookPagesTransition";
 import { ImageLightbox } from "../ImageLightbox";
-import { LibraryMap3D } from "../LibraryMap3D";
 import { RoomMap } from "../RoomMap";
 import { ShelfSpotlightViewer } from "../ShelfSpotlightViewer";
 import style from "./style.module.css";
+
+const LibraryMap3D = lazy(() =>
+  import("../LibraryMap3D").then((m) => ({ default: m.LibraryMap3D })),
+);
 
 type ViewMode = "summary" | "map3d" | "photo";
 
@@ -71,7 +75,7 @@ export function SearchResultModal({
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [copiedLink, setCopiedLink] = useState(false);
-  const [isSpeaking, setIsSpeaking] = useState(false);
+  const { canSpeak, isSpeaking, toggle: toggleSpeech } = useSpeechGuide();
 
   const { reducedMotion } = useAccessibility();
   const dialogRef = useRef<HTMLDivElement | null>(null);
@@ -95,9 +99,6 @@ export function SearchResultModal({
     return () => {
       document.body.style.overflow = previousOverflow;
       window.removeEventListener("keydown", handleEscape);
-      if (typeof window !== "undefined" && "speechSynthesis" in window) {
-        window.speechSynthesis.cancel();
-      }
       if (!skipFocusRestoreRef.current && previousActiveElement?.isConnected) {
         previousActiveElement.focus();
       }
@@ -202,27 +203,12 @@ export function SearchResultModal({
     }
   };
 
-  const canSpeak = typeof window !== "undefined" && "speechSynthesis" in window;
-
   const handleToggleSpeech = () => {
-    if (!canSpeak) return;
-    if (isSpeaking) {
-      window.speechSynthesis.cancel();
-      setIsSpeaking(false);
-      return;
-    }
-
-    window.speechSynthesis.cancel();
     const shelfName = activeRoomData?.shelf ?? "estante indicada";
     const rangeInfo = activeRoomData?.range ? `, faixa ${activeRoomData.range}` : "";
-    const text = `Localização encontrada na ${activeMapConfig.label}. ${shelfName}${rangeInfo}. ${directionText}`;
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = "pt-BR";
-    utterance.rate = 1;
-    utterance.onend = () => setIsSpeaking(false);
-    utterance.onerror = () => setIsSpeaking(false);
-    setIsSpeaking(true);
-    window.speechSynthesis.speak(utterance);
+    toggleSpeech(
+      `Localização encontrada na ${activeMapConfig.label}. ${shelfName}${rangeInfo}. ${directionText}`,
+    );
   };
 
   const classificationTitle =
@@ -443,11 +429,13 @@ export function SearchResultModal({
 
               <div className={style.focusedStage}>
                 {mapDimension === "3d" ? (
-                  <LibraryMap3D
-                    roomId={activeRoom}
-                    shelves={activeShelves}
-                    className={style.stageFill}
-                  />
+                  <Suspense fallback={<RoomMap roomId={activeRoom} shelves={activeShelves} imageClassName={style.mapImage} />}>
+                    <LibraryMap3D
+                      roomId={activeRoom}
+                      shelves={activeShelves}
+                      className={style.stageFill}
+                    />
+                  </Suspense>
                 ) : (
                   <div className={style.map2dContainer}>
                     <RoomMap
