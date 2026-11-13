@@ -1,0 +1,1 @@
+import{j as n}from"./react-vendor-B3CPj7E0.js";const e="_container_8681l_1",c="_content_8681l_8",t={container:e,content:c};function r({children:o}){return n.jsx("div",{className:t.container,children:n.jsx("div",{className:t.content,children:o})})}export{r as C};
