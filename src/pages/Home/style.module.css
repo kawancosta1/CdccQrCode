@@ -88,7 +88,7 @@
   background-color: var(--color-surface);
   color: var(--color-text-primary);
   font-size: 1rem;
-  box-shadow: var(--shadow-xs);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.85), var(--shadow-sm);
   transition: border-color var(--duration-fast) var(--ease-out),
     box-shadow var(--duration-fast) var(--ease-out);
 }
@@ -136,7 +136,7 @@
   white-space: nowrap;
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.28),
-    0 2px 0 rgba(74, 21, 41, 0.45),
+    0 2px 0 color-mix(in srgb, var(--color-brand-active) 55%, transparent),
     var(--shadow-sm);
   transition: transform var(--duration-fast) var(--ease-spring),
     box-shadow var(--duration-fast) var(--ease-spring),
@@ -148,7 +148,7 @@
   transform: translateY(-1px);
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.34),
-    0 3px 0 rgba(74, 21, 41, 0.5),
+    0 3px 0 color-mix(in srgb, var(--color-brand-active) 60%, transparent),
     var(--shadow-md);
 }
 
@@ -157,7 +157,7 @@
   transform: translateY(1.5px);
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.18),
-    0 0 0 rgba(74, 21, 41, 0.4),
+    0 0 0 color-mix(in srgb, var(--color-brand-active) 40%, transparent),
     var(--shadow-xs);
 }
 
@@ -291,7 +291,7 @@
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
   text-decoration: none;
-  box-shadow: var(--shadow-sm);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.85), var(--shadow-sm);
   animation: cardStaggerIn var(--duration-base) var(--ease-spring) both;
   transition: border-color var(--duration-fast) ease,
     box-shadow var(--duration-fast) var(--ease-spring),
@@ -525,10 +525,11 @@
 }
 
 .mascotHelper {
-  width: 64px;
-  height: 64px;
+  width: 74px;
+  height: 74px;
   object-fit: contain;
   flex-shrink: 0;
+  filter: drop-shadow(0 6px 12px var(--color-brand-ring));
   animation: floatGentle 4.2s ease-in-out infinite;
 }
 

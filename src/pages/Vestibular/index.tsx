@@ -128,7 +128,9 @@ export default function VestibularPage() {
 
                   <div className={styles.meta}>
                     <span className={styles.examTag}>
-                      {book.vestibular} • {book.anos}
+                      {book.anos && !book.vestibular.includes(book.anos)
+                        ? `${book.vestibular} • ${book.anos}`
+                        : book.vestibular}
                     </span>
                     <h2 className={styles.bookTitle}>{book.titulo}</h2>
                     <p className={styles.author}>{book.autor}</p>
