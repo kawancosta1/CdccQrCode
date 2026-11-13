@@ -18,6 +18,7 @@ import {
 } from "../../../services/mappingService.ts";
 import { uploadCmsImage } from "../../../services/siteConfigService.ts";
 import type { DynamicMarkerOverride, DynamicShelfMapping } from "../../../types/content.ts";
+import { ShelfSpotlightEditor } from "../../components/ShelfSpotlightEditor/index.tsx";
 import adminStyles from "../../styles/admin.module.css";
 import styles from "../../styles/cms.module.css";
 
@@ -155,6 +156,8 @@ export default function AdminMapping() {
       </header>
 
       {statusMsg && <div className={adminStyles.successBanner}>{statusMsg}</div>}
+
+      <ShelfSpotlightEditor />
 
       <div className={styles.tabs}>
         {([1, 2, 3] as RoomId[]).map((id) => (
@@ -353,7 +356,9 @@ export default function AdminMapping() {
               setStatusMsg("Foto específica salva e aplicada imediatamente!");
             }}
           >
-            <div className={styles.tabs}>
+            <ShelfSpotlightEditor />
+
+      <div className={styles.tabs}>
               <button
                 type="button"
                 className={`${styles.tab} ${photoTargetType === "shelf" ? styles.tabActive : ""}`}

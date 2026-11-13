@@ -21,9 +21,12 @@ import type { NameMatchItem } from "../../domain/nameSearch";
 import { extractShelves, type SearchResultsByRoom } from "../../domain/searchParser";
 import { useFocusTrap } from "../../hooks/useFocusTrap";
 import { getPhotoOverrides, type PhotoOverrideRecord } from "../../services/mappingService";
+import { getShelfMapping } from "../../services/shelfSpotlightService";
+import type { ShelfMapping } from "../../types/shelfMapping";
 import { ImageLightbox } from "../ImageLightbox";
 import { RoomMap } from "../RoomMap";
 import { ShelfRackGuide } from "../ShelfRackGuide";
+import { ShelfSpotlightViewer } from "../ShelfSpotlightViewer";
 import style from "./style.module.css";
 
 type TabType = "photo" | "map";
@@ -83,6 +86,7 @@ export function SearchResultModal({
   }, [onClose]);
 
   const [photoOverrides, setPhotoOverrides] = useState<PhotoOverrideRecord[]>([]);
+  const [spotlightMapping, setSpotlightMapping] = useState<ShelfMapping | null>(null);
 
   useEffect(() => {
     let active = true;
@@ -125,6 +129,21 @@ export function SearchResultModal({
   const hasShelfPage =
     !Number.isNaN(primaryShelfNumber) &&
     activeMapConfig.shelfNumbers.includes(primaryShelfNumber);
+
+  useEffect(() => {
+    let active = true;
+    if (Number.isNaN(primaryShelfNumber)) return;
+    getShelfMapping(activeRoom, primaryShelfNumber)
+      .then((m) => {
+        if (active) setSpotlightMapping(m);
+      })
+      .catch(() => {
+        if (active) setSpotlightMapping(null);
+      });
+    return () => {
+      active = false;
+    };
+  }, [activeRoom, primaryShelfNumber]);
 
   const handleRoomSwitch = (room: RoomId) => {
     onSelectRoom(room);
@@ -337,7 +356,18 @@ export function SearchResultModal({
             </div>
 
             <div className={style.mediaFrame}>
-              {currentImages.length > 0 ? (
+              {spotlightMapping?.cleanImageUrl ? (
+                <ShelfSpotlightViewer
+                  imageUrl={spotlightMapping.cleanImageUrl}
+                  alt={`${activeRoomData?.shelf ?? "Estante"} na ${activeMapConfig.label}`}
+                  shelfLabel={activeRoomData?.shelf ?? `Estante ${primaryShelfNumber}`}
+                  activeCode={query}
+                  regions={spotlightMapping.regions}
+                  spatialHint={spotlightMapping.spatialHint || directionText}
+                  aspectRatio={spotlightMapping.imageAspectRatio}
+                  onOpenLightbox={() => setLightboxOpen(true)}
+                />
+              ) : currentImages.length > 0 ? (
                 <>
                   <img
                     key={`${activeRoom}-${currentImageIndex}`}

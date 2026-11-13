@@ -1,0 +1,280 @@
+.viewerRoot {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  width: 100%;
+}
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.45rem;
+}
+
+.toolbarLeft {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.modeBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.34rem 0.68rem;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--color-border-strong);
+  background: var(--color-surface);
+  color: var(--color-brand-text);
+  font-size: 0.76rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.modeBtnActive {
+  background: var(--color-brand);
+  color: var(--color-white);
+  border-color: var(--color-brand);
+}
+
+.zoomGroup {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.18rem 0.3rem;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+}
+
+.iconBtn {
+  width: 26px;
+  height: 26px;
+  border-radius: var(--radius-full);
+  border: none;
+  background: transparent;
+  color: var(--color-text);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.iconBtn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.zoomReadout {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--color-text-secondary);
+  min-width: 38px;
+  text-align: center;
+}
+
+.stage {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border-strong);
+  background: var(--color-surface-subtle);
+  user-select: none;
+  touch-action: pan-y pinch-zoom;
+}
+
+.stageZoomed {
+  cursor: grab;
+}
+
+.stageZoomed:active {
+  cursor: grabbing;
+}
+
+.skeleton {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    var(--color-surface-subtle) 25%,
+    var(--color-brand-soft) 50%,
+    var(--color-surface-subtle) 75%
+  );
+  background-size: 200% 100%;
+  animation: warmShimmer 1.4s ease-in-out infinite;
+}
+
+.transformLayer {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-origin: center center;
+  transition: transform 0.18s ease-out;
+}
+
+.photo {
+  display: block;
+  width: 100%;
+  height: auto;
+  opacity: 0;
+  filter: blur(8px);
+  transition: opacity 0.35s ease, filter 0.35s ease;
+}
+
+.photoLoaded {
+  opacity: 1;
+  filter: blur(0);
+}
+
+.spotlightSvg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 4;
+  animation: spotlightFocus 0.42s var(--ease-out) both;
+}
+
+.focusRing {
+  fill: none;
+  stroke: var(--color-brand);
+  stroke-width: 0.85;
+  filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.9));
+  animation: ringPulseOnce 1.2s ease-out 0.1s 1;
+}
+
+.floatingPill {
+  position: absolute;
+  z-index: 6;
+  transform: translate(-50%, -100%);
+  padding: 0.28rem 0.65rem;
+  border-radius: var(--radius-pill);
+  background: var(--color-brand);
+  color: var(--color-white);
+  font-size: 0.72rem;
+  font-weight: 800;
+  white-space: nowrap;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.32);
+  border: 1.5px solid #ffffff;
+  pointer-events: none;
+}
+
+.floatingPillAbove::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 100%;
+  transform: translateX(-50%);
+  border: 5px solid transparent;
+  border-top-color: var(--color-brand);
+}
+
+.floatingPillBelow {
+  transform: translate(-50%, 0);
+}
+
+.floatingPillBelow::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: 100%;
+  transform: translateX(-50%);
+  border: 5px solid transparent;
+  border-bottom-color: var(--color-brand);
+}
+
+.regionPillOverlay {
+  position: absolute;
+  z-index: 5;
+  border: 1.5px dashed rgba(255, 255, 255, 0.9);
+  background: rgba(15, 23, 42, 0.24);
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.18s ease, border-color 0.18s ease;
+}
+
+.regionPillOverlay:hover,
+.regionPillSelected {
+  background: var(--color-brand-ring);
+  border-color: #ffffff;
+  border-style: solid;
+}
+
+.regionChip {
+  padding: 0.15rem 0.45rem;
+  border-radius: var(--radius-pill);
+  background: rgba(15, 23, 42, 0.85);
+  color: #ffffff;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: 800;
+}
+
+.spatialGuide {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: var(--radius-sm);
+  background: var(--color-brand-soft);
+  border: 1px solid var(--color-border);
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--color-brand-text);
+}
+
+.spatialIcon {
+  flex-shrink: 0;
+}
+
+@keyframes warmShimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+@keyframes spotlightFocus {
+  from {
+    transform: scale(1.08);
+    opacity: 0.4;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes ringPulseOnce {
+  0% {
+    stroke-width: 1.6;
+  }
+  100% {
+    stroke-width: 0.85;
+  }
+}
+
+:global(html.reduced-motion) .spotlightSvg,
+:global(html.reduced-motion) .focusRing,
+:global(html.reduced-motion) .skeleton {
+  animation: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spotlightSvg,
+  .focusRing,
+  .skeleton {
+    animation: none;
+  }
+}

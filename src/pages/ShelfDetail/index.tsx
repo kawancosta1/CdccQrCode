@@ -13,10 +13,13 @@ import { Container } from "../../components/Container";
 import { ImageLightbox } from "../../components/ImageLightbox";
 import { RoomMap } from "../../components/RoomMap";
 import { ShelfRackGuide } from "../../components/ShelfRackGuide";
+import { ShelfSpotlightViewer } from "../../components/ShelfSpotlightViewer";
 import { getRoomIdBySlug, getShelfDirectionText, ROOM_CONFIG } from "../../config/rooms";
 import { SHELF_OVERVIEW_IMAGES } from "../../config/shelfImages";
 import { AnalyticsService } from "../../services/analyticsService";
 import { getPhotoOverrides, type PhotoOverrideRecord } from "../../services/mappingService";
+import { getShelfMapping } from "../../services/shelfSpotlightService";
+import type { ShelfMapping } from "../../types/shelfMapping";
 import style from "./style.module.css";
 
 /**
@@ -26,6 +29,7 @@ export function ShelfDetail() {
   const [viewMode, setViewMode] = useState<"estante" | "mapa">("estante");
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [photoOverrides, setPhotoOverrides] = useState<PhotoOverrideRecord[]>([]);
+  const [spotlightMapping, setSpotlightMapping] = useState<ShelfMapping | null>(null);
   const navigate = useNavigate();
   const { sala, numero } = useParams<{ sala: string; numero: string }>();
 
@@ -44,9 +48,21 @@ export function ShelfDetail() {
   const roomId = getRoomIdBySlug(sala);
 
   useEffect(() => {
+    let active = true;
     if (roomId && numero) {
       void AnalyticsService.trackShelfView(roomId, numero);
+      const parsedNum = Number(numero);
+      if (!Number.isNaN(parsedNum)) {
+        getShelfMapping(roomId, parsedNum)
+          .then((m) => {
+            if (active) setSpotlightMapping(m);
+          })
+          .catch(() => {});
+      }
     }
+    return () => {
+      active = false;
+    };
   }, [numero, roomId]);
   const room = roomId ? ROOM_CONFIG[roomId] : null;
   const roomImages = roomId ? SHELF_OVERVIEW_IMAGES[roomId] : undefined;
@@ -192,12 +208,25 @@ export function ShelfDetail() {
             </button>
           </div>
           <div className={style.mediaBox}>
-            <img
-              src={imagem}
-              alt={`Estante ${numero} da ${room.label}`}
-              className={`${style.image} ${style.clickableImage}`}
-              onClick={() => setLightboxOpen(true)}
-            />
+            {spotlightMapping?.cleanImageUrl ? (
+              <ShelfSpotlightViewer
+                imageUrl={spotlightMapping.cleanImageUrl}
+                alt={`Estante ${numero} da ${room.label}`}
+                shelfLabel={`Estante ${numero}`}
+                regions={spotlightMapping.regions}
+                spatialHint={spotlightMapping.spatialHint}
+                aspectRatio={spotlightMapping.imageAspectRatio}
+                onSelectCode={(code) => navigate(`/?q=${encodeURIComponent(code)}`)}
+                onOpenLightbox={() => setLightboxOpen(true)}
+              />
+            ) : (
+              <img
+                src={imagem}
+                alt={`Estante ${numero} da ${room.label}`}
+                className={`${style.image} ${style.clickableImage}`}
+                onClick={() => setLightboxOpen(true)}
+              />
+            )}
           </div>
         </section>
 
