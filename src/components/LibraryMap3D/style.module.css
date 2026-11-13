@@ -58,6 +58,13 @@
   box-shadow: 0 0 0 3px rgba(217, 119, 6, 0.25);
 }
 
+.hudActions {
+  pointer-events: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
 .resetCamBtn {
   pointer-events: auto;
   display: inline-flex;
@@ -78,6 +85,92 @@
 .resetCamBtn:hover {
   background-color: #ffffff;
   transform: translateY(-1px);
+}
+
+.focusCamBtn {
+  pointer-events: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.3rem 0.65rem;
+  border-radius: var(--radius-full);
+  background-color: var(--color-brand);
+  border: 1px solid var(--color-brand);
+  color: #ffffff;
+  font-size: 0.72rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+  transition: opacity 150ms ease, transform 150ms ease;
+}
+
+.focusCamBtn:hover {
+  opacity: 0.92;
+  transform: translateY(-1px);
+}
+
+.shelfPopup {
+  position: absolute;
+  top: 2.85rem;
+  right: 0.65rem;
+  z-index: 6;
+  width: min(240px, calc(100% - 1.3rem));
+  padding: 0.65rem 0.75rem;
+  border-radius: var(--radius-md);
+  background-color: rgba(250, 247, 242, 0.96);
+  border: 1px solid var(--color-border-strong);
+  box-shadow: var(--shadow-lg);
+  backdrop-filter: blur(6px);
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.shelfPopupHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.shelfPopupTitle {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.shelfPopupClose {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--color-border);
+  background: transparent;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+}
+
+.shelfPopupMeta {
+  font-size: 0.74rem;
+  color: var(--color-text-secondary);
+  line-height: 1.35;
+}
+
+.shelfPopupLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.74rem;
+  font-weight: 700;
+  color: var(--color-brand-text);
+  text-decoration: none;
+  margin-top: 0.1rem;
+}
+
+.shelfPopupLink:hover {
+  text-decoration: underline;
 }
 
 .hudBottom {

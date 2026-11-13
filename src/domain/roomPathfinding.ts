@@ -17,7 +17,7 @@ export const ROOM_ENTRANCE_POINT: Record<RoomId, Point2D & { label: string }> = 
   3: { x: 50, y: 90, label: "Entrada" },
 };
 
-const GRID_SIZE = 25; // 25x25 => cada célula cobre 4% x 4% do mapa (0..100)
+const GRID_SIZE = 40; // 40x40 => cada célula cobre 2.5% x 2.5% do mapa (0..100)
 const CELL_STEP = 100 / GRID_SIZE;
 
 function parsePercent(value?: string): number | null {
