@@ -269,7 +269,7 @@ export function LibraryMap3D({ roomId, shelves, className }: LibraryMap3DProps) 
       () => {},
     );
 
-    // Paredes perimetrais sutis (com vão na entrada inferior)
+    // Paredes perimetrais sutis (com vão alinhado à porta real de cada sala)
     const wallMat = new THREE.MeshStandardMaterial({
       color: 0xd6cbb8,
       transparent: true,
@@ -280,12 +280,22 @@ export function LibraryMap3D({ roomId, shelves, className }: LibraryMap3DProps) 
 
     const half = WORLD_SPAN / 2;
     const wallHeight = 0.85;
+    const southWalls =
+      roomId === 1
+        ? [
+            // Porta no canto inferior direito: parede sul ocupa da esquerda até x = +4.2
+            { w: WORLD_SPAN * 0.72, d: 0.22, x: -half + (WORLD_SPAN * 0.72) / 2, z: half },
+          ]
+        : [
+            { w: WORLD_SPAN * 0.38, d: 0.22, x: -half * 0.62, z: half },
+            { w: WORLD_SPAN * 0.38, d: 0.22, x: half * 0.62, z: half },
+          ];
+
     const wallConfigs = [
       { w: WORLD_SPAN + 0.3, d: 0.22, x: 0, z: -half }, // parede norte
       { w: 0.22, d: WORLD_SPAN, x: -half, z: 0 }, // parede oeste
       { w: 0.22, d: WORLD_SPAN, x: half, z: 0 }, // parede leste
-      { w: WORLD_SPAN * 0.38, d: 0.22, x: -half * 0.62, z: half }, // sul esquerda
-      { w: WORLD_SPAN * 0.38, d: 0.22, x: half * 0.62, z: half }, // sul direita
+      ...southWalls,
     ];
     for (const wc of wallConfigs) {
       const wGeo = new THREE.BoxGeometry(wc.w, wallHeight, wc.d);
@@ -293,6 +303,23 @@ export function LibraryMap3D({ roomId, shelves, className }: LibraryMap3DProps) 
       wMesh.position.set(wc.x, wallHeight / 2, wc.z);
       scene.add(wMesh);
       disposableGeometries.push(wGeo);
+    }
+
+    // Referência visual de conexão entre Sala 1 e Sala 2
+    if (roomId === 1) {
+      const linkSprite = createShelfLabelSprite("Sala 2 →", false, "#1e3a5f");
+      linkSprite.scale.set(1.85, 0.56, 1);
+      linkSprite.position.set(half + 1.2, 0.7, half - 1.2);
+      scene.add(linkSprite);
+      disposableMaterials.push(linkSprite.material);
+      if (linkSprite.material.map) disposableTextures.push(linkSprite.material.map);
+    } else if (roomId === 2) {
+      const linkSprite = createShelfLabelSprite("← Sala 1", false, "#1e3a5f");
+      linkSprite.scale.set(1.85, 0.56, 1);
+      linkSprite.position.set(-half - 1.2, 0.7, half - 1.2);
+      scene.add(linkSprite);
+      disposableMaterials.push(linkSprite.material);
+      if (linkSprite.material.map) disposableTextures.push(linkSprite.material.map);
     }
 
     // Estantes 3D + livros coloridos na face frontal

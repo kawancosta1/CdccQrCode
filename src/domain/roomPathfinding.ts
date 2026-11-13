@@ -12,7 +12,7 @@ export interface ShelfPositionInput {
 }
 
 export const ROOM_ENTRANCE_POINT: Record<RoomId, Point2D & { label: string }> = {
-  1: { x: 50, y: 92, label: "Entrada" },
+  1: { x: 85, y: 92, label: "Porta (canto inf. dir.)" },
   2: { x: 50, y: 92, label: "Entrada" },
   3: { x: 50, y: 90, label: "Entrada" },
 };
