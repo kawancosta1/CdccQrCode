@@ -75,6 +75,8 @@ export interface TutorialPhaseConfig {
   actionUrl?: string;
 }
 
+import type { SeasonalConfig } from "../domain/seasonEngine.ts";
+
 export interface SiteConfig {
   brandColor: string;
   accentColor: string;
@@ -118,6 +120,7 @@ export interface SiteConfig {
       heightMode: "compact" | "default" | "tall";
     };
   };
+  estacao?: SeasonalConfig;
   atualizadoEm?: string;
 }
 

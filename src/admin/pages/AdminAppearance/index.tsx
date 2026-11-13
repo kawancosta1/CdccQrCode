@@ -1,6 +1,13 @@
 import { useEffect, useState } from "react";
-import { Image as ImageIcon, Palette, RefreshCw, Save } from "lucide-react";
+import { CloudSun, Image as ImageIcon, Palette, RefreshCw, Save } from "lucide-react";
 import { useSiteConfig } from "../../../context/siteConfigStore.ts";
+import {
+  DEFAULT_SEASONAL_CONFIG,
+  SEASON_METADATA,
+  type ParticleIntensity,
+  type SeasonalMode,
+  type SeasonId,
+} from "../../../domain/seasonEngine.ts";
 import {
   GLOBAL_IMAGE_SLOTS,
   uploadCmsImage,
@@ -143,6 +150,112 @@ export default function AdminAppearance() {
               <option value="rounded">Suave / Arredondado (12px / 18px)</option>
             </select>
           </label>
+        </div>
+      </section>
+
+      <section className={styles.card}>
+        <h2 className={styles.cardTitle}>
+          <CloudSun size={18} /> Estações do Ano &amp; Clima Dinâmico
+        </h2>
+        <p className={styles.subtitle} style={{ marginBottom: "1rem" }}>
+          Adapta o portal automaticamente ao calendário do Hemisfério Sul (Brasil) ou permite forçar
+          uma estação para testes e campanhas.
+        </p>
+
+        <div className={styles.grid2}>
+          <label className={styles.field}>
+            <span className={styles.label}>Modo da Estação</span>
+            <select
+              className={styles.select}
+              value={draft.estacao?.mode ?? DEFAULT_SEASONAL_CONFIG.mode}
+              onChange={(e) =>
+                setDraft((p) => ({
+                  ...p,
+                  estacao: {
+                    ...(p.estacao ?? DEFAULT_SEASONAL_CONFIG),
+                    mode: e.target.value as SeasonalMode,
+                  },
+                }))
+              }
+            >
+              <option value="auto">Automático (Calendário Brasil)</option>
+              <option value="outono">Forçar Outono 🍂</option>
+              <option value="inverno">Forçar Inverno ❄️</option>
+              <option value="primavera">Forçar Primavera 🌸</option>
+              <option value="verao">Forçar Verão ☀️</option>
+              <option value="off">Desativado</option>
+            </select>
+          </label>
+
+          <label className={styles.field}>
+            <span className={styles.label}>Intensidade das Partículas</span>
+            <select
+              className={styles.select}
+              value={draft.estacao?.intensity ?? DEFAULT_SEASONAL_CONFIG.intensity}
+              onChange={(e) =>
+                setDraft((p) => ({
+                  ...p,
+                  estacao: {
+                    ...(p.estacao ?? DEFAULT_SEASONAL_CONFIG),
+                    intensity: e.target.value as ParticleIntensity,
+                  },
+                }))
+              }
+            >
+              <option value="suave">Suave</option>
+              <option value="normal">Normal</option>
+              <option value="intenso">Intenso</option>
+            </select>
+          </label>
+        </div>
+
+        <label className={styles.checkboxRow} style={{ marginTop: "0.75rem", marginBottom: "1rem" }}>
+          <input
+            type="checkbox"
+            checked={draft.estacao?.nightEffectEnabled ?? true}
+            onChange={(e) =>
+              setDraft((p) => ({
+                ...p,
+                estacao: {
+                  ...(p.estacao ?? DEFAULT_SEASONAL_CONFIG),
+                  nightEffectEnabled: e.target.checked,
+                },
+              }))
+            }
+          />
+          Ativar Efeito Noturno Automático (entre 18h e 06h — luminária de biblioteca e vagalumes no Verão)
+        </label>
+
+        <div className={styles.grid2}>
+          {(["outono", "inverno", "primavera", "verao"] as SeasonId[]).map((seasonKey) => (
+            <label key={seasonKey} className={styles.field}>
+              <span className={styles.label}>
+                Saudação — {SEASON_METADATA[seasonKey].label} {SEASON_METADATA[seasonKey].emoji}
+              </span>
+              <input
+                className={styles.input}
+                value={
+                  draft.estacao?.greetings?.[seasonKey] ??
+                  SEASON_METADATA[seasonKey].defaultGreeting
+                }
+                onChange={(e) =>
+                  setDraft((p) => {
+                    const base = p.estacao ?? DEFAULT_SEASONAL_CONFIG;
+                    return {
+                      ...p,
+                      estacao: {
+                        ...base,
+                        greetings: {
+                          ...base.greetings,
+                          [seasonKey]: e.target.value,
+                        },
+                      },
+                    };
+                  })
+                }
+              />
+            </label>
+          ))}
         </div>
       </section>
 

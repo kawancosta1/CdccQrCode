@@ -1,5 +1,6 @@
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
+import { DEFAULT_SEASONAL_CONFIG } from "../domain/seasonEngine.ts";
 import { getFirebaseStorageInstance, getFirestoreDb } from "../lib/firebase.ts";
 import type { SiteConfig } from "../types/content.ts";
 
@@ -132,6 +133,7 @@ export const DEFAULT_SITE_CONFIG: SiteConfig = {
       heightMode: "default",
     },
   },
+  estacao: structuredClone(DEFAULT_SEASONAL_CONFIG),
 };
 
 export const GLOBAL_IMAGE_SLOTS: Array<{
@@ -145,6 +147,30 @@ export const GLOBAL_IMAGE_SLOTS: Array<{
     label: "Logo / Mascote Bentinho (Navbar e Rodapé)",
     description: "Substitui o ícone principal do Bentinho/CDCC.",
     fallbackPath: "Logo padrão CDCC",
+  },
+  {
+    key: "bentinho_outono",
+    label: "Mascote Bentinho — Outono 🍂",
+    description: "Foto/ilustração do Bentinho exibida durante o Outono.",
+    fallbackPath: "Bentinho padrão com selo de Outono",
+  },
+  {
+    key: "bentinho_inverno",
+    label: "Mascote Bentinho — Inverno ❄️",
+    description: "Foto/ilustração do Bentinho exibida durante o Inverno.",
+    fallbackPath: "Bentinho padrão com selo de Inverno",
+  },
+  {
+    key: "bentinho_primavera",
+    label: "Mascote Bentinho — Primavera 🌸",
+    description: "Foto/ilustração do Bentinho exibida durante a Primavera.",
+    fallbackPath: "Bentinho padrão com selo de Primavera",
+  },
+  {
+    key: "bentinho_verao",
+    label: "Mascote Bentinho — Verão ☀️",
+    description: "Foto/ilustração do Bentinho exibida durante o Verão.",
+    fallbackPath: "Bentinho padrão com selo de Verão",
   },
   {
     key: "tutorial_fase_1",
@@ -224,6 +250,14 @@ export function mergeWithDefaultSiteConfig(partial?: Partial<SiteConfig> | null)
         showPauseButton: true,
         heightMode: "default",
         ...(partial.homeConfig?.carouselConfig ?? {}),
+      },
+    },
+    estacao: {
+      ...DEFAULT_SEASONAL_CONFIG,
+      ...(partial.estacao ?? {}),
+      greetings: {
+        ...DEFAULT_SEASONAL_CONFIG.greetings,
+        ...(partial.estacao?.greetings ?? {}),
       },
     },
   };

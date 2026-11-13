@@ -3,6 +3,7 @@ import { AccessibilityDrawer } from "../../AccessibilityDrawer";
 import { Footer } from "../../Footer";
 import { Nav } from "../../Nav";
 import { SearchResultModal } from "../../SearchResultModal";
+import { SeasonalOverlay } from "../../SeasonalOverlay";
 import { VisualEditorOverlay } from "../../VisualEditorOverlay";
 
 type MainTemplateProps = {
@@ -36,6 +37,7 @@ export function MainTemplate({ children }: MainTemplateProps) {
       <Footer />
 
       <AccessibilityDrawer />
+      <SeasonalOverlay />
       <VisualEditorOverlay />
 
       {resultsByRoom && activeRoom !== null && (

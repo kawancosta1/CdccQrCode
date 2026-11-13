@@ -9,6 +9,7 @@ import { UniversalAccessibilityIcon } from "../icons/UniversalAccessibilityIcon"
 import { useAccessibility } from "../../context/accessibilityStore";
 import { useBookSearchContext } from "../../context/bookSearchStore";
 import { useSiteConfig } from "../../context/siteConfigStore";
+import { SEASON_METADATA } from "../../domain/seasonEngine";
 import { getCustomPages } from "../../services/pagesService";
 import type { CustomPage } from "../../types/content";
 import logoCdcc from "../img/CdccLogo.webp";
@@ -147,7 +148,13 @@ const INTERNAL_NAV_LINKS = [
 export function Nav() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [menuPages, setMenuPages] = useState<CustomPage[]>([]);
-  const { config, getImageSrc } = useSiteConfig();
+  const {
+    config,
+    getImageSrc,
+    activeSeason,
+    visitorParticlesEnabled,
+    toggleVisitorParticles,
+  } = useSiteConfig();
   const { isPanelOpen, activeCount, togglePanel } = useAccessibility();
   const {
     searchValue,
@@ -311,6 +318,29 @@ export function Nav() {
 
           <div className={style.desktopLinks}>
             {renderLinks()}
+            {activeSeason && (
+              <button
+                type="button"
+                className={style.a11yTriggerBtn}
+                onClick={toggleVisitorParticles}
+                aria-pressed={visitorParticlesEnabled}
+                aria-label={`${SEASON_METADATA[activeSeason].badgeText} — ${
+                  visitorParticlesEnabled ? "Desativar" : "Ativar"
+                } efeitos visuais da estação`}
+                title={`${SEASON_METADATA[activeSeason].badgeText} — Clique para ${
+                  visitorParticlesEnabled ? "pausar" : "ativar"
+                } os efeitos da estação`}
+                style={{
+                  minWidth: "40px",
+                  padding: "0.35rem 0.65rem",
+                  opacity: visitorParticlesEnabled ? 1 : 0.65,
+                }}
+              >
+                <span aria-hidden="true" style={{ fontSize: "1rem", lineHeight: 1 }}>
+                  {SEASON_METADATA[activeSeason].emoji}
+                </span>
+              </button>
+            )}
             <button
               type="button"
               className={style.a11yTriggerBtn}
@@ -333,6 +363,25 @@ export function Nav() {
           </div>
 
           <div className={style.mobileActionGroup}>
+            {activeSeason && (
+              <button
+                type="button"
+                className={style.a11yMobileBtn}
+                onClick={toggleVisitorParticles}
+                aria-pressed={visitorParticlesEnabled}
+                aria-label={`${SEASON_METADATA[activeSeason].badgeText} — ${
+                  visitorParticlesEnabled ? "Pausar" : "Ativar"
+                } efeitos da estação`}
+                title={`${SEASON_METADATA[activeSeason].badgeText} (${
+                  visitorParticlesEnabled ? "efeitos ativos" : "efeitos pausados"
+                })`}
+                style={{ opacity: visitorParticlesEnabled ? 1 : 0.6 }}
+              >
+                <span aria-hidden="true" style={{ fontSize: "1.05rem", lineHeight: 1 }}>
+                  {SEASON_METADATA[activeSeason].emoji}
+                </span>
+              </button>
+            )}
             <button
               type="button"
               className={style.a11yMobileBtn}

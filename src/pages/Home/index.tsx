@@ -28,6 +28,7 @@ import dedalus6 from "../../components/img/Dedalus6.webp";
 import BentinhoPensando from "../../components/img/Mascote/pensando.webp";
 import { useBookSearchContext } from "../../context/bookSearchStore";
 import { useSiteConfig } from "../../context/siteConfigStore";
+import { SEASON_METADATA } from "../../domain/seasonEngine";
 import { CarouselService, DEFAULT_CAROUSEL_SLIDES } from "../../services/carouselService";
 import type { CarouselSlide } from "../../types/content";
 import styles from "./style.module.css";
@@ -173,8 +174,15 @@ const TUTORIAL_PHASES: TutorialPhase[] = [
 ];
 
 export function Home() {
-  const { config, getImageSrc } = useSiteConfig();
+  const { config, getImageSrc, activeSeason } = useSiteConfig();
   const homeCfg = config.homeConfig;
+  const seasonMeta = activeSeason ? SEASON_METADATA[activeSeason] : null;
+  const seasonGreeting = activeSeason
+    ? config.estacao?.greetings?.[activeSeason]?.trim() || SEASON_METADATA[activeSeason].defaultGreeting
+    : null;
+  const bentinhoSeasonalSrc = activeSeason
+    ? getImageSrc(`bentinho_${activeSeason}`, getImageSrc("bentinho_logo", BentinhoPensando))
+    : getImageSrc("bentinho_logo", BentinhoPensando);
   const exampleCodes =
     homeCfg.exampleCodes.length > 0 ? homeCfg.exampleCodes : EXAMPLE_CODES;
   const [heroSlides, setHeroSlides] = useState<HeroSlide[]>(() =>
@@ -335,10 +343,45 @@ export function Home() {
       {/* Hero Search-First */}
       <section className={styles.heroSection} aria-labelledby="hero-heading">
         <div className={styles.heroInner}>
-          <div className={styles.heroBadge}>
+          <div className={styles.heroBadge} style={{ position: "relative" }}>
             <Library size={15} aria-hidden="true" />
             <span>{homeCfg.heroBadge}</span>
+            {activeSeason === "primavera" && (
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                aria-hidden="true"
+                style={{ marginLeft: "0.2rem", color: "#db2777" }}
+              >
+                <path
+                  d="M12 12c-2.5-3.5-7-3-7 0.5 0 2.5 3.5 3.5 7 1.5 3.5 2 7 1 7-1.5 0-3.5-4.5-4-7-0.5z"
+                  fill="currentColor"
+                  fillOpacity="0.82"
+                />
+                <path
+                  d="M12 12c-1.8 2.8-5.2 3.2-5.2 5.4 0 1.8 2.8 2 5.2-0.4 2.4 2.4 5.2 2.2 5.2 0.4 0-2.2-3.4-2.6-5.2-5.4z"
+                  fill="#f59e0b"
+                  fillOpacity="0.85"
+                />
+              </svg>
+            )}
           </div>
+
+          {seasonGreeting && (
+            <p
+              style={{
+                margin: "0 auto 0.65rem",
+                fontSize: "0.875rem",
+                fontWeight: 600,
+                color: "var(--color-brand-text)",
+                opacity: 0.92,
+              }}
+            >
+              {seasonGreeting}
+            </p>
+          )}
 
           <h1 id="hero-heading" className={styles.heroTitle}>
             {homeCfg.heroTitle}
@@ -589,12 +632,59 @@ export function Home() {
               Uma experiência fluida e sem esforço para localizar qualquer livro físico no acervo do CDCC.
             </p>
           </div>
-          <img
-            src={getImageSrc("bentinho_logo", BentinhoPensando)}
-            alt=""
-            aria-hidden="true"
-            className={styles.mascotHelper}
-          />
+          <div style={{ position: "relative", flexShrink: 0, display: "inline-flex", alignItems: "center" }}>
+            <img
+              src={bentinhoSeasonalSrc}
+              alt=""
+              aria-hidden="true"
+              className={styles.mascotHelper}
+            />
+            {seasonMeta && (
+              <span
+                aria-hidden="true"
+                title={seasonMeta.badgeText}
+                style={{
+                  position: "absolute",
+                  top: "-6px",
+                  right: "-6px",
+                  width: "26px",
+                  height: "26px",
+                  borderRadius: "9999px",
+                  backgroundColor: "var(--color-surface)",
+                  border: "1px solid var(--color-border-strong)",
+                  boxShadow: "var(--shadow-sm)",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontSize: "0.85rem",
+                }}
+              >
+                {seasonMeta.emoji}
+              </span>
+            )}
+            {activeSeason === "inverno" && (
+              <svg
+                width="26"
+                height="26"
+                viewBox="0 0 24 24"
+                fill="none"
+                aria-hidden="true"
+                style={{
+                  position: "absolute",
+                  bottom: "-4px",
+                  left: "-10px",
+                  color: "#8a3354",
+                  filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.12))",
+                }}
+              >
+                <path d="M5 12h10v4a5 5 0 0 1-10 0v-4Z" fill="var(--color-surface)" stroke="currentColor" strokeWidth="1.6" />
+                <path d="M15 13h1.8a2.2 2.2 0 0 1 0 4.4H15" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+                <path d="M8 9c0-1.5 1.2-2 1.2-3.5M12 9c0-1.5 1.2-2 1.2-3.5" stroke="#d97706" strokeWidth="1.5" strokeLinecap="round">
+                  <animate attributeName="opacity" values="0.3;0.95;0.3" dur="2.2s" repeatCount="indefinite" />
+                </path>
+              </svg>
+            )}
+          </div>
         </div>
 
         {/* Segmented Control / Apple-style Tab Bar */}

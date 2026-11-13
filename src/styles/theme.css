@@ -97,6 +97,29 @@
 }
 
 /* ==========================================================================
+   Atmosfera Sazonal (Hemisfério Sul) — Sobrescrita pelo Alto Contraste abaixo
+   ========================================================================== */
+html[data-season="outono"] {
+  --color-bg: #f9f4ec;
+  --color-surface-subtle: #f3eadc;
+}
+
+html[data-season="inverno"] {
+  --color-bg: #f5f7fa;
+  --color-surface-subtle: #ebeef4;
+}
+
+html[data-season="primavera"] {
+  --color-bg: #faf8f4;
+  --color-surface-subtle: #f4efe8;
+}
+
+html[data-season="verao"] {
+  --color-bg: #fbf9f2;
+  --color-surface-subtle: #f5efe1;
+}
+
+/* ==========================================================================
    Modo Alto Contraste Escuro (WCAG AAA)
    ========================================================================== */
 html.high-contrast,

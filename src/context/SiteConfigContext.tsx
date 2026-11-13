@@ -6,6 +6,10 @@ import {
   type ReactNode,
 } from "react";
 import {
+  isNightTime,
+  resolveActiveSeason,
+} from "../domain/seasonEngine.ts";
+import {
   DEFAULT_SITE_CONFIG,
   getSiteConfig,
   resetSiteConfig,
@@ -13,6 +17,18 @@ import {
 } from "../services/siteConfigService.ts";
 import type { SiteConfig } from "../types/content.ts";
 import { SiteConfigContext, type SiteConfigContextValue } from "./siteConfigStore.ts";
+
+const VISITOR_PARTICLES_KEY = "qrcodecdcc_visitor_particles_v1";
+
+function readVisitorParticlesPref(): boolean {
+  try {
+    const raw = window.localStorage.getItem(VISITOR_PARTICLES_KEY);
+    if (raw === "false") return false;
+  } catch {
+    // ignore
+  }
+  return true;
+}
 
 function applyCssVariables(config: SiteConfig): void {
   const root = document.documentElement;
@@ -54,6 +70,41 @@ function applyCssVariables(config: SiteConfig): void {
 export function SiteConfigProvider({ children }: { children: ReactNode }) {
   const [config, setConfig] = useState<SiteConfig>(() => structuredClone(DEFAULT_SITE_CONFIG));
   const [loading, setLoading] = useState(true);
+  const [visitorParticlesEnabled, setVisitorParticlesEnabled] = useState<boolean>(
+    readVisitorParticlesPref,
+  );
+
+  const activeSeason = useMemo(
+    () => resolveActiveSeason(config.estacao?.mode),
+    [config.estacao?.mode],
+  );
+
+  const isNightAtmosphere = useMemo(() => {
+    if (config.estacao?.nightEffectEnabled === false) return false;
+    return isNightTime();
+  }, [config.estacao?.nightEffectEnabled]);
+
+  useEffect(() => {
+    const root = document.documentElement;
+    if (activeSeason) {
+      root.setAttribute("data-season", activeSeason);
+    } else {
+      root.removeAttribute("data-season");
+    }
+    root.setAttribute("data-night", isNightAtmosphere ? "true" : "false");
+  }, [activeSeason, isNightAtmosphere]);
+
+  const toggleVisitorParticles = useCallback(() => {
+    setVisitorParticlesEnabled((prev) => {
+      const next = !prev;
+      try {
+        window.localStorage.setItem(VISITOR_PARTICLES_KEY, String(next));
+      } catch {
+        // ignore
+      }
+      return next;
+    });
+  }, []);
 
   const reloadConfig = useCallback(async () => {
     setLoading(true);
@@ -100,12 +151,27 @@ export function SiteConfigProvider({ children }: { children: ReactNode }) {
     () => ({
       config,
       loading,
+      activeSeason,
+      isNightAtmosphere,
+      visitorParticlesEnabled,
+      toggleVisitorParticles,
       updateConfig,
       resetConfig,
       reloadConfig,
       getImageSrc,
     }),
-    [config, loading, updateConfig, resetConfig, reloadConfig, getImageSrc]
+    [
+      config,
+      loading,
+      activeSeason,
+      isNightAtmosphere,
+      visitorParticlesEnabled,
+      toggleVisitorParticles,
+      updateConfig,
+      resetConfig,
+      reloadConfig,
+      getImageSrc,
+    ],
   );
 
   return <SiteConfigContext.Provider value={value}>{children}</SiteConfigContext.Provider>;

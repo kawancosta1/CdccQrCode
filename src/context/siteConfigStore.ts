@@ -1,10 +1,19 @@
 import { createContext, useContext } from "react";
+import {
+  detectSouthernHemisphereSeason,
+  isNightTime,
+  type SeasonId,
+} from "../domain/seasonEngine.ts";
 import { DEFAULT_SITE_CONFIG } from "../services/siteConfigService.ts";
 import type { SiteConfig } from "../types/content.ts";
 
 export interface SiteConfigContextValue {
   config: SiteConfig;
   loading: boolean;
+  activeSeason: SeasonId | null;
+  isNightAtmosphere: boolean;
+  visitorParticlesEnabled: boolean;
+  toggleVisitorParticles: () => void;
   updateConfig: (next: SiteConfig) => Promise<SiteConfig>;
   resetConfig: () => Promise<SiteConfig>;
   reloadConfig: () => Promise<void>;
@@ -19,6 +28,10 @@ export function useSiteConfig(): SiteConfigContextValue {
     return {
       config: DEFAULT_SITE_CONFIG,
       loading: false,
+      activeSeason: detectSouthernHemisphereSeason(),
+      isNightAtmosphere: isNightTime(),
+      visitorParticlesEnabled: true,
+      toggleVisitorParticles: () => {},
       updateConfig: async (next) => next,
       resetConfig: async () => DEFAULT_SITE_CONFIG,
       reloadConfig: async () => {},
