@@ -62,6 +62,7 @@ export function useBookSearch() {
   const [searchError, setSearchError] = useState("");
   const [fallbackSuggestions, setFallbackSuggestions] = useState<string[]>([]);
   const [matchedNameOptions, setMatchedNameOptions] = useState<NameMatchItem[]>([]);
+  const [relatedNameMatches, setRelatedNameMatches] = useState<NameMatchItem[]>([]);
   const [matchedContext, setMatchedContext] = useState<NameMatchItem | null>(null);
   const [dynamicBooks, setDynamicBooks] = useState<SearchableBookRecord[]>([]);
   const [recentSearches, setRecentSearches] = useState<string[]>(loadRecentSearches);
@@ -192,41 +193,55 @@ export function useBookSearch() {
           trimmed,
           staticBookCatalogRepository,
           dynamicBooks,
-          6,
+          12,
         );
-        if (nameMatches.length === 1) {
-          const matched = nameMatches[0];
-          if (matched.routePath) {
-            setSearchError("");
-            setFallbackSuggestions([]);
-            setMatchedNameOptions([]);
-            setMatchedContext(null);
-            void AnalyticsService.trackSearch(trimmed, true);
-            navigate(matched.routePath);
-            return true;
-          }
-          const matchedResults = searchBooksByCode(matched.code, staticBookCatalogRepository);
+
+        const mappedCandidate = nameMatches.find((item) => {
+          if (item.routePath) return false;
+          const r = searchBooksByCode(item.code, staticBookCatalogRepository);
+          return getDefaultRoom(r) !== null;
+        });
+
+        if (mappedCandidate) {
+          const matchedResults = searchBooksByCode(
+            mappedCandidate.code,
+            staticBookCatalogRepository,
+          );
           const matchedRoom = getDefaultRoom(matchedResults);
           if (matchedRoom) {
-            setSearchValue(matched.code);
+            setSearchValue(mappedCandidate.code);
             setSearchKey((prev) => prev + 1);
             setSearchError("");
             setFallbackSuggestions([]);
             setMatchedNameOptions([]);
-            setMatchedContext(matched);
-            pushRecentSearch(matched.code);
+            setRelatedNameMatches(nameMatches.length > 1 ? nameMatches : []);
+            setMatchedContext(mappedCandidate);
+            pushRecentSearch(mappedCandidate.code);
             void AnalyticsService.trackSearch(trimmed, true);
 
             const next = new URLSearchParams(searchParams);
-            next.set("q", matched.code);
+            next.set("q", mappedCandidate.code);
             next.set("sala", String(matchedRoom));
             setSearchParams(next);
             return true;
           }
         }
 
+        if (nameMatches.length === 1 && nameMatches[0].routePath) {
+          const matched = nameMatches[0];
+          setSearchError("");
+          setFallbackSuggestions([]);
+          setMatchedNameOptions([]);
+          setRelatedNameMatches([]);
+          setMatchedContext(null);
+          void AnalyticsService.trackSearch(trimmed, true);
+          navigate(matched.routePath!);
+          return true;
+        }
+
         clearUrlSearchParams();
         setMatchedContext(null);
+        setRelatedNameMatches([]);
         if (nameMatches.length > 1) {
           setMatchedNameOptions(nameMatches);
           setFallbackSuggestions([]);
@@ -251,6 +266,9 @@ export function useBookSearch() {
       setSearchError("");
       setFallbackSuggestions([]);
       setMatchedNameOptions([]);
+      if (!contextItem) {
+        setRelatedNameMatches([]);
+      }
       setMatchedContext(contextItem ?? null);
       pushRecentSearch(trimmed);
       void AnalyticsService.trackSearch(trimmed, true);
@@ -266,6 +284,7 @@ export function useBookSearch() {
 
   const closeResults = useCallback(() => {
     setMatchedContext(null);
+    setRelatedNameMatches([]);
     clearUrlSearchParams();
   }, [clearUrlSearchParams]);
 
@@ -274,6 +293,7 @@ export function useBookSearch() {
     setSearchError("");
     setFallbackSuggestions([]);
     setMatchedNameOptions([]);
+    setRelatedNameMatches([]);
     setMatchedContext(null);
     clearUrlSearchParams();
   }, [clearUrlSearchParams]);
@@ -285,7 +305,7 @@ export function useBookSearch() {
 
   const nameSuggestions = useMemo<NameMatchItem[]>(() => {
     if (searchValue.trim().length < 2) return [];
-    return searchByNameOrSubject(searchValue, staticBookCatalogRepository, dynamicBooks, 5);
+    return searchByNameOrSubject(searchValue, staticBookCatalogRepository, dynamicBooks, 8);
   }, [dynamicBooks, searchValue]);
 
   const dedalusSearchUrl = useMemo(() => {
@@ -301,6 +321,7 @@ export function useBookSearch() {
     autocompleteSuggestions,
     nameSuggestions,
     matchedNameOptions,
+    relatedNameMatches,
     matchedContext,
     dedalusSearchUrl,
     recentSearches,

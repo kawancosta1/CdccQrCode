@@ -34,9 +34,11 @@ type TabType = "photo" | "map";
 interface SearchResultModalProps {
   query: string;
   matchedContext?: NameMatchItem | null;
+  relatedMatches?: NameMatchItem[];
   resultsByRoom: SearchResultsByRoom;
   activeRoom: RoomId;
   onSelectRoom: (room: RoomId) => void;
+  onSelectMatch?: (item: NameMatchItem) => void;
   onClose: () => void;
   onNewSearch?: () => void;
 }
@@ -47,9 +49,11 @@ interface SearchResultModalProps {
 export function SearchResultModal({
   query,
   matchedContext,
+  relatedMatches = [],
   resultsByRoom,
   activeRoom,
   onSelectRoom,
+  onSelectMatch,
   onClose,
   onNewSearch,
 }: SearchResultModalProps) {
@@ -250,6 +254,35 @@ export function SearchResultModal({
             <X size={20} aria-hidden="true" />
           </button>
         </header>
+
+        {/* Lista de múltiplos resultados encontrados quando a busca por nome retorna mais de 1 item */}
+        {relatedMatches.length > 1 && onSelectMatch && (
+          <div className={style.relatedMatchesBar} role="region" aria-label="Outros resultados encontrados">
+            <p className={style.relatedMatchesTitle}>
+              Encontramos <strong>{relatedMatches.length}</strong> resultados relacionados — clique para alternar:
+            </p>
+            <div className={style.relatedMatchesList}>
+              {relatedMatches.map((item) => {
+                const isSelected = matchedContext?.id === item.id;
+                return (
+                  <button
+                    key={item.id}
+                    type="button"
+                    aria-pressed={isSelected}
+                    className={`${style.relatedMatchBtn} ${isSelected ? style.relatedMatchBtnActive : ""}`}
+                    onClick={() => onSelectMatch(item)}
+                  >
+                    <span className={style.relatedMatchTitle}>{item.title}</span>
+                    <span className={style.relatedMatchMeta}>
+                      {item.subtitle ? `${item.subtitle} • ` : ""}
+                      <code>{item.routePath ? "Abrir página" : `CDU ${item.code}`}</code>
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
 
         {/* Orientação prática + Seletor de salas */}
         <div className={style.wayfindingBar}>

@@ -18,8 +18,10 @@ export function MainTemplate({ children }: MainTemplateProps) {
     resultsByRoom,
     activeRoom,
     matchedContext,
+    relatedNameMatches,
     searchKey,
     setActiveRoom,
+    submitSearch,
     closeResults,
     focusPrimarySearch,
   } = useBookSearchContext();
@@ -49,9 +51,11 @@ export function MainTemplate({ children }: MainTemplateProps) {
           key={searchKey}
           query={lastQuery}
           matchedContext={matchedContext}
+          relatedMatches={relatedNameMatches}
           resultsByRoom={resultsByRoom}
           activeRoom={activeRoom}
           onSelectRoom={setActiveRoom}
+          onSelectMatch={(item) => submitSearch(item.code, item)}
           onClose={closeResults}
           onNewSearch={focusPrimarySearch}
         />
