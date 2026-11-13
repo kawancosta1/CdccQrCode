@@ -18,7 +18,7 @@ import {
   SearchAutocompleteDropdown,
   type AutocompleteEntry,
 } from "../SearchAutocompleteDropdown";
-import { BookshelfScrollProgress } from "../BookshelfScrollProgress";
+import { EditorialScrollProgress } from "../EditorialScrollProgress";
 import { LibraryLampToggle } from "../editorial";
 import { UniversalAccessibilityIcon } from "../icons/UniversalAccessibilityIcon";
 import { useAccessibility } from "../../context/accessibilityStore";
@@ -795,10 +795,10 @@ export function Nav() {
             </div>
           )}
 
-          {/* Linha dupla editorial + Estante Progressiva de Livros no Desktop */}
+          {/* Linha dupla editorial + Barra de progresso editorial no Desktop */}
           <div className={style.doubleRuleBottom} aria-hidden="true" />
           <div className={style.desktopShelfWrap}>
-            <BookshelfScrollProgress
+            <EditorialScrollProgress
               progress={scrollProgress}
               variant="desktop"
               reducedMotion={reducedMotion}
@@ -810,7 +810,7 @@ export function Nav() {
       {/* Mobile Bottom Navigation Dock ("Livro Aberto") */}
       <nav className={style.mobileDock} aria-label="Navegação rápida mobile">
         <div className={style.mobileDockEdgeWrap}>
-          <BookshelfScrollProgress
+          <EditorialScrollProgress
             progress={scrollProgress}
             variant="mobile"
             reducedMotion={reducedMotion}

@@ -1,7 +1,14 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { ROOM_CONFIG, type RoomId } from "../../config/rooms";
 import { useSiteConfig } from "../../context/siteConfigStore";
+import {
+  buildRoundedSvgPath,
+  findRoomPath,
+  resolveShelfPercentPoint,
+  ROOM_ENTRANCE_POINT,
+  type Point2D,
+} from "../../domain/roomPathfinding";
 import { getMarkerOverrides } from "../../services/mappingService";
 import type { DynamicMarkerOverride } from "../../types/content";
 import style from "./style.module.css";
@@ -11,28 +18,6 @@ interface RoomMapProps {
   shelves: string[];
   imageClassName?: string;
   interactive?: boolean;
-}
-
-const ROOM_ENTRANCE_POINT: Record<RoomId, { x: number; y: number; label: string }> = {
-  1: { x: 50, y: 92, label: "Entrada" },
-  2: { x: 50, y: 92, label: "Entrada" },
-  3: { x: 50, y: 90, label: "Entrada" },
-};
-
-function parsePercent(value?: string): number | null {
-  if (!value) return null;
-  const n = Number.parseFloat(value);
-  return Number.isFinite(n) ? n : null;
-}
-
-function resolveMarkerPoint(pos: { top: string; left?: string; right?: string }): { x: number; y: number } | null {
-  const y = parsePercent(pos.top);
-  if (y === null) return null;
-  const left = parsePercent(pos.left);
-  if (left !== null) return { x: left, y };
-  const right = parsePercent(pos.right);
-  if (right !== null) return { x: 100 - right, y };
-  return null;
 }
 
 /**
@@ -59,17 +44,40 @@ export function RoomMap({ roomId, shelves, imageClassName, interactive = false }
   const activeSet = new Set(shelves.map((s) => s.toUpperCase()));
   const entrance = ROOM_ENTRANCE_POINT[roomId];
 
-  const activeRoutePoints = shelves
-    .map((shelfKey) => {
+  const allShelfObstacles = useMemo(() => {
+    const pts: Point2D[] = [];
+    for (const key of Object.keys(room.shelfMarkers)) {
       const override = overrides.find(
-        (o) => o.shelfKey.toUpperCase() === shelfKey.toUpperCase(),
+        (o) => o.shelfKey.toUpperCase() === key.toUpperCase(),
       );
       const pos = override
         ? { top: override.top, left: override.left, right: undefined }
-        : room.shelfMarkers[shelfKey];
-      return pos ? resolveMarkerPoint(pos) : null;
-    })
-    .filter((pt): pt is { x: number; y: number } => pt !== null);
+        : room.shelfMarkers[key];
+      const pt = pos ? resolveShelfPercentPoint(pos) : null;
+      if (pt) pts.push(pt);
+    }
+    return pts;
+  }, [overrides, room.shelfMarkers]);
+
+  const activeRoutePaths = useMemo(() => {
+    return shelves
+      .map((shelfKey) => {
+        const override = overrides.find(
+          (o) => o.shelfKey.toUpperCase() === shelfKey.toUpperCase(),
+        );
+        const pos = override
+          ? { top: override.top, left: override.left, right: undefined }
+          : room.shelfMarkers[shelfKey];
+        const pt = pos ? resolveShelfPercentPoint(pos) : null;
+        if (!pt) return null;
+        const obstacles = allShelfObstacles.filter(
+          (obs) => Math.hypot(obs.x - pt.x, obs.y - pt.y) > 2,
+        );
+        const waypoints = findRoomPath(entrance, pt, obstacles);
+        return buildRoundedSvgPath(waypoints);
+      })
+      .filter((d): d is string => Boolean(d));
+  }, [allShelfObstacles, entrance, overrides, room.shelfMarkers, shelves]);
 
   const markerKeys = interactive
     ? Array.from(
@@ -94,7 +102,7 @@ export function RoomMap({ roomId, shelves, imageClassName, interactive = false }
         className={`${style.mapImg} ${imageClassName ?? ""}`}
         decoding="async"
       />
-      {activeRoutePoints.length > 0 && (
+      {activeRoutePaths.length > 0 && (
         <>
           <svg
             className={style.routeSvg}
@@ -102,17 +110,12 @@ export function RoomMap({ roomId, shelves, imageClassName, interactive = false }
             preserveAspectRatio="none"
             aria-hidden="true"
           >
-            {activeRoutePoints.map((pt, idx) => {
-              const ctrlX = entrance.x;
-              const ctrlY = Math.round((entrance.y + pt.y) / 2);
-              const d = `M ${entrance.x} ${entrance.y} Q ${ctrlX} ${ctrlY} ${pt.x} ${pt.y}`;
-              return (
-                <g key={idx}>
-                  <path d={d} className={style.routePathGlow} />
-                  <path d={d} className={style.routePath} />
-                </g>
-              );
-            })}
+            {activeRoutePaths.map((d, idx) => (
+              <g key={idx}>
+                <path d={d} className={style.routePathGlow} />
+                <path d={d} className={style.routePath} />
+              </g>
+            ))}
           </svg>
           <span
             className={style.entranceBadge}

@@ -1,35 +1,38 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
+import { motion } from "framer-motion";
 import {
+  ArrowLeft,
   Camera,
   Check,
   ChevronLeft,
   ChevronRight,
   Compass,
   ExternalLink,
+  Layers,
   Link2,
   Map as MapIcon,
   MapPin,
   Maximize2,
-  Route,
   Search,
   X,
 } from "lucide-react";
 import { getShelfDirectionText, ROOM_CONFIG, ROOM_IDS, type RoomId } from "../../config/rooms";
-import { useVisitRoute } from "../../context/visitRouteStore";
+import { useAccessibility } from "../../context/accessibilityStore";
 import type { NameMatchItem } from "../../domain/nameSearch";
 import { extractShelves, type SearchResultsByRoom } from "../../domain/searchParser";
 import { useFocusTrap } from "../../hooks/useFocusTrap";
 import { getPhotoOverrides, type PhotoOverrideRecord } from "../../services/mappingService";
 import { getShelfMapping } from "../../services/shelfSpotlightService";
 import type { ShelfMapping } from "../../types/shelfMapping";
+import { BookPagesTransition } from "../BookPagesTransition";
 import { ImageLightbox } from "../ImageLightbox";
+import { LibraryMap3D } from "../LibraryMap3D";
 import { RoomMap } from "../RoomMap";
-import { ShelfRackGuide } from "../ShelfRackGuide";
 import { ShelfSpotlightViewer } from "../ShelfSpotlightViewer";
 import style from "./style.module.css";
 
-type TabType = "photo" | "map";
+type ViewMode = "summary" | "map3d" | "photo";
 
 interface SearchResultModalProps {
   query: string;
@@ -43,8 +46,11 @@ interface SearchResultModalProps {
   onNewSearch?: () => void;
 }
 
+const EASE_EDITORIAL = [0.22, 1, 0.36, 1] as const;
+
 /**
- * Modal de resultado da busca com orientação física passo a passo, foto da estante e mapa da sala.
+ * Modal compacto de resultado da busca ("above the fold", zero scroll forçado)
+ * com 2 botões principais de ação tátil: Localizar no Mapa 3D e Ver Foto da Estante.
  */
 export function SearchResultModal({
   query,
@@ -57,11 +63,14 @@ export function SearchResultModal({
   onClose,
   onNewSearch,
 }: SearchResultModalProps) {
-  const [activeTab, setActiveTab] = useState<TabType>("photo");
+  const [viewMode, setViewMode] = useState<ViewMode>("summary");
+  const [mapDimension, setMapDimension] = useState<"3d" | "2d">("3d");
+  const [transitionTick, setTransitionTick] = useState(0);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [copiedLink, setCopiedLink] = useState(false);
-  const { addItem, hasItem, setDrawerOpen } = useVisitRoute();
+
+  const { reducedMotion } = useAccessibility();
   const dialogRef = useRef<HTMLDivElement | null>(null);
   const closeButtonRef = useRef<HTMLButtonElement | null>(null);
   const skipFocusRestoreRef = useRef(false);
@@ -109,26 +118,26 @@ export function SearchResultModal({
   const baseImages = activeRoomData?.images ?? [];
   const activeShelves = extractShelves(activeRoomData);
   const normalizedQuery = query.trim().toUpperCase();
+
   const codeOverride = photoOverrides.find(
     (o) =>
       o.targetType === "code" &&
-      (o.codeKey ?? "").trim().toUpperCase() === normalizedQuery
+      (o.codeKey ?? "").trim().toUpperCase() === normalizedQuery,
   );
   const shelfOverride = photoOverrides.find(
     (o) =>
       o.targetType === "shelf" &&
       o.roomId === activeRoom &&
-      activeShelves.some((s) => s.toUpperCase() === (o.shelfKey ?? "").toUpperCase())
+      activeShelves.some((s) => s.toUpperCase() === (o.shelfKey ?? "").toUpperCase()),
   );
   const currentImages = codeOverride
     ? [codeOverride.imageUrl, ...baseImages]
     : shelfOverride
       ? [shelfOverride.imageUrl, ...baseImages.slice(1)]
       : baseImages;
-  const availableRooms = ROOM_IDS.filter((id) => Boolean(resultsByRoom[id]));
-  const otherRooms = availableRooms.filter((id) => id !== activeRoom);
-  const directionText = getShelfDirectionText(activeRoom, activeShelves);
 
+  const availableRooms = ROOM_IDS.filter((id) => Boolean(resultsByRoom[id]));
+  const directionText = getShelfDirectionText(activeRoom, activeShelves);
   const primaryShelfNumber = Number(activeShelves[0]);
   const hasShelfPage =
     !Number.isNaN(primaryShelfNumber) &&
@@ -149,10 +158,14 @@ export function SearchResultModal({
     };
   }, [activeRoom, primaryShelfNumber]);
 
+  const openFocusedView = (target: "map3d" | "photo") => {
+    setTransitionTick((t) => t + 1);
+    setViewMode(target);
+  };
+
   const handleRoomSwitch = (room: RoomId) => {
     onSelectRoom(room);
     setCurrentImageIndex(0);
-    setActiveTab("photo");
   };
 
   const nextImage = () => {
@@ -183,380 +196,395 @@ export function SearchResultModal({
     }
   };
 
+  const classificationTitle =
+    matchedContext?.title ||
+    (activeRoomData?.range ? `Faixa ${activeRoomData.range}` : activeMapConfig.areaLabel);
+
   return (
-    <div
-      className={style.backdrop}
-      onClick={(e) => {
-        if (e.target === e.currentTarget) onClose();
-      }}
-    >
+    <>
+      <BookPagesTransition triggerKey={transitionTick} />
+
       <div
-        ref={dialogRef}
-        className={style.dialog}
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="search-result-title"
+        className={style.backdrop}
+        onClick={(e) => {
+          if (e.target === e.currentTarget) onClose();
+        }}
       >
-        <div className="sr-only" aria-live="polite">
-          {directionText}
-          {currentImages.length > 1
-            ? ` Foto ${currentImageIndex + 1} de ${currentImages.length}.`
-            : ""}
-        </div>
-        {/* Cabeçalho do Resultado */}
-        <header className={style.header}>
-          <div className={style.headerMain}>
-            <div className={style.badgeRow}>
-              {query && (
-                <span className={style.codeBadge}>
-                  Código: <code>{query}</code>
-                </span>
-              )}
-              <span className={style.roomBadge}>
-                <MapPin size={14} aria-hidden="true" />
-                {activeMapConfig.label}
-              </span>
-            </div>
-
-            <h2 id="search-result-title" className={style.title}>
-              {activeRoomData?.shelf ?? activeMapConfig.label}
-            </h2>
-
-            {matchedContext && (
-              <p
-                style={{
-                  margin: "0.25rem 0 0.15rem",
-                  fontSize: "0.875rem",
-                  color: "var(--color-brand-text)",
-                  fontWeight: 600,
-                }}
-              >
-                {matchedContext.kind === "livro" ? "Obra localizada: " : "Área temática: "}
-                <strong>{matchedContext.title}</strong>
-                {matchedContext.subtitle ? ` (${matchedContext.subtitle})` : ""}
-              </p>
-            )}
-
-            {activeRoomData?.range && (
-              <p className={style.rangeText}>
-                Faixa na estante: <strong>{activeRoomData.range}</strong>
-              </p>
-            )}
+        <div
+          ref={dialogRef}
+          className={`${style.dialog} ${viewMode === "summary" ? style.dialogCompact : style.dialogFocused}`}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="search-result-title"
+        >
+          <div className="sr-only" aria-live="polite">
+            {directionText}
           </div>
 
-          <button
-            ref={closeButtonRef}
-            type="button"
-            className={style.closeButton}
-            onClick={onClose}
-            aria-label="Fechar resultado da busca"
-          >
-            <X size={20} aria-hidden="true" />
-          </button>
-        </header>
-
-        {/* Lista de múltiplos resultados encontrados quando a busca por nome retorna mais de 1 item */}
-        {relatedMatches.length > 1 && onSelectMatch && (
-          <div className={style.relatedMatchesBar} role="region" aria-label="Outros resultados encontrados">
-            <p className={style.relatedMatchesTitle}>
-              Encontramos <strong>{relatedMatches.length}</strong> resultados relacionados — clique para alternar:
-            </p>
-            <div className={style.relatedMatchesList}>
-              {relatedMatches.map((item) => {
-                const isSelected = matchedContext?.id === item.id;
-                return (
-                  <button
-                    key={item.id}
-                    type="button"
-                    aria-pressed={isSelected}
-                    className={`${style.relatedMatchBtn} ${isSelected ? style.relatedMatchBtnActive : ""}`}
-                    onClick={() => onSelectMatch(item)}
-                  >
-                    <span className={style.relatedMatchTitle}>{item.title}</span>
-                    <span className={style.relatedMatchMeta}>
-                      {item.subtitle ? `${item.subtitle} • ` : ""}
-                      <code>{item.routePath ? "Abrir página" : `CDU ${item.code}`}</code>
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        )}
-
-        {/* Orientação prática + Seletor de salas */}
-        <div className={style.wayfindingBar}>
-          <div className={style.wayfindingSteps}>
-            <Compass size={18} className={style.wayfindingIcon} aria-hidden="true" />
-            <p className={style.wayfindingText}>
-              {directionText} Confira a porção indicada na foto para localizar a prateleira exata.
-            </p>
-          </div>
-
-          {availableRooms.length > 1 && (
-            <div className={style.roomToggle} role="group" aria-label="Salas com resultados">
-              {availableRooms.map((roomId) => (
-                <button
-                  key={roomId}
-                  type="button"
-                  aria-pressed={activeRoom === roomId}
-                  className={`${style.roomToggleBtn} ${
-                    activeRoom === roomId ? style.roomToggleBtnActive : ""
-                  }`}
-                  onClick={() => handleRoomSwitch(roomId)}
-                >
-                  Sala {roomId}
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
-
-        {otherRooms.length > 0 && (
-          <div className={style.otherRoomsBanner}>
-            {otherRooms.map((roomId) => {
-              const otherData = resultsByRoom[roomId];
-              if (!otherData) return null;
-              return (
-                <button
-                  key={roomId}
-                  type="button"
-                  className={style.otherRoomChip}
-                  onClick={() => handleRoomSwitch(roomId)}
-                >
-                  Também disponível na <strong>Sala {roomId}</strong> ({otherData.shelf} •{" "}
-                  {otherData.range})
-                </button>
-              );
-            })}
-          </div>
-        )}
-
-        {/* Abas exclusivas para Mobile/Tablet */}
-        <div className={style.mobileTabs} role="tablist" aria-label="Visualização da localização">
-          <button
-            type="button"
-            role="tab"
-            aria-selected={activeTab === "photo"}
-            className={`${style.tabButton} ${activeTab === "photo" ? style.tabActive : ""}`}
-            onClick={() => setActiveTab("photo")}
-          >
-            <Camera size={16} aria-hidden="true" />
-            Foto da estante
-          </button>
-          <button
-            type="button"
-            role="tab"
-            aria-selected={activeTab === "map"}
-            className={`${style.tabButton} ${activeTab === "map" ? style.tabActive : ""}`}
-            onClick={() => setActiveTab("map")}
-          >
-            <MapIcon size={16} aria-hidden="true" />
-            Mapa da sala
-          </button>
-        </div>
-
-        {/* Conteúdo Principal: Lado a lado no Desktop, por aba no Mobile */}
-        <div className={style.bodyGrid}>
-          {/* Painel da Foto */}
-          <section
-            className={`${style.panel} ${activeTab !== "photo" ? style.mobileHidden : ""}`}
-            aria-label="Foto da estante"
-          >
-            <div className={style.panelHeader}>
-              <span className={style.panelTitle}>
-                <Camera size={16} aria-hidden="true" />
-                Foto da estante
-              </span>
-              <div className={style.panelHeaderActions}>
-                {currentImages.length > 1 && (
-                  <span className={style.imageCounter}>
-                    {currentImageIndex + 1} de {currentImages.length}
+          {/* Cabeçalho compacto */}
+          <header className={style.header}>
+            <div className={style.headerMain}>
+              <div className={style.badgeRow}>
+                {query && (
+                  <span className={style.codeBadge}>
+                    CDU <code>{query}</code>
                   </span>
                 )}
-                {currentImages.length > 0 && (
-                  <button
-                    type="button"
-                    className={style.expandBtn}
-                    onClick={() => setLightboxOpen(true)}
-                    aria-label="Ampliar foto da estante"
-                  >
-                    <Maximize2 size={14} aria-hidden="true" />
-                    Ampliar
-                  </button>
+                <span className={style.roomBadge}>
+                  <MapPin size={13} aria-hidden="true" />
+                  {activeMapConfig.label}
+                </span>
+                {availableRooms.length > 1 && (
+                  <div className={style.roomToggle} role="group" aria-label="Alternar sala">
+                    {availableRooms.map((roomId) => (
+                      <button
+                        key={roomId}
+                        type="button"
+                        aria-pressed={activeRoom === roomId}
+                        className={`${style.roomToggleBtn} ${
+                          activeRoom === roomId ? style.roomToggleBtnActive : ""
+                        }`}
+                        onClick={() => handleRoomSwitch(roomId)}
+                      >
+                        Sala {roomId}
+                      </button>
+                    ))}
+                  </div>
                 )}
               </div>
+
+              <h2 id="search-result-title" className={style.title}>
+                {activeRoomData?.shelf ?? activeMapConfig.label}
+                {activeRoomData?.range && (
+                  <span className={style.titleRange}> • {activeRoomData.range}</span>
+                )}
+              </h2>
             </div>
 
-            <div className={style.mediaFrame}>
-              {spotlightMapping?.cleanImageUrl ? (
-                <ShelfSpotlightViewer
-                  imageUrl={spotlightMapping.cleanImageUrl}
-                  alt={`${activeRoomData?.shelf ?? "Estante"} na ${activeMapConfig.label}`}
-                  shelfLabel={activeRoomData?.shelf ?? `Estante ${primaryShelfNumber}`}
-                  activeCode={query}
-                  regions={spotlightMapping.regions}
-                  spatialHint={spotlightMapping.spatialHint || directionText}
-                  aspectRatio={spotlightMapping.imageAspectRatio}
-                  onOpenLightbox={() => setLightboxOpen(true)}
-                />
-              ) : currentImages.length > 0 ? (
-                <>
-                  <img
-                    key={`${activeRoom}-${currentImageIndex}`}
-                    src={currentImages[currentImageIndex]}
-                    alt={`${activeRoomData?.shelf ?? "Estante"} na ${activeMapConfig.label} — imagem ${
-                      currentImageIndex + 1
-                    } de ${currentImages.length}`}
-                    className={`${style.resultImage} ${style.clickableImage} ${style.imageEnter}`}
-                    decoding="async"
-                    onClick={() => setLightboxOpen(true)}
+            <button
+              ref={closeButtonRef}
+              type="button"
+              className={style.closeButton}
+              onClick={onClose}
+              aria-label="Fechar resultado da busca"
+            >
+              <X size={20} aria-hidden="true" />
+            </button>
+          </header>
+
+          {/* Múltiplos resultados quando busca por nome retorna mais de 1 item */}
+          {relatedMatches.length > 1 && onSelectMatch && (
+            <div className={style.relatedMatchesBar} role="region" aria-label="Outros resultados encontrados">
+              <p className={style.relatedMatchesTitle}>
+                <strong>{relatedMatches.length}</strong> resultados encontrados — toque para alternar:
+              </p>
+              <div className={style.relatedMatchesList}>
+                {relatedMatches.map((item) => {
+                  const isSelected = matchedContext?.id === item.id;
+                  return (
+                    <button
+                      key={item.id}
+                      type="button"
+                      aria-pressed={isSelected}
+                      className={`${style.relatedMatchBtn} ${isSelected ? style.relatedMatchBtnActive : ""}`}
+                      onClick={() => onSelectMatch(item)}
+                    >
+                      <span className={style.relatedMatchTitle}>{item.title}</span>
+                      <span className={style.relatedMatchMeta}>
+                        {item.subtitle ? `${item.subtitle} • ` : ""}
+                        <code>{item.routePath ? "Página" : `CDU ${item.code}`}</code>
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* MODO 1: Resumo Compacto "Above the Fold" (zero scroll forçado) */}
+          {viewMode === "summary" && (
+            <motion.div
+              key="summary-view"
+              className={style.summaryBody}
+              initial={reducedMotion ? false : { opacity: 0, scale: 0.98 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.25, ease: EASE_EDITORIAL }}
+            >
+              <div className={style.compactFactsGrid}>
+                <div className={style.factItem}>
+                  <span className={style.factLabel}>Código CDU</span>
+                  <strong className={style.factValueMono}>{query || "—"}</strong>
+                </div>
+                <div className={style.factItem}>
+                  <span className={style.factLabel}>Título / Área</span>
+                  <strong className={style.factValue}>{classificationTitle}</strong>
+                </div>
+                <div className={style.factItem}>
+                  <span className={style.factLabel}>Corredor / Setor</span>
+                  <strong className={style.factValue}>
+                    {activeMapConfig.label} • {directionText}
+                  </strong>
+                </div>
+                <div className={style.factItem}>
+                  <span className={style.factLabel}>Estante e Faixa</span>
+                  <strong className={style.factValue}>
+                    {activeRoomData?.shelf ?? "Consultar mapa"}
+                    {activeRoomData?.range ? ` (${activeRoomData.range})` : ""}
+                  </strong>
+                </div>
+              </div>
+
+              {/* 2 Botões Principais de Ação Tátil */}
+              <div className={style.primaryActionsRow}>
+                <button
+                  type="button"
+                  className={style.actionPrimary3D}
+                  onClick={() => openFocusedView("map3d")}
+                >
+                  <Compass size={20} aria-hidden="true" />
+                  <span className={style.actionBtnText}>
+                    <strong>Localizar no Mapa 3D</strong>
+                    <small>Rota guiada pelos corredores até a estante</small>
+                  </span>
+                </button>
+
+                <button
+                  type="button"
+                  className={style.actionSecondaryPhoto}
+                  onClick={() => openFocusedView("photo")}
+                >
+                  <Camera size={20} aria-hidden="true" />
+                  <span className={style.actionBtnText}>
+                    <strong>Ver Foto da Estante</strong>
+                    <small>Destaque visual da prateleira exata</small>
+                  </span>
+                </button>
+              </div>
+            </motion.div>
+          )}
+
+          {/* MODO 2: Foco Automático no Mapa 3D (com rota A*) */}
+          {viewMode === "map3d" && (
+            <motion.div
+              key="map3d-view"
+              className={style.focusedBody}
+              initial={reducedMotion ? { opacity: 0 } : { opacity: 0, scale: 0.96 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: reducedMotion ? 0.15 : 0.38, ease: EASE_EDITORIAL }}
+            >
+              <div className={style.focusedTopBar}>
+                <button
+                  type="button"
+                  className={style.backSummaryBtn}
+                  onClick={() => setViewMode("summary")}
+                >
+                  <ArrowLeft size={15} aria-hidden="true" />
+                  Resumo
+                </button>
+
+                <div className={style.focusedBarRight}>
+                  <div className={style.dimToggle} role="group" aria-label="Modo do mapa">
+                    <button
+                      type="button"
+                      className={`${style.dimBtn} ${mapDimension === "3d" ? style.dimBtnActive : ""}`}
+                      onClick={() => setMapDimension("3d")}
+                    >
+                      3D Interativo
+                    </button>
+                    <button
+                      type="button"
+                      className={`${style.dimBtn} ${mapDimension === "2d" ? style.dimBtnActive : ""}`}
+                      onClick={() => setMapDimension("2d")}
+                    >
+                      <MapIcon size={13} aria-hidden="true" />
+                      Planta 2D
+                    </button>
+                  </div>
+
+                  <button
+                    type="button"
+                    className={style.switchActionBtn}
+                    onClick={() => openFocusedView("photo")}
+                  >
+                    <Camera size={15} aria-hidden="true" />
+                    Ver Foto da Estante
+                  </button>
+                </div>
+              </div>
+
+              <div className={style.focusedStage}>
+                {mapDimension === "3d" ? (
+                  <LibraryMap3D
+                    roomId={activeRoom}
+                    shelves={activeShelves}
+                    className={style.stageFill}
                   />
+                ) : (
+                  <div className={style.map2dContainer}>
+                    <RoomMap
+                      roomId={activeRoom}
+                      shelves={activeShelves}
+                      imageClassName={style.mapImage}
+                    />
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          )}
 
-                  {currentImages.length > 1 && (
-                    <div className={style.carouselControls}>
-                      <button
-                        type="button"
-                        className={style.navCircleBtn}
-                        onClick={prevImage}
-                        disabled={currentImageIndex === 0}
-                        aria-label="Foto anterior"
-                      >
-                        <ChevronLeft size={20} aria-hidden="true" />
-                      </button>
+          {/* MODO 3: Foco Automático na Foto da Estante */}
+          {viewMode === "photo" && (
+            <motion.div
+              key="photo-view"
+              className={style.focusedBody}
+              initial={reducedMotion ? { opacity: 0 } : { opacity: 0, scale: 0.96 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: reducedMotion ? 0.15 : 0.38, ease: EASE_EDITORIAL }}
+            >
+              <div className={style.focusedTopBar}>
+                <button
+                  type="button"
+                  className={style.backSummaryBtn}
+                  onClick={() => setViewMode("summary")}
+                >
+                  <ArrowLeft size={15} aria-hidden="true" />
+                  Resumo
+                </button>
 
-                      <div className={style.dotsRow} aria-hidden="true">
-                        {currentImages.map((_, idx) => (
-                          <span
-                            key={idx}
-                            className={`${style.dot} ${
-                              idx === currentImageIndex ? style.dotActive : ""
-                            }`}
-                          />
-                        ))}
-                      </div>
-
-                      <button
-                        type="button"
-                        className={style.navCircleBtn}
-                        onClick={nextImage}
-                        disabled={currentImageIndex === currentImages.length - 1}
-                        aria-label="Próxima foto"
-                      >
-                        <ChevronRight size={20} aria-hidden="true" />
-                      </button>
-                    </div>
+                <div className={style.focusedBarRight}>
+                  {currentImages.length > 0 && (
+                    <button
+                      type="button"
+                      className={style.expandBtn}
+                      onClick={() => setLightboxOpen(true)}
+                      aria-label="Ampliar foto da estante"
+                    >
+                      <Maximize2 size={14} aria-hidden="true" />
+                      Ampliar
+                    </button>
                   )}
-                </>
-              ) : (
-                <p className={style.emptyMedia}>Nenhuma foto disponível para esta estante.</p>
-              )}
-            </div>
-          </section>
 
-          {/* Painel do Mapa */}
-          <section
-            className={`${style.panel} ${activeTab !== "map" ? style.mobileHidden : ""}`}
-            aria-label="Mapa da sala"
-          >
-            <div className={style.panelHeader}>
-              <span className={style.panelTitle}>
-                <MapIcon size={16} aria-hidden="true" />
-                Mapa da {activeMapConfig.label}
-              </span>
-              <span className={style.markerLegend}>
-                <span className={style.legendDot} aria-hidden="true" />
-                Estante {activeShelves.join(", ")}
-              </span>
-            </div>
+                  <button
+                    type="button"
+                    className={style.switchActionBtnPrimary}
+                    onClick={() => openFocusedView("map3d")}
+                  >
+                    <Compass size={15} aria-hidden="true" />
+                    Localizar no Mapa 3D
+                  </button>
+                </div>
+              </div>
 
-            <div className={style.mediaFrame}>
-              {activeRoomData && (
-                <RoomMap
-                  roomId={activeRoom}
-                  shelves={activeShelves}
-                  imageClassName={style.mapImage}
-                />
-              )}
-            </div>
-          </section>
+              <div className={style.focusedStage}>
+                <div className={style.photoStageFrame}>
+                  {spotlightMapping?.cleanImageUrl ? (
+                    <ShelfSpotlightViewer
+                      imageUrl={spotlightMapping.cleanImageUrl}
+                      alt={`${activeRoomData?.shelf ?? "Estante"} na ${activeMapConfig.label}`}
+                      shelfLabel={activeRoomData?.shelf ?? `Estante ${primaryShelfNumber}`}
+                      activeCode={query}
+                      regions={spotlightMapping.regions}
+                      spatialHint={spotlightMapping.spatialHint || directionText}
+                      aspectRatio={spotlightMapping.imageAspectRatio}
+                      onOpenLightbox={() => setLightboxOpen(true)}
+                    />
+                  ) : currentImages.length > 0 ? (
+                    <>
+                      <img
+                        key={`${activeRoom}-${currentImageIndex}`}
+                        src={currentImages[currentImageIndex]}
+                        alt={`${activeRoomData?.shelf ?? "Estante"} na ${activeMapConfig.label} — imagem ${
+                          currentImageIndex + 1
+                        } de ${currentImages.length}`}
+                        className={`${style.resultImage} ${style.clickableImage}`}
+                        decoding="async"
+                        onClick={() => setLightboxOpen(true)}
+                      />
+
+                      {currentImages.length > 1 && (
+                        <div className={style.carouselControls}>
+                          <button
+                            type="button"
+                            className={style.navCircleBtn}
+                            onClick={prevImage}
+                            disabled={currentImageIndex === 0}
+                            aria-label="Foto anterior"
+                          >
+                            <ChevronLeft size={20} aria-hidden="true" />
+                          </button>
+
+                          <div className={style.dotsRow} aria-hidden="true">
+                            {currentImages.map((_, idx) => (
+                              <span
+                                key={idx}
+                                className={`${style.dot} ${
+                                  idx === currentImageIndex ? style.dotActive : ""
+                                }`}
+                              />
+                            ))}
+                          </div>
+
+                          <button
+                            type="button"
+                            className={style.navCircleBtn}
+                            onClick={nextImage}
+                            disabled={currentImageIndex === currentImages.length - 1}
+                            aria-label="Próxima foto"
+                          >
+                            <ChevronRight size={20} aria-hidden="true" />
+                          </button>
+                        </div>
+                      )}
+                    </>
+                  ) : (
+                    <p className={style.emptyMedia}>Nenhuma foto disponível para esta estante.</p>
+                  )}
+                </div>
+              </div>
+            </motion.div>
+          )}
+
+          {/* Rodapé enxuto de utilidades */}
+          <footer className={style.footer}>
+            {hasShelfPage ? (
+              <Link
+                to={`/estantes/${activeMapConfig.slug}/${primaryShelfNumber}`}
+                onClick={onClose}
+                className={style.secondaryBtn}
+              >
+                <Layers size={15} aria-hidden="true" />
+                Estante {primaryShelfNumber}
+              </Link>
+            ) : (
+              <Link to="/estantes" onClick={onClose} className={style.secondaryBtn}>
+                <ExternalLink size={15} aria-hidden="true" />
+                Estantes
+              </Link>
+            )}
+
+            <button type="button" onClick={handleCopyLink} className={style.secondaryBtn}>
+              {copiedLink ? <Check size={15} aria-hidden="true" /> : <Link2 size={15} aria-hidden="true" />}
+              {copiedLink ? "Copiado!" : "Copiar link"}
+            </button>
+
+            <button type="button" onClick={handleNewSearchClick} className={style.primaryBtn}>
+              <Search size={15} aria-hidden="true" />
+              Nova busca
+            </button>
+          </footer>
         </div>
 
-        {activeRoomData?.shelf && (
-          <div style={{ padding: "0 1.25rem 0.75rem" }}>
-            <ShelfRackGuide
-              roomId={activeRoom}
-              shelfNumberOrLabel={activeRoomData.shelf}
-              activeCode={query}
-            />
-          </div>
+        {lightboxOpen && currentImages[currentImageIndex] && (
+          <ImageLightbox
+            src={currentImages[currentImageIndex]}
+            alt={`${activeRoomData?.shelf ?? "Estante"} — ${activeMapConfig.label}`}
+            caption={`${activeMapConfig.label} • ${activeRoomData?.shelf ?? ""} (${
+              activeRoomData?.range ?? ""
+            })`}
+            onClose={() => setLightboxOpen(false)}
+          />
         )}
-
-        {/* Rodapé de Ações */}
-        <footer className={style.footer}>
-          {activeRoomData && (
-            <button
-              type="button"
-              className={style.secondaryBtn}
-              onClick={() => {
-                const inRoute = hasItem(query, activeRoom, activeRoomData.shelf);
-                if (inRoute) {
-                  setDrawerOpen(true);
-                  return;
-                }
-                addItem({
-                  code: query,
-                  title: matchedContext?.title || `Código ${query}`,
-                  roomId: activeRoom,
-                  shelf: activeRoomData.shelf,
-                  range: activeRoomData.range,
-                });
-              }}
-            >
-              <Route size={16} aria-hidden="true" />
-              {hasItem(query, activeRoom, activeRoomData.shelf)
-                ? "Na minha rota"
-                : "+ Minha Rota"}
-            </button>
-          )}
-          {hasShelfPage ? (
-            <Link
-              to={`/estantes/${activeMapConfig.slug}/${primaryShelfNumber}`}
-              onClick={onClose}
-              className={style.secondaryBtn}
-            >
-              <ExternalLink size={16} aria-hidden="true" />
-              Abrir página da Estante {primaryShelfNumber}
-            </Link>
-          ) : (
-            <Link to="/estantes" onClick={onClose} className={style.secondaryBtn}>
-              <ExternalLink size={16} aria-hidden="true" />
-              Ver todas as estantes
-            </Link>
-          )}
-
-          <button type="button" onClick={handleCopyLink} className={style.secondaryBtn}>
-            {copiedLink ? <Check size={16} aria-hidden="true" /> : <Link2 size={16} aria-hidden="true" />}
-            {copiedLink ? "Link copiado!" : "Copiar link"}
-          </button>
-
-          <button type="button" onClick={handleNewSearchClick} className={style.primaryBtn}>
-            <Search size={16} aria-hidden="true" />
-            Nova busca
-          </button>
-        </footer>
       </div>
-
-      {lightboxOpen && currentImages[currentImageIndex] && (
-        <ImageLightbox
-          src={currentImages[currentImageIndex]}
-          alt={`${activeRoomData?.shelf ?? "Estante"} — ${activeMapConfig.label}`}
-          caption={`${activeMapConfig.label} • ${activeRoomData?.shelf ?? ""} (${
-            activeRoomData?.range ?? ""
-          })`}
-          onClose={() => setLightboxOpen(false)}
-        />
-      )}
-    </div>
+    </>
   );
 }
