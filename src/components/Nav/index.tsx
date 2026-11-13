@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { NavLink, Link } from "react-router-dom";
+import { NavLink, Link, useLocation } from "react-router-dom";
 import { ExternalLink, Menu, Search, X } from "lucide-react";
 import {
   SearchAutocompleteDropdown,
@@ -146,6 +146,7 @@ const INTERNAL_NAV_LINKS = [
  * Barra de navegação principal com acesso às seções e busca rápida por código Dedalus.
  */
 export function Nav() {
+  const location = useLocation();
   const [menuOpen, setMenuOpen] = useState(false);
   const [menuPages, setMenuPages] = useState<CustomPage[]>([]);
   const {
@@ -412,7 +413,7 @@ export function Nav() {
           </div>
         </div>
 
-        {searchError && (
+        {searchError && location.pathname !== "/" && (
           <div id={errorBannerId} className={style.errorBanner} role="alert">
             <div style={{ display: "flex", flexDirection: "column", gap: "0.45rem", flex: 1 }}>
               <span>{searchError}</span>

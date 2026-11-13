@@ -13,6 +13,7 @@ import {
   Library,
   Maximize2,
   Search,
+  SearchX,
   Sparkles,
   X,
 } from "lucide-react";
@@ -453,7 +454,28 @@ export function Home() {
 
           {searchError ? (
             <div id="hero-search-error" className={styles.heroError} role="alert">
-              <p>{searchError}</p>
+              <div className={styles.heroErrorHeader}>
+                <span className={styles.heroErrorIcon} aria-hidden="true">
+                  <SearchX size={18} />
+                </span>
+                <div className={styles.heroErrorContent}>
+                  <strong className={styles.heroErrorTitle}>
+                    {searchValue.trim().length === 0
+                      ? "Digite um termo ou código para localizar"
+                      : "Nenhum livro encontrado com esse termo"}
+                  </strong>
+                  <p className={styles.heroErrorText}>{searchError}</p>
+                </div>
+                <button
+                  type="button"
+                  className={styles.heroErrorClose}
+                  onClick={() => clearSearch()}
+                  aria-label="Fechar aviso de busca"
+                  title="Fechar aviso"
+                >
+                  <X size={16} aria-hidden="true" />
+                </button>
+              </div>
               {matchedNameOptions.length > 0 && (
                 <div className={styles.fallbackRow}>
                   <span className={styles.fallbackLabel}>Obras e áreas encontradas:</span>
