@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { Container } from "../../components/Container";
 import { ImageLightbox } from "../../components/ImageLightbox";
+import { LibraryMap3D } from "../../components/LibraryMap3D";
 import { RoomMap } from "../../components/RoomMap";
 import { ShelfRackGuide } from "../../components/ShelfRackGuide";
 import { ShelfSpotlightViewer } from "../../components/ShelfSpotlightViewer";
@@ -27,6 +28,7 @@ import style from "./style.module.css";
  */
 export function ShelfDetail() {
   const [viewMode, setViewMode] = useState<"estante" | "mapa">("estante");
+  const [mapMode, setMapMode] = useState<"2d" | "3d">("3d");
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [photoOverrides, setPhotoOverrides] = useState<PhotoOverrideRecord[]>([]);
   const [spotlightMapping, setSpotlightMapping] = useState<ShelfMapping | null>(null);
@@ -239,14 +241,38 @@ export function ShelfDetail() {
               <MapIcon size={16} aria-hidden="true" />
               <span>Localização no mapa — {room.label}</span>
             </span>
+            <div style={{ display: "inline-flex", gap: "0.35rem" }}>
+              <button
+                type="button"
+                className={style.expandBtn}
+                aria-pressed={mapMode === "3d"}
+                onClick={() => setMapMode("3d")}
+              >
+                Mapa 3D
+              </button>
+              <button
+                type="button"
+                className={style.expandBtn}
+                aria-pressed={mapMode === "2d"}
+                onClick={() => setMapMode("2d")}
+              >
+                Planta 2D
+              </button>
+            </div>
           </div>
           <div className={style.mediaBox}>
-            <RoomMap
-              roomId={room.id}
-              shelves={[numero]}
-              imageClassName={style.mapImage}
-              interactive
-            />
+            {mapMode === "3d" ? (
+              <div style={{ width: "100%", height: "340px" }}>
+                <LibraryMap3D roomId={room.id} shelves={[numero]} />
+              </div>
+            ) : (
+              <RoomMap
+                roomId={room.id}
+                shelves={[numero]}
+                imageClassName={style.mapImage}
+                interactive
+              />
+            )}
           </div>
         </section>
       </div>
@@ -258,6 +284,53 @@ export function ShelfDetail() {
           onSelectCode={(code) => navigate(`/?q=${encodeURIComponent(code)}`)}
         />
       </div>
+
+      {/* Validador rápido de corredor: estantes vizinhas */}
+      {(prevShelf !== null || nextShelf !== null) && (
+        <section
+          aria-label="Confirmar corredor pelas estantes vizinhas"
+          style={{
+            marginTop: "0.85rem",
+            padding: "0.75rem 1rem",
+            borderRadius: "var(--radius-lg)",
+            border: "1px solid var(--color-border)",
+            backgroundColor: "var(--color-surface-subtle)",
+            display: "flex",
+            flexWrap: "wrap",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: "0.6rem",
+          }}
+        >
+          <span style={{ fontSize: "0.82rem", fontWeight: 600, color: "var(--color-text-secondary)" }}>
+            Estou na estante certa? Confira as vizinhas no corredor:
+          </span>
+          <div style={{ display: "inline-flex", flexWrap: "wrap", gap: "0.45rem", alignItems: "center" }}>
+            {prevShelf !== null && (
+              <Link to={`/estantes/${room.slug}/${prevShelf}`} className={style.pagerBtn}>
+                ← Estante {prevShelf}
+              </Link>
+            )}
+            <span
+              style={{
+                padding: "0.3rem 0.65rem",
+                borderRadius: "var(--radius-full)",
+                backgroundColor: "var(--color-brand)",
+                color: "#fff",
+                fontSize: "0.78rem",
+                fontWeight: 700,
+              }}
+            >
+              Estante {numero} (atual)
+            </span>
+            {nextShelf !== null && (
+              <Link to={`/estantes/${room.slug}/${nextShelf}`} className={style.pagerBtn}>
+                Estante {nextShelf} →
+              </Link>
+            )}
+          </div>
+        </section>
+      )}
 
       {lightboxOpen && (
         <ImageLightbox

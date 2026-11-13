@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
-import { Crosshair, ExternalLink, RotateCcw, X } from "lucide-react";
+import { Crosshair, ExternalLink, Footprints, RotateCcw, Square, X } from "lucide-react";
 import { ROOM_CONFIG, type RoomId } from "../../config/rooms";
 import { useAccessibility } from "../../context/accessibilityStore";
 import { useSiteConfig } from "../../context/siteConfigStore";
@@ -127,12 +127,14 @@ export function LibraryMap3D({ roomId, shelves, className }: LibraryMap3DProps) 
   const controlsRef = useRef<OrbitControls | null>(null);
   const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
   const cameraGoalRef = useRef<CameraGoal | null>(null);
+  const walkthroughStateRef = useRef<{ active: boolean; t: number }>({ active: false, t: 0 });
 
   const { reducedMotion } = useAccessibility();
   const { getImageSrc } = useSiteConfig();
   const [webglFailed, setWebglFailed] = useState(false);
   const [overrides, setOverrides] = useState<DynamicMarkerOverride[]>([]);
   const [selectedShelf, setSelectedShelf] = useState<SelectedShelfInfo | null>(null);
+  const [isWalking, setIsWalking] = useState(false);
 
   const room = ROOM_CONFIG[roomId];
   const defaultEntrance = ROOM_ENTRANCE_POINT[roomId];
@@ -173,11 +175,17 @@ export function LibraryMap3D({ roomId, shelves, className }: LibraryMap3DProps) 
     return nodes;
   }, [overrides, room.shelfMarkers, room.shelfNumbers, shelves]);
 
-  // Suporte a origem dinâmica por QR Code (?origem=<estante>)
+  // Suporte a origem dinâmica por QR Code (?origem=<estante> na query ou no hash)
   const originPoint = useMemo(() => {
     if (typeof window !== "undefined") {
-      const params = new URLSearchParams(window.location.search);
-      const originParam = params.get("origem")?.trim().toUpperCase();
+      const searchParams = new URLSearchParams(window.location.search);
+      const hashQuery = window.location.hash.includes("?")
+        ? window.location.hash.slice(window.location.hash.indexOf("?"))
+        : "";
+      const hashParams = new URLSearchParams(hashQuery);
+      const originParam = (searchParams.get("origem") ?? hashParams.get("origem"))
+        ?.trim()
+        .toUpperCase();
       if (originParam) {
         const originShelf = shelfNodes.find((n) => n.key.toUpperCase() === originParam);
         if (originShelf) {
@@ -221,16 +229,32 @@ export function LibraryMap3D({ roomId, shelves, className }: LibraryMap3DProps) 
   };
 
   const handleResetCamera = () => {
+    walkthroughStateRef.current = { active: false, t: 0 };
+    setIsWalking(false);
     moveCameraTo(new THREE.Vector3(0, 14.5, 14.5), new THREE.Vector3(0, 0, 0));
   };
 
   const handleFocusTarget = () => {
     if (!targetNode) return;
+    walkthroughStateRef.current = { active: false, t: 0 };
+    setIsWalking(false);
     const { x, z } = toWorldXZ(targetNode.point);
     moveCameraTo(
       new THREE.Vector3(x + 2.5, 6.2, z + 6.4),
       new THREE.Vector3(x, 0.8, z),
     );
+  };
+
+  const handleToggleWalkthrough = () => {
+    if (routeWaypoints.length < 2 || reducedMotion) return;
+    if (walkthroughStateRef.current.active) {
+      walkthroughStateRef.current = { active: false, t: 0 };
+      setIsWalking(false);
+      return;
+    }
+    cameraGoalRef.current = null;
+    walkthroughStateRef.current = { active: true, t: 0 };
+    setIsWalking(true);
   };
 
   useEffect(() => {
@@ -554,12 +578,31 @@ export function LibraryMap3D({ roomId, shelves, className }: LibraryMap3DProps) 
     resizeObserver?.observe(host);
 
     const clock = new THREE.Clock();
+    let lastTime = 0;
     let frameId = 0;
     const animate = () => {
       frameId = window.requestAnimationFrame(animate);
       const elapsed = clock.getElapsedTime();
+      const delta = Math.min(0.05, Math.max(0.001, elapsed - lastTime));
+      lastTime = elapsed;
 
-      if (cameraGoalRef.current) {
+      if (walkthroughStateRef.current.active && routeCurve && !reducedMotion) {
+        walkthroughStateRef.current.t = Math.min(
+          1,
+          walkthroughStateRef.current.t + delta * 0.18,
+        );
+        const t = walkthroughStateRef.current.t;
+        const pos = routeCurve.getPointAt(t);
+        const lookAtPos = routeCurve.getPointAt(Math.min(1, t + 0.08));
+
+        camera.position.lerp(new THREE.Vector3(pos.x, 1.85, pos.z), 0.14);
+        controls.target.lerp(new THREE.Vector3(lookAtPos.x, 1.15, lookAtPos.z), 0.18);
+
+        if (t >= 1) {
+          walkthroughStateRef.current.active = false;
+          setIsWalking(false);
+        }
+      } else if (cameraGoalRef.current) {
         camera.position.lerp(cameraGoalRef.current.position, 0.1);
         controls.target.lerp(cameraGoalRef.current.target, 0.1);
         if (
@@ -632,6 +675,18 @@ export function LibraryMap3D({ roomId, shelves, className }: LibraryMap3DProps) 
         </span>
 
         <div className={style.hudActions}>
+          {routeWaypoints.length >= 2 && !reducedMotion && (
+            <button
+              type="button"
+              className={style.walkCamBtn}
+              onClick={handleToggleWalkthrough}
+              aria-pressed={isWalking}
+              aria-label={isWalking ? "Parar simulação do trajeto" : "Simular trajeto em primeira pessoa"}
+            >
+              {isWalking ? <Square size={12} aria-hidden="true" /> : <Footprints size={13} aria-hidden="true" />}
+              {isWalking ? "Parar" : "Simular trajeto"}
+            </button>
+          )}
           {targetNode && (
             <button
               type="button"

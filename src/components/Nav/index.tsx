@@ -781,6 +781,25 @@ export function Nav() {
                         Pesquisar &ldquo;{searchValue.trim()}&rdquo; no Dedalus USP
                       </a>
                     )}
+                    <Link
+                      to="/sugerir"
+                      onClick={clearSearch}
+                      style={{
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: "0.35rem",
+                        padding: "0.25rem 0.6rem",
+                        borderRadius: "9999px",
+                        border: "1px solid rgba(255,255,255,0.45)",
+                        background: "rgba(255,255,255,0.16)",
+                        color: "inherit",
+                        fontSize: "0.75rem",
+                        fontWeight: 600,
+                        textDecoration: "none",
+                      }}
+                    >
+                      Sugerir compra
+                    </Link>
                   </div>
                 )}
               </div>

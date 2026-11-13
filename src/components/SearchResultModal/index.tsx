@@ -15,6 +15,8 @@ import {
   MapPin,
   Maximize2,
   Search,
+  Volume2,
+  VolumeX,
   X,
 } from "lucide-react";
 import { getShelfDirectionText, ROOM_CONFIG, ROOM_IDS, type RoomId } from "../../config/rooms";
@@ -69,6 +71,7 @@ export function SearchResultModal({
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [copiedLink, setCopiedLink] = useState(false);
+  const [isSpeaking, setIsSpeaking] = useState(false);
 
   const { reducedMotion } = useAccessibility();
   const dialogRef = useRef<HTMLDivElement | null>(null);
@@ -92,6 +95,9 @@ export function SearchResultModal({
     return () => {
       document.body.style.overflow = previousOverflow;
       window.removeEventListener("keydown", handleEscape);
+      if (typeof window !== "undefined" && "speechSynthesis" in window) {
+        window.speechSynthesis.cancel();
+      }
       if (!skipFocusRestoreRef.current && previousActiveElement?.isConnected) {
         previousActiveElement.focus();
       }
@@ -194,6 +200,29 @@ export function SearchResultModal({
     } catch {
       setCopiedLink(false);
     }
+  };
+
+  const canSpeak = typeof window !== "undefined" && "speechSynthesis" in window;
+
+  const handleToggleSpeech = () => {
+    if (!canSpeak) return;
+    if (isSpeaking) {
+      window.speechSynthesis.cancel();
+      setIsSpeaking(false);
+      return;
+    }
+
+    window.speechSynthesis.cancel();
+    const shelfName = activeRoomData?.shelf ?? "estante indicada";
+    const rangeInfo = activeRoomData?.range ? `, faixa ${activeRoomData.range}` : "";
+    const text = `Localização encontrada na ${activeMapConfig.label}. ${shelfName}${rangeInfo}. ${directionText}`;
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = "pt-BR";
+    utterance.rate = 1;
+    utterance.onend = () => setIsSpeaking(false);
+    utterance.onerror = () => setIsSpeaking(false);
+    setIsSpeaking(true);
+    window.speechSynthesis.speak(utterance);
   };
 
   const classificationTitle =
@@ -566,6 +595,18 @@ export function SearchResultModal({
               {copiedLink ? <Check size={15} aria-hidden="true" /> : <Link2 size={15} aria-hidden="true" />}
               {copiedLink ? "Copiado!" : "Copiar link"}
             </button>
+
+            {canSpeak && (
+              <button
+                type="button"
+                onClick={handleToggleSpeech}
+                className={style.secondaryBtn}
+                aria-pressed={isSpeaking}
+              >
+                {isSpeaking ? <VolumeX size={15} aria-hidden="true" /> : <Volume2 size={15} aria-hidden="true" />}
+                {isSpeaking ? "Parar áudio" : "Ouvir rota"}
+              </button>
+            )}
 
             <button type="button" onClick={handleNewSearchClick} className={style.primaryBtn}>
               <Search size={15} aria-hidden="true" />

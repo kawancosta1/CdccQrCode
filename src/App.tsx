@@ -33,6 +33,9 @@ const Novidades = lazy(() =>
 const SugestaoCompra = lazy(() =>
   import("./pages/SugestaoCompra").then((m) => ({ default: m.SugestaoCompra })),
 );
+const Totem = lazy(() =>
+  import("./pages/Totem").then((m) => ({ default: m.Totem })),
+);
 const CustomPageView = lazy(() => import("./pages/CustomPage"));
 const NotFound = lazy(() =>
   import("./pages/NotFound").then((m) => ({ default: m.NotFound })),
@@ -58,6 +61,7 @@ export function App() {
                       <Route path="/vestibular" element={<VestibularPage />} />
                       <Route path="/novidades" element={<Novidades />} />
                       <Route path="/sugerir" element={<SugestaoCompra />} />
+                      <Route path="/totem" element={<Totem />} />
                       <Route path="/p/:slug" element={<CustomPageView />} />
                       <Route path="/espacoludico" element={<EspacoLudico />} />
                       <Route path="/espacoludico/:jogo" element={<GameRules />} />

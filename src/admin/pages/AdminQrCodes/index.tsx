@@ -16,6 +16,7 @@ interface QrEntry {
 export default function AdminQrCodes() {
   const [mode, setMode] = useState<"estantes" | "custom">("estantes");
   const [roomId, setRoomId] = useState<RoomId>(1);
+  const [includeOrigin, setIncludeOrigin] = useState(true);
   const [customTitle, setCustomTitle] = useState("Leituras do Vestibular");
   const [customPath, setCustomPath] = useState("/#/vestibular");
   const [entries, setEntries] = useState<QrEntry[]>([]);
@@ -33,8 +34,12 @@ export default function AdminQrCodes() {
           ? ROOM_CONFIG[roomId].shelfNumbers.map((shelf) => ({
               id: `sala-${roomId}-estante-${shelf}`,
               label: `${ROOM_CONFIG[roomId].label} • Estante ${shelf}`,
-              subtitle: `Escaneie para localizar livros na Estante ${shelf}`,
-              targetUrl: `${baseOrigin}/#/estantes/${ROOM_CONFIG[roomId].slug}/${shelf}`,
+              subtitle: includeOrigin
+                ? `Origem automática na Estante ${shelf} no Mapa 3D`
+                : `Escaneie para localizar livros na Estante ${shelf}`,
+              targetUrl: includeOrigin
+                ? `${baseOrigin}/#/estantes/${ROOM_CONFIG[roomId].slug}/${shelf}?origem=${shelf}`
+                : `${baseOrigin}/#/estantes/${ROOM_CONFIG[roomId].slug}/${shelf}`,
             }))
           : [
               {
@@ -62,7 +67,7 @@ export default function AdminQrCodes() {
     return () => {
       active = false;
     };
-  }, [mode, roomId, customTitle, customPath, baseOrigin]);
+  }, [mode, roomId, includeOrigin, customTitle, customPath, baseOrigin]);
 
   const downloadFile = (content: string, filename: string, isDataUrl = false) => {
     const a = document.createElement("a");
@@ -111,17 +116,28 @@ export default function AdminQrCodes() {
         </div>
 
         {mode === "estantes" ? (
-          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-            {([1, 2, 3] as RoomId[]).map((id) => (
-              <button
-                key={id}
-                type="button"
-                className={`${styles.tab} ${roomId === id ? styles.tabActive : ""}`}
-                onClick={() => setRoomId(id)}
-              >
-                {ROOM_CONFIG[id].label} ({ROOM_CONFIG[id].shelfNumbers.length} estantes)
-              </button>
-            ))}
+          <div style={{ display: "flex", gap: 12, flexWrap: "wrap", alignItems: "center", justifyContent: "space-between" }}>
+            <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+              {([1, 2, 3] as RoomId[]).map((id) => (
+                <button
+                  key={id}
+                  type="button"
+                  className={`${styles.tab} ${roomId === id ? styles.tabActive : ""}`}
+                  onClick={() => setRoomId(id)}
+                >
+                  {ROOM_CONFIG[id].label} ({ROOM_CONFIG[id].shelfNumbers.length} estantes)
+                </button>
+              ))}
+            </div>
+
+            <label style={{ display: "inline-flex", alignItems: "center", gap: 6, fontSize: "0.82rem", fontWeight: 600, cursor: "pointer" }}>
+              <input
+                type="checkbox"
+                checked={includeOrigin}
+                onChange={(e) => setIncludeOrigin(e.target.checked)}
+              />
+              Incluir origem no Mapa 3D (<code>?origem=estante</code>)
+            </label>
           </div>
         ) : (
           <div className={styles.grid2}>
