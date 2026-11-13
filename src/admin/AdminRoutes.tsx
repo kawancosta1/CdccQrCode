@@ -19,6 +19,9 @@ const AdminAppearance = lazy(() => import("./pages/AdminAppearance"));
 const AdminHomeEditor = lazy(() => import("./pages/AdminHomeEditor"));
 const AdminQrCodes = lazy(() => import("./pages/AdminQrCodes"));
 const AdminMapping = lazy(() => import("./pages/AdminMapping"));
+const AdminAcquisitions = lazy(() => import("./pages/AdminAcquisitions"));
+const AdminSuggestions = lazy(() => import("./pages/AdminSuggestions"));
+const AdminExhibitions = lazy(() => import("./pages/AdminExhibitions"));
 
 export function AdminRoutes() {
   return (
@@ -145,6 +148,30 @@ export function AdminRoutes() {
               <RequirePermission permission="settings.manage">
                 <AdminSettings />
               </RequirePermission>
+            }
+          />
+          <Route
+            path="novidades"
+            element={
+              <Suspense fallback={<p>Carregando...</p>}>
+                <AdminAcquisitions />
+              </Suspense>
+            }
+          />
+          <Route
+            path="sugestoes"
+            element={
+              <Suspense fallback={<p>Carregando...</p>}>
+                <AdminSuggestions />
+              </Suspense>
+            }
+          />
+          <Route
+            path="exposicoes"
+            element={
+              <Suspense fallback={<p>Carregando...</p>}>
+                <AdminExhibitions />
+              </Suspense>
             }
           />
         </Route>

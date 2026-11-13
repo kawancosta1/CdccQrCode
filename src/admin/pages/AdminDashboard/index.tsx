@@ -4,6 +4,7 @@ import { useAdminAuth } from "../../context/adminAuthStore";
 import { adminServices } from "../../services/adminServices";
 import { CarouselService } from "../../../services/carouselService";
 import { GamesService } from "../../../services/gamesService";
+import { AnalyticsService, type AnalyticsBucket } from "../../../services/analyticsService";
 import { PermissionService, ROLE_METADATA } from "../../services/permissionService";
 import type { AdminDashboardSummary, AuditLog } from "../../types/admin";
 import styles from "../../styles/admin.module.css";
@@ -14,6 +15,7 @@ export function AdminDashboard() {
   const [recentLogs, setRecentLogs] = useState<AuditLog[]>([]);
   const [carouselCount, setCarouselCount] = useState<number | null>(null);
   const [gamesCount, setGamesCount] = useState<number | null>(null);
+  const [analytics, setAnalytics] = useState<AnalyticsBucket | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const canReadAudit = hasPermission("audit.read");
@@ -23,16 +25,18 @@ export function AdminDashboard() {
 
     async function loadDashboard() {
       try {
-        const [nextSummary, slides, games] = await Promise.all([
+        const [nextSummary, slides, games, stats] = await Promise.all([
           adminServices.CatalogService.getDashboardSummary(),
           CarouselService.getAll().catch(() => []),
           GamesService.getAll().catch(() => []),
+          AnalyticsService.getSummary().catch(() => null),
         ]);
 
         if (cancelled) return;
         setSummary(nextSummary);
         setCarouselCount(slides.length);
         setGamesCount(games.length);
+        setAnalytics(stats);
 
         if (canReadAudit && user) {
           const logs = await adminServices.AuditService.list(user);
@@ -151,6 +155,15 @@ export function AdminDashboard() {
               Configurações e Backup
             </Link>
           )}
+          <Link to="/admin/novidades" className={styles.secondaryBtn}>
+            Novos no Acervo
+          </Link>
+          <Link to="/admin/sugestoes" className={styles.secondaryBtn}>
+            Sugestões de Compra
+          </Link>
+          <Link to="/admin/exposicoes" className={styles.secondaryBtn}>
+            Exposições Temáticas
+          </Link>
         </div>
 
         <p className={styles.sectionSubtitle}>
@@ -158,6 +171,70 @@ export function AdminDashboard() {
           <span className={styles.codePill}>{permissions.join(", ")}</span>
         </p>
       </div>
+
+      {analytics && (
+        <div className={styles.panelCard}>
+          <h2 className={styles.panelTitle}>Telemetria de Uso (Mês Atual)</h2>
+          <p className={styles.sectionSubtitle}>
+            Total de buscas: <strong>{analytics.totalSearches}</strong> • Visualizações de estante:{" "}
+            <strong>{analytics.totalShelfViews}</strong> • Sem resultado:{" "}
+            <strong>{analytics.totalNotFound}</strong>
+          </p>
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+              gap: "1rem",
+              marginTop: "0.75rem",
+            }}
+          >
+            <div>
+              <h3 style={{ margin: "0 0 0.4rem", fontSize: "0.88rem" }}>Termos mais buscados</h3>
+              {Object.entries(analytics.searches)
+                .sort(([, a], [, b]) => b - a)
+                .slice(0, 6)
+                .map(([term, count]) => (
+                  <div key={term} className={styles.mutedText}>
+                    <span className={styles.codePill}>{term}</span> — {count}x
+                  </div>
+                ))}
+              {Object.keys(analytics.searches).length === 0 && (
+                <p className={styles.mutedText}>Nenhuma busca registrada ainda.</p>
+              )}
+            </div>
+
+            <div>
+              <h3 style={{ margin: "0 0 0.4rem", fontSize: "0.88rem" }}>Estantes mais acessadas</h3>
+              {Object.entries(analytics.shelves)
+                .sort(([, a], [, b]) => b - a)
+                .slice(0, 6)
+                .map(([shelfKey, count]) => (
+                  <div key={shelfKey} className={styles.mutedText}>
+                    <span className={styles.codePill}>{shelfKey}</span> — {count}x
+                  </div>
+                ))}
+              {Object.keys(analytics.shelves).length === 0 && (
+                <p className={styles.mutedText}>Nenhum acesso de estante registrado.</p>
+              )}
+            </div>
+
+            <div>
+              <h3 style={{ margin: "0 0 0.4rem", fontSize: "0.88rem" }}>Buscas sem resultado</h3>
+              {Object.entries(analytics.notFound)
+                .sort(([, a], [, b]) => b - a)
+                .slice(0, 6)
+                .map(([term, count]) => (
+                  <div key={term} className={styles.mutedText}>
+                    <span className={styles.codePill}>{term}</span> — {count}x
+                  </div>
+                ))}
+              {Object.keys(analytics.notFound).length === 0 && (
+                <p className={styles.mutedText}>Nenhuma falha de busca registrada.</p>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       {canReadAudit && (
         <div className={styles.panelCard}>

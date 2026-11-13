@@ -1,9 +1,11 @@
 import { useBookSearchContext } from "../../../context/bookSearchStore";
 import { AccessibilityDrawer } from "../../AccessibilityDrawer";
+import { BentinhoGuide } from "../../BentinhoGuide";
 import { Footer } from "../../Footer";
 import { Nav } from "../../Nav";
 import { SearchResultModal } from "../../SearchResultModal";
 import { SeasonalOverlay } from "../../SeasonalOverlay";
+import { VisitRouteDrawer } from "../../VisitRouteDrawer";
 import { VisualEditorOverlay } from "../../VisualEditorOverlay";
 
 type MainTemplateProps = {
@@ -38,6 +40,8 @@ export function MainTemplate({ children }: MainTemplateProps) {
 
       <AccessibilityDrawer />
       <SeasonalOverlay />
+      <VisitRouteDrawer />
+      <BentinhoGuide />
       <VisualEditorOverlay />
 
       {resultsByRoom && activeRoom !== null && (

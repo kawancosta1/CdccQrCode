@@ -1,6 +1,10 @@
-import { useEffect, useState } from "react";
-import { Camera, MapPin, Plus, Save, Trash2 } from "lucide-react";
-import { ROOM_CONFIG, type RoomId } from "../../../config/rooms.ts";
+import { useEffect, useMemo, useState } from "react";
+import { AlertTriangle, Camera, CheckCircle2, MapPin, Plus, Save, Trash2 } from "lucide-react";
+import { ROOM_CONFIG, ROOM_IDS, type RoomId } from "../../../config/rooms.ts";
+import { SHELF_OVERVIEW_IMAGES } from "../../../config/shelfImages.ts";
+import { VESTIBULAR_BOOKS_SEED } from "../../../data/vestibularBooksSeed.ts";
+import { getDefaultRoom, searchBooksByCode } from "../../../domain/searchParser.ts";
+import { staticBookCatalogRepository } from "../../../repositories/bookCatalogRepository.ts";
 import {
   deleteDynamicShelfMapping,
   deletePhotoOverride,
@@ -28,6 +32,31 @@ export default function AdminMapping() {
   const [newImageUrl, setNewImageUrl] = useState("");
   const [photoOverrides, setPhotoOverrides] = useState<PhotoOverrideRecord[]>([]);
   const [photoTargetType, setPhotoTargetType] = useState<"shelf" | "code">("shelf");
+
+  const healthAudit = useMemo(() => {
+    const missingOverviewPhotos: string[] = [];
+    const missingMarkers: string[] = [];
+    const unmappedVestibularBooks: string[] = [];
+
+    for (const rId of ROOM_IDS) {
+      const room = ROOM_CONFIG[rId];
+      const imgs = SHELF_OVERVIEW_IMAGES[rId] ?? {};
+      for (const shelfNum of room.shelfNumbers) {
+        const key = String(shelfNum);
+        if (!imgs[key]) missingOverviewPhotos.push(`${room.label} • Estante ${key}`);
+        if (!room.shelfMarkers[key]) missingMarkers.push(`${room.label} • Estante ${key}`);
+      }
+    }
+
+    for (const book of VESTIBULAR_BOOKS_SEED) {
+      const results = searchBooksByCode(book.codigoDedalus, staticBookCatalogRepository);
+      if (!getDefaultRoom(results)) {
+        unmappedVestibularBooks.push(`${book.titulo} (${book.codigoDedalus})`);
+      }
+    }
+
+    return { missingOverviewPhotos, missingMarkers, unmappedVestibularBooks };
+  }, []);
   const [photoShelf, setPhotoShelf] = useState("1");
   const [photoCode, setPhotoCode] = useState("");
   const [photoUrlInput, setPhotoUrlInput] = useState("");
@@ -469,6 +498,67 @@ export default function AdminMapping() {
                   ))}
               </div>
             )}
+          </div>
+        </div>
+      </section>
+
+      <section className={styles.card}>
+        <h2 className={styles.cardTitle}>
+          Auditoria Automática de Saúde do Acervo & Fotos
+        </h2>
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(230px, 1fr))",
+            gap: "0.9rem",
+          }}
+        >
+          <div className={styles.listRow} style={{ flexDirection: "column", alignItems: "flex-start" }}>
+            <strong>
+              {healthAudit.missingOverviewPhotos.length === 0 ? (
+                <CheckCircle2 size={14} style={{ color: "#16a34a" }} />
+              ) : (
+                <AlertTriangle size={14} style={{ color: "#d97706" }} />
+              )}{" "}
+              Fotos gerais de estantes
+            </strong>
+            <span className={styles.mutedSmall}>
+              {healthAudit.missingOverviewPhotos.length === 0
+                ? "Todas as estantes configuradas possuem foto."
+                : `${healthAudit.missingOverviewPhotos.length} sem foto: ${healthAudit.missingOverviewPhotos.slice(0, 4).join(", ")}`}
+            </span>
+          </div>
+
+          <div className={styles.listRow} style={{ flexDirection: "column", alignItems: "flex-start" }}>
+            <strong>
+              {healthAudit.missingMarkers.length === 0 ? (
+                <CheckCircle2 size={14} style={{ color: "#16a34a" }} />
+              ) : (
+                <AlertTriangle size={14} style={{ color: "#d97706" }} />
+              )}{" "}
+              Marcadores no mapa
+            </strong>
+            <span className={styles.mutedSmall}>
+              {healthAudit.missingMarkers.length === 0
+                ? "Todas as estantes estão marcadas nos mapas."
+                : `${healthAudit.missingMarkers.length} sem pino: ${healthAudit.missingMarkers.slice(0, 4).join(", ")}`}
+            </span>
+          </div>
+
+          <div className={styles.listRow} style={{ flexDirection: "column", alignItems: "flex-start" }}>
+            <strong>
+              {healthAudit.unmappedVestibularBooks.length === 0 ? (
+                <CheckCircle2 size={14} style={{ color: "#16a34a" }} />
+              ) : (
+                <AlertTriangle size={14} style={{ color: "#d97706" }} />
+              )}{" "}
+              Livros do Vestibular no índice
+            </strong>
+            <span className={styles.mutedSmall}>
+              {healthAudit.unmappedVestibularBooks.length === 0
+                ? "Todos os códigos do Vestibular resolvem para uma estante."
+                : `${healthAudit.unmappedVestibularBooks.length} sem estante: ${healthAudit.unmappedVestibularBooks.slice(0, 3).join(", ")}`}
+            </span>
           </div>
         </div>
       </section>

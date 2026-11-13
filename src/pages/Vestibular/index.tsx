@@ -7,6 +7,7 @@ import {
   Info,
   MapPin,
   Pencil,
+  Route,
   Save,
   Search,
   Sparkles,
@@ -14,6 +15,8 @@ import {
 } from "lucide-react";
 import { AuthService } from "../../admin/services/authService.ts";
 import { BookCover } from "../../components/BookCover/index.tsx";
+import type { RoomId } from "../../config/roomConstants.ts";
+import { useVisitRoute } from "../../context/visitRouteStore.ts";
 import { fetchBookCoverAndMetadata } from "../../services/bookMetadataService.ts";
 import { getVestibularBooks, saveVestibularBook } from "../../services/pagesService.ts";
 import type { VestibularBook, VestibularExamTag } from "../../types/content.ts";
@@ -28,6 +31,7 @@ const FILTER_TABS: Array<"Todas" | VestibularExamTag> = [
 ];
 
 export default function VestibularPage() {
+  const { addItem, hasItem, setDrawerOpen } = useVisitRoute();
   const [books, setBooks] = useState<VestibularBook[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<"Todas" | VestibularExamTag>("Todas");
@@ -268,6 +272,32 @@ export default function VestibularPage() {
                     >
                       <MapPin size={15} aria-hidden="true" /> Localizar Estante
                     </Link>
+                    <button
+                      type="button"
+                      className={styles.secondaryBtn}
+                      title="Adicionar livro à minha rota de visita"
+                      onClick={() => {
+                        const roomMatch = book.sala.match(/[123]/);
+                        const roomId = (roomMatch ? Number(roomMatch[0]) : 1) as RoomId;
+                        if (hasItem(book.codigoDedalus, roomId, book.estante)) {
+                          setDrawerOpen(true);
+                          return;
+                        }
+                        addItem({
+                          code: book.codigoDedalus,
+                          title: book.titulo,
+                          roomId,
+                          shelf: book.estante,
+                        });
+                      }}
+                    >
+                      <Route size={14} aria-hidden="true" />
+                      {(() => {
+                        const roomMatch = book.sala.match(/[123]/);
+                        const roomId = (roomMatch ? Number(roomMatch[0]) : 1) as RoomId;
+                        return hasItem(book.codigoDedalus, roomId, book.estante) ? "Na rota" : "+ Rota";
+                      })()}
+                    </button>
                     <a
                       href={dedalusUrl}
                       target="_blank"

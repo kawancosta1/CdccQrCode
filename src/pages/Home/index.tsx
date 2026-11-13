@@ -9,11 +9,14 @@ import {
   Copy,
   ExternalLink,
   Gamepad2,
+  Gift,
   GraduationCap,
   Library,
+  MailPlus,
   Maximize2,
   Search,
   SearchX,
+  Shuffle,
   Sparkles,
   X,
 } from "lucide-react";
@@ -30,7 +33,9 @@ import BentinhoPensando from "../../components/img/Mascote/pensando.webp";
 import { useBookSearchContext } from "../../context/bookSearchStore";
 import { useSiteConfig } from "../../context/siteConfigStore";
 import { SEASON_METADATA } from "../../domain/seasonEngine";
+import { VESTIBULAR_BOOKS_SEED } from "../../data/vestibularBooksSeed";
 import { CarouselService, DEFAULT_CAROUSEL_SLIDES } from "../../services/carouselService";
+import { ExhibitionsService, type ExhibitionItem } from "../../services/exhibitionsService";
 import type { CarouselSlide } from "../../types/content";
 import styles from "./style.module.css";
 
@@ -194,6 +199,7 @@ export function Home() {
   );
   const [activePhaseIndex, setActivePhaseIndex] = useState(0);
   const [copiedCode, setCopiedCode] = useState(false);
+  const [activeExhibition, setActiveExhibition] = useState<ExhibitionItem | null>(null);
 
   useEffect(() => {
     let isMounted = true;
@@ -206,6 +212,11 @@ export function Home() {
       .catch((err) => {
         console.warn("Falha ao carregar carrossel dinâmico:", err);
       });
+    ExhibitionsService.getActive()
+      .then((expo) => {
+        if (isMounted) setActiveExhibition(expo);
+      })
+      .catch(() => {});
     return () => {
       isMounted = false;
     };
@@ -556,6 +567,33 @@ export function Home() {
                   {item.label}
                 </button>
               ))}
+              <button
+                type="button"
+                className={styles.exampleChip}
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "0.35rem",
+                  borderStyle: "dashed",
+                  fontWeight: 700,
+                }}
+                onClick={() => {
+                  const pool = VESTIBULAR_BOOKS_SEED.filter((b) => b.codigoDedalus);
+                  if (pool.length === 0) return;
+                  const picked = pool[Math.floor(Math.random() * pool.length)];
+                  submitSearch(picked.codigoDedalus, {
+                    id: picked.id,
+                    title: picked.titulo,
+                    subtitle: picked.autor,
+                    code: picked.codigoDedalus,
+                    kind: "livro",
+                  });
+                }}
+                title="Sortear uma obra aleatória do acervo para descobrir hoje"
+              >
+                <Shuffle size={13} aria-hidden="true" />
+                Descubra Hoje
+              </button>
             </div>
           </div>
 
@@ -627,6 +665,82 @@ export function Home() {
           </div>
         </section>
       )}
+
+      {/* Novos no Acervo, Sugestão de Compra & Exposição Temática */}
+      <section className={styles.section} aria-label="Novidades e participação">
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: activeExhibition ? "repeat(auto-fit, minmax(260px, 1fr))" : "repeat(auto-fit, minmax(280px, 1fr))",
+            gap: "1rem",
+          }}
+        >
+          <Link to="/novidades" className={styles.quickCard}>
+            <div className={styles.quickIcon}>
+              <Gift size={20} aria-hidden="true" />
+            </div>
+            <div>
+              <h2 className={styles.quickTitle}>Novos no Acervo</h2>
+              <p className={styles.quickDesc}>
+                Confira as últimas aquisições por compra e doações incorporadas às estantes.
+              </p>
+            </div>
+          </Link>
+
+          <Link to="/sugerir" className={styles.quickCard}>
+            <div className={styles.quickIcon}>
+              <MailPlus size={20} aria-hidden="true" />
+            </div>
+            <div>
+              <h2 className={styles.quickTitle}>Sugestão de Compras</h2>
+              <p className={styles.quickDesc}>
+                Indique novos livros para o acervo ou envie sua sugestão por e-mail para o CDCC.
+              </p>
+            </div>
+          </Link>
+
+          {activeExhibition && (
+            <div
+              className={styles.quickCard}
+              style={{ flexDirection: "column", alignItems: "flex-start", gap: "0.55rem" }}
+            >
+              <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                <span
+                  style={{
+                    fontSize: "0.72rem",
+                    fontWeight: 800,
+                    padding: "0.18rem 0.55rem",
+                    borderRadius: "999px",
+                    background: "var(--color-brand-soft)",
+                    color: "var(--color-brand-text)",
+                  }}
+                >
+                  {activeExhibition.subtitulo}
+                </span>
+                <span style={{ fontSize: "0.75rem", color: "var(--color-text-muted)" }}>
+                  {activeExhibition.periodo}
+                </span>
+              </div>
+              <h2 className={styles.quickTitle}>{activeExhibition.titulo}</h2>
+              <p className={styles.quickDesc}>{activeExhibition.descricao}</p>
+              {activeExhibition.codigosDestaque.length > 0 && (
+                <div style={{ display: "flex", flexWrap: "wrap", gap: "0.35rem", marginTop: "0.2rem" }}>
+                  {activeExhibition.codigosDestaque.map((code) => (
+                    <button
+                      key={code}
+                      type="button"
+                      className={styles.exampleChip}
+                      onClick={() => handleExampleClick(code)}
+                    >
+                      {code}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      </section>
 
       {/* Destaques — Hero Carousel */}
       {homeCfg.sectionsVisibility.carousel && (

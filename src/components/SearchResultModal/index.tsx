@@ -11,16 +11,19 @@ import {
   Map as MapIcon,
   MapPin,
   Maximize2,
+  Route,
   Search,
   X,
 } from "lucide-react";
 import { getShelfDirectionText, ROOM_CONFIG, ROOM_IDS, type RoomId } from "../../config/rooms";
+import { useVisitRoute } from "../../context/visitRouteStore";
 import type { NameMatchItem } from "../../domain/nameSearch";
 import { extractShelves, type SearchResultsByRoom } from "../../domain/searchParser";
 import { useFocusTrap } from "../../hooks/useFocusTrap";
 import { getPhotoOverrides, type PhotoOverrideRecord } from "../../services/mappingService";
 import { ImageLightbox } from "../ImageLightbox";
 import { RoomMap } from "../RoomMap";
+import { ShelfRackGuide } from "../ShelfRackGuide";
 import style from "./style.module.css";
 
 type TabType = "photo" | "map";
@@ -51,6 +54,7 @@ export function SearchResultModal({
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [copiedLink, setCopiedLink] = useState(false);
+  const { addItem, hasItem, setDrawerOpen } = useVisitRoute();
   const dialogRef = useRef<HTMLDivElement | null>(null);
   const closeButtonRef = useRef<HTMLButtonElement | null>(null);
   const skipFocusRestoreRef = useRef(false);
@@ -415,8 +419,43 @@ export function SearchResultModal({
           </section>
         </div>
 
+        {activeRoomData?.shelf && (
+          <div style={{ padding: "0 1.25rem 0.75rem" }}>
+            <ShelfRackGuide
+              roomId={activeRoom}
+              shelfNumberOrLabel={activeRoomData.shelf}
+              activeCode={query}
+            />
+          </div>
+        )}
+
         {/* Rodapé de Ações */}
         <footer className={style.footer}>
+          {activeRoomData && (
+            <button
+              type="button"
+              className={style.secondaryBtn}
+              onClick={() => {
+                const inRoute = hasItem(query, activeRoom, activeRoomData.shelf);
+                if (inRoute) {
+                  setDrawerOpen(true);
+                  return;
+                }
+                addItem({
+                  code: query,
+                  title: matchedContext?.title || `Código ${query}`,
+                  roomId: activeRoom,
+                  shelf: activeRoomData.shelf,
+                  range: activeRoomData.range,
+                });
+              }}
+            >
+              <Route size={16} aria-hidden="true" />
+              {hasItem(query, activeRoom, activeRoomData.shelf)
+                ? "Na minha rota"
+                : "+ Minha Rota"}
+            </button>
+          )}
           {hasShelfPage ? (
             <Link
               to={`/estantes/${activeMapConfig.slug}/${primaryShelfNumber}`}

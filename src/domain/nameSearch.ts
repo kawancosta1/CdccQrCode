@@ -7,7 +7,9 @@ export interface NameMatchItem {
   title: string;
   subtitle: string;
   code: string;
-  kind: "livro" | "assunto";
+  kind: "livro" | "assunto" | "estante";
+  exactMatch?: boolean;
+  routePath?: string;
 }
 
 export interface SearchableBookRecord {
@@ -199,6 +201,7 @@ export function searchByNameOrSubject(
         subtitle: book.autor ? `${book.autor} • ${book.codigoDedalus}` : book.codigoDedalus,
         code: book.codigoDedalus,
         kind: "livro",
+        exactMatch: exact,
       },
     });
   }
@@ -235,7 +238,15 @@ export function searchByNameOrSubject(
         subtitle: `Área temática • CDU ${subject.code}`,
         code: subject.code,
         kind: "assunto",
+        exactMatch: matchesKeyword || exactTokens,
       },
+    });
+  }
+
+  for (const shelfMatch of searchRoomOrShelfMatches(rawQuery)) {
+    scoredResults.push({
+      score: shelfMatch.score,
+      item: shelfMatch.item,
     });
   }
 
@@ -243,4 +254,84 @@ export function searchByNameOrSubject(
     .sort((a, b) => b.score - a.score || a.item.title.localeCompare(b.item.title, "pt-BR"))
     .slice(0, limit)
     .map((entry) => entry.item);
+}
+
+const ROOM_SHELF_DIRECTORY: Array<{
+  roomId: 1 | 2 | 3;
+  slug: string;
+  label: string;
+  areaLabel: string;
+  maxShelf: number;
+}> = [
+  { roomId: 1, slug: "sala1", label: "Sala 1", areaLabel: "Ciências e Literatura (469–930)", maxShelf: 25 },
+  { roomId: 2, slug: "sala2", label: "Sala 2", areaLabel: "Acervo Geral e Referência (001–469, R)", maxShelf: 12 },
+  { roomId: 3, slug: "sala3", label: "Sala 3", areaLabel: "Acervo Infantojuvenil e Ludoteca", maxShelf: 5 },
+];
+
+export function searchRoomOrShelfMatches(rawQuery: string): Array<{ score: number; item: NameMatchItem }> {
+  const normalized = normalizeSearchText(rawQuery);
+  if (normalized.length < 3) return [];
+
+  const results: Array<{ score: number; item: NameMatchItem }> = [];
+  const shelfMatch = normalized.match(/^(?:estante|est)\s*(\d{1,2})$/);
+  if (shelfMatch) {
+    const shelfNum = Number(shelfMatch[1]);
+    if (Number.isInteger(shelfNum) && shelfNum >= 1) {
+      for (const room of ROOM_SHELF_DIRECTORY) {
+        if (shelfNum <= room.maxShelf) {
+          results.push({
+            score: 115 - room.roomId,
+            item: {
+              id: `shelf-${room.slug}-${shelfNum}`,
+              title: `${room.label} • Estante ${shelfNum}`,
+              subtitle: `Abrir foto e mapa • ${room.areaLabel}`,
+              code: `S${room.roomId}-E${shelfNum}`,
+              kind: "estante",
+              exactMatch: true,
+              routePath: `/estantes/${room.slug}/${shelfNum}`,
+            },
+          });
+        }
+      }
+    }
+    return results;
+  }
+
+  const roomMatch = normalized.match(/^sala\s*([123])$/);
+  if (roomMatch) {
+    const roomId = Number(roomMatch[1]);
+    const room = ROOM_SHELF_DIRECTORY.find((r) => r.roomId === roomId);
+    if (room) {
+      results.push({
+        score: 115,
+        item: {
+          id: `room-${room.slug}`,
+          title: `${room.label} (${room.maxShelf} estantes)`,
+          subtitle: `Ver todas as estantes • ${room.areaLabel}`,
+          code: `Sala ${room.roomId}`,
+          kind: "estante",
+          exactMatch: true,
+          routePath: `/estantes`,
+        },
+      });
+    }
+    return results;
+  }
+
+  if (normalized.includes("estante") || normalized.includes("mapa das estantes")) {
+    results.push({
+      score: 60,
+      item: {
+        id: "all-shelves",
+        title: "Mapa de Todas as Estantes",
+        subtitle: "Navegar por Sala 1, Sala 2 e Sala 3",
+        code: "Estantes",
+        kind: "estante",
+        exactMatch: true,
+        routePath: "/estantes",
+      },
+    });
+  }
+
+  return results;
 }

@@ -7,15 +7,18 @@ import {
   FileText,
   FolderTree,
   Gamepad2,
+  Gift,
   Home,
   Images,
   LayoutDashboard,
   Layers,
   LogOut,
+  MailPlus,
   MapPin,
   Palette,
   QrCode,
   Settings,
+  Sparkles,
 } from "lucide-react";
 import { useAdminAuth } from "../../context/adminAuthStore";
 import { ADMIN_ROLES, ROLE_METADATA } from "../../services/permissionService";
@@ -36,6 +39,9 @@ const ADMIN_NAV_ITEMS: AdminNavItem[] = [
   { to: "/admin/home-editor", label: "Editor da Home", permission: "appearance.manage", icon: <Home size={16} aria-hidden="true" /> },
   { to: "/admin/paginas", label: "Páginas & Vestibular", permission: "pages.manage", icon: <FileText size={16} aria-hidden="true" /> },
   { to: "/admin/carrossel", label: "Carrossel Home", permission: "carousel.manage", icon: <Images size={16} aria-hidden="true" /> },
+  { to: "/admin/novidades", label: "Novos no Acervo", icon: <Gift size={16} aria-hidden="true" /> },
+  { to: "/admin/sugestoes", label: "Sugestões de Compra", icon: <MailPlus size={16} aria-hidden="true" /> },
+  { to: "/admin/exposicoes", label: "Exposições", icon: <Sparkles size={16} aria-hidden="true" /> },
   { to: "/admin/jogos", label: "Jogos Lúdicos", permission: "games.manage", icon: <Gamepad2 size={16} aria-hidden="true" /> },
   { to: "/admin/qrcodes", label: "Gerador QR Codes", permission: "qrcodes.manage", icon: <QrCode size={16} aria-hidden="true" /> },
   { to: "/admin/mapeamento", label: "Regras & Mapa 3D", permission: "mapping.manage", icon: <MapPin size={16} aria-hidden="true" /> },

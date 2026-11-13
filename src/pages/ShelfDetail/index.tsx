@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import {
   ArrowLeft,
   Camera,
@@ -12,8 +12,10 @@ import {
 import { Container } from "../../components/Container";
 import { ImageLightbox } from "../../components/ImageLightbox";
 import { RoomMap } from "../../components/RoomMap";
+import { ShelfRackGuide } from "../../components/ShelfRackGuide";
 import { getRoomIdBySlug, getShelfDirectionText, ROOM_CONFIG } from "../../config/rooms";
 import { SHELF_OVERVIEW_IMAGES } from "../../config/shelfImages";
+import { AnalyticsService } from "../../services/analyticsService";
 import { getPhotoOverrides, type PhotoOverrideRecord } from "../../services/mappingService";
 import style from "./style.module.css";
 
@@ -24,6 +26,7 @@ export function ShelfDetail() {
   const [viewMode, setViewMode] = useState<"estante" | "mapa">("estante");
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [photoOverrides, setPhotoOverrides] = useState<PhotoOverrideRecord[]>([]);
+  const navigate = useNavigate();
   const { sala, numero } = useParams<{ sala: string; numero: string }>();
 
   useEffect(() => {
@@ -39,6 +42,12 @@ export function ShelfDetail() {
   }, []);
 
   const roomId = getRoomIdBySlug(sala);
+
+  useEffect(() => {
+    if (roomId && numero) {
+      void AnalyticsService.trackShelfView(roomId, numero);
+    }
+  }, [numero, roomId]);
   const room = roomId ? ROOM_CONFIG[roomId] : null;
   const roomImages = roomId ? SHELF_OVERVIEW_IMAGES[roomId] : undefined;
   const baseImagem = numero && roomImages ? roomImages[numero] : undefined;
@@ -211,6 +220,14 @@ export function ShelfDetail() {
             />
           </div>
         </section>
+      </div>
+
+      <div style={{ marginTop: "1rem" }}>
+        <ShelfRackGuide
+          roomId={room.id}
+          shelfNumberOrLabel={numero}
+          onSelectCode={(code) => navigate(`/?q=${encodeURIComponent(code)}`)}
+        />
       </div>
 
       {lightboxOpen && (

@@ -13,6 +13,28 @@ interface RoomMapProps {
   interactive?: boolean;
 }
 
+const ROOM_ENTRANCE_POINT: Record<RoomId, { x: number; y: number; label: string }> = {
+  1: { x: 50, y: 92, label: "Entrada" },
+  2: { x: 50, y: 92, label: "Entrada" },
+  3: { x: 50, y: 90, label: "Entrada" },
+};
+
+function parsePercent(value?: string): number | null {
+  if (!value) return null;
+  const n = Number.parseFloat(value);
+  return Number.isFinite(n) ? n : null;
+}
+
+function resolveMarkerPoint(pos: { top: string; left?: string; right?: string }): { x: number; y: number } | null {
+  const y = parsePercent(pos.top);
+  if (y === null) return null;
+  const left = parsePercent(pos.left);
+  if (left !== null) return { x: left, y };
+  const right = parsePercent(pos.right);
+  if (right !== null) return { x: 100 - right, y };
+  return null;
+}
+
 /**
  * Renderiza o mapa da sala com os marcadores de localização posicionados via configuração centralizada.
  * Quando `interactive` é verdadeiro, permite clicar nas demais estantes da sala para navegar entre elas.
@@ -35,6 +57,19 @@ export function RoomMap({ roomId, shelves, imageClassName, interactive = false }
   }, [roomId]);
 
   const activeSet = new Set(shelves.map((s) => s.toUpperCase()));
+  const entrance = ROOM_ENTRANCE_POINT[roomId];
+
+  const activeRoutePoints = shelves
+    .map((shelfKey) => {
+      const override = overrides.find(
+        (o) => o.shelfKey.toUpperCase() === shelfKey.toUpperCase(),
+      );
+      const pos = override
+        ? { top: override.top, left: override.left, right: undefined }
+        : room.shelfMarkers[shelfKey];
+      return pos ? resolveMarkerPoint(pos) : null;
+    })
+    .filter((pt): pt is { x: number; y: number } => pt !== null);
 
   const markerKeys = interactive
     ? Array.from(
@@ -59,6 +94,34 @@ export function RoomMap({ roomId, shelves, imageClassName, interactive = false }
         className={`${style.mapImg} ${imageClassName ?? ""}`}
         decoding="async"
       />
+      {activeRoutePoints.length > 0 && (
+        <>
+          <svg
+            className={style.routeSvg}
+            viewBox="0 0 100 100"
+            preserveAspectRatio="none"
+            aria-hidden="true"
+          >
+            {activeRoutePoints.map((pt, idx) => {
+              const ctrlX = entrance.x;
+              const ctrlY = Math.round((entrance.y + pt.y) / 2);
+              const d = `M ${entrance.x} ${entrance.y} Q ${ctrlX} ${ctrlY} ${pt.x} ${pt.y}`;
+              return (
+                <g key={idx}>
+                  <path d={d} className={style.routePathGlow} />
+                  <path d={d} className={style.routePath} />
+                </g>
+              );
+            })}
+          </svg>
+          <span
+            className={style.entranceBadge}
+            style={{ top: `${entrance.y}%`, left: `${entrance.x}%` }}
+          >
+            {entrance.label}
+          </span>
+        </>
+      )}
       {markerKeys.map((shelfKey) => {
         const override = overrides.find(
           (o) => o.shelfKey.toUpperCase() === shelfKey.toUpperCase()

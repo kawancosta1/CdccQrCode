@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import type { RoomId } from "../config/roomConstants";
 import {
   buildDedalusSearchUrl,
@@ -15,6 +15,7 @@ import {
   type SearchResultsByRoom,
 } from "../domain/searchParser";
 import { staticBookCatalogRepository } from "../repositories/bookCatalogRepository";
+import { AnalyticsService } from "../services/analyticsService";
 import {
   CATALOG_INDEX_UPDATED_EVENT,
   getDynamicSearchableBooks,
@@ -55,6 +56,7 @@ function parseRoomParam(rawRoom: string | null): RoomId | null {
  * Gerencia o estado, histórico local, sugestões e deep linking de busca por código Dedalus.
  */
 export function useBookSearch() {
+  const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const [searchValue, setSearchValue] = useState(() => searchParams.get("q") ?? "");
   const [searchError, setSearchError] = useState("");
@@ -172,6 +174,16 @@ export function useBookSearch() {
         return false;
       }
 
+      if (contextItem?.routePath) {
+        setSearchError("");
+        setFallbackSuggestions([]);
+        setMatchedNameOptions([]);
+        setMatchedContext(null);
+        void AnalyticsService.trackSearch(trimmed, true);
+        navigate(contextItem.routePath);
+        return true;
+      }
+
       const results = searchBooksByCode(rawQuery, staticBookCatalogRepository);
       const defaultRoom = getDefaultRoom(results);
 
@@ -184,6 +196,15 @@ export function useBookSearch() {
         );
         if (nameMatches.length === 1) {
           const matched = nameMatches[0];
+          if (matched.routePath) {
+            setSearchError("");
+            setFallbackSuggestions([]);
+            setMatchedNameOptions([]);
+            setMatchedContext(null);
+            void AnalyticsService.trackSearch(trimmed, true);
+            navigate(matched.routePath);
+            return true;
+          }
           const matchedResults = searchBooksByCode(matched.code, staticBookCatalogRepository);
           const matchedRoom = getDefaultRoom(matchedResults);
           if (matchedRoom) {
@@ -194,6 +215,7 @@ export function useBookSearch() {
             setMatchedNameOptions([]);
             setMatchedContext(matched);
             pushRecentSearch(matched.code);
+            void AnalyticsService.trackSearch(trimmed, true);
 
             const next = new URLSearchParams(searchParams);
             next.set("q", matched.code);
@@ -208,6 +230,7 @@ export function useBookSearch() {
         if (nameMatches.length > 1) {
           setMatchedNameOptions(nameMatches);
           setFallbackSuggestions([]);
+          void AnalyticsService.trackSearch(trimmed, true);
           setSearchError(
             `Encontramos ${nameMatches.length} opções para "${trimmed}". Escolha abaixo ou pesquise no Dedalus USP:`,
           );
@@ -216,6 +239,7 @@ export function useBookSearch() {
 
         setMatchedNameOptions([]);
         setFallbackSuggestions(suggestNearestCodes(trimmed, staticBookCatalogRepository, 3));
+        void AnalyticsService.trackSearch(trimmed, false);
         setSearchError(
           `Não encontramos "${trimmed}" diretamente nas estantes mapeadas. Pesquise no Dedalus USP para obter o código CDU ou tente outro termo:`,
         );
@@ -229,6 +253,7 @@ export function useBookSearch() {
       setMatchedNameOptions([]);
       setMatchedContext(contextItem ?? null);
       pushRecentSearch(trimmed);
+      void AnalyticsService.trackSearch(trimmed, true);
 
       const next = new URLSearchParams(searchParams);
       next.set("q", trimmed);
@@ -236,7 +261,7 @@ export function useBookSearch() {
       setSearchParams(next);
       return true;
     },
-    [clearUrlSearchParams, dynamicBooks, pushRecentSearch, searchParams, setSearchParams],
+    [clearUrlSearchParams, dynamicBooks, navigate, pushRecentSearch, searchParams, setSearchParams],
   );
 
   const closeResults = useCallback(() => {
