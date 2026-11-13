@@ -1,5 +1,9 @@
 import { useEffect, useState } from "react";
-import { fetchBookCoverAndMetadata } from "../../services/bookMetadataService.ts";
+import {
+  fetchBookCoverAndMetadata,
+  getCachedBookCoverSync,
+} from "../../services/bookMetadataService.ts";
+import { persistVestibularAutoCover } from "../../services/pagesService.ts";
 import type { VestibularBook } from "../../types/content.ts";
 import styles from "./style.module.css";
 
@@ -34,15 +38,21 @@ function resolveEditorialBgColor(book: VestibularBook): string {
 }
 
 export function BookCover({ book, size = "md", className }: BookCoverProps) {
-  const [autoCoverUrl, setAutoCoverUrl] = useState<string | undefined>(undefined);
+  const [fetchedUrl, setFetchedUrl] = useState<string | undefined>(undefined);
   const [failedUrl, setFailedUrl] = useState<string | null>(null);
 
   const manualUrl = book.capaUrl?.trim() || undefined;
-  const candidateUrl = manualUrl ?? autoCoverUrl;
+  const savedAutoUrl = book.capaAutoUrl?.trim() || undefined;
+  const syncCachedUrl =
+    !manualUrl && !savedAutoUrl
+      ? getCachedBookCoverSync({ titulo: book.titulo, autor: book.autor, isbn: book.isbn })
+      : undefined;
+
+  const candidateUrl = manualUrl ?? savedAutoUrl ?? syncCachedUrl ?? fetchedUrl;
   const activeUrl = candidateUrl && failedUrl !== candidateUrl ? candidateUrl : undefined;
 
   useEffect(() => {
-    if (manualUrl) return;
+    if (manualUrl || savedAutoUrl || syncCachedUrl) return;
     let active = true;
     fetchBookCoverAndMetadata({
       titulo: book.titulo,
@@ -50,13 +60,14 @@ export function BookCover({ book, size = "md", className }: BookCoverProps) {
       isbn: book.isbn,
     }).then((meta) => {
       if (active && meta?.coverUrl) {
-        setAutoCoverUrl(meta.coverUrl);
+        setFetchedUrl(meta.coverUrl);
+        void persistVestibularAutoCover(book.id, meta.coverUrl);
       }
     });
     return () => {
       active = false;
     };
-  }, [book.id, book.titulo, book.autor, book.isbn, manualUrl]);
+  }, [book.id, book.titulo, book.autor, book.isbn, manualUrl, savedAutoUrl, syncCachedUrl]);
 
   const sizeClass =
     size === "sm" ? styles.sizeSm : size === "lg" ? styles.sizeLg : styles.sizeMd;

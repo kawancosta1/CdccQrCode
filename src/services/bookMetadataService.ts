@@ -194,6 +194,21 @@ async function queryOpenLibrary(
 }
 
 /**
+ * Lê de forma síncrona a capa em cache no localStorage (evita piscar fallback ao renderizar).
+ */
+export function getCachedBookCoverSync(params: {
+  titulo: string;
+  autor?: string;
+  isbn?: string;
+}): string | undefined {
+  const key = makeKey(params.titulo, params.autor, params.isbn);
+  const cached = readCache()[key];
+  if (!cached?.coverUrl) return undefined;
+  if (Date.now() - cached.cachedAt >= CACHE_TTL_MS) return undefined;
+  return cached.coverUrl;
+}
+
+/**
  * Busca capa real e metadados (sinopse, ano, páginas, ISBN) na Google Books API e Open Library,
  * com cache em localStorage e deduplicação de requisições simultâneas.
  */

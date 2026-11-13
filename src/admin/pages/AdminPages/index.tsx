@@ -21,6 +21,7 @@ import {
   resetVestibularBooksToSeed,
   saveCustomPage,
   saveVestibularBook,
+  syncMissingVestibularCovers,
 } from "../../../services/pagesService.ts";
 import { uploadCmsImage } from "../../../services/siteConfigService.ts";
 import type {
@@ -506,7 +507,32 @@ export default function AdminPages() {
           <section className={styles.card}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 8 }}>
               <h2 className={styles.cardTitle}>Obras Cadastradas ({vestBooks.length})</h2>
-              <div style={{ display: "flex", gap: 6 }}>
+              <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+                <button
+                  type="button"
+                  className={styles.secondaryBtn}
+                  disabled={autoFilling}
+                  onClick={async () => {
+                    setAutoFilling(true);
+                    setStatusMsg(null);
+                    setErrorMsg(null);
+                    try {
+                      const count = await syncMissingVestibularCovers();
+                      await loadAll();
+                      setStatusMsg(
+                        count > 0
+                          ? `${count} capas reais salvas permanentemente no Firestore!`
+                          : "Todas as obras já estão com capa salva ou sem resultados na API.",
+                      );
+                    } catch (err) {
+                      setErrorMsg(err instanceof Error ? err.message : "Erro ao sincronizar capas.");
+                    } finally {
+                      setAutoFilling(false);
+                    }
+                  }}
+                >
+                  <Sparkles size={14} /> {autoFilling ? "Sincronizando..." : "Salvar Capas no Firestore"}
+                </button>
                 <button
                   type="button"
                   className={styles.secondaryBtn}

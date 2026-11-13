@@ -8,6 +8,7 @@ import {
   setDoc,
 } from "firebase/firestore";
 import { VESTIBULAR_BOOKS_SEED } from "../data/vestibularBooksSeed.ts";
+import { fetchBookCoverAndMetadata } from "./bookMetadataService.ts";
 import { getFirestoreDb } from "../lib/firebase.ts";
 import type { CustomPage, VestibularBook } from "../types/content.ts";
 
@@ -233,4 +234,68 @@ export async function resetVestibularBooksToSeed(): Promise<VestibularBook[]> {
     }
   }
   return VESTIBULAR_BOOKS_SEED;
+}
+
+/**
+ * Salva a URL da capa automática descoberta no cache local e no Firestore (quando permitido),
+ * evitando novas chamadas externas em carregamentos futuros.
+ */
+export async function persistVestibularAutoCover(
+  bookId: string,
+  capaAutoUrl: string,
+): Promise<void> {
+  if (!bookId || !capaAutoUrl) return;
+  const local = readLocal<VestibularBook[]>(LOCAL_VESTIBULAR_KEY, []);
+  if (local.length > 0) {
+    saveLocal(
+      LOCAL_VESTIBULAR_KEY,
+      local.map((b) => (b.id === bookId ? { ...b, capaAutoUrl } : b)),
+    );
+  }
+  const db = getFirestoreDb();
+  if (db) {
+    try {
+      await setDoc(doc(db, VESTIBULAR_COLLECTION, bookId), { capaAutoUrl }, { merge: true });
+    } catch {
+      // Visitantes sem permissão de escrita no Firestore mantêm o cache local
+    }
+  }
+}
+
+/**
+ * Busca e salva permanentemente no Firestore as capas reais de todas as obras que ainda não possuem capa.
+ */
+export async function syncMissingVestibularCovers(): Promise<number> {
+  const books = await getVestibularBooks();
+  const db = getFirestoreDb();
+  let updatedCount = 0;
+
+  const updatedBooks = await Promise.all(
+    books.map(async (book) => {
+      if (book.capaUrl?.trim() || book.capaAutoUrl?.trim()) {
+        return book;
+      }
+      const meta = await fetchBookCoverAndMetadata({
+        titulo: book.titulo,
+        autor: book.autor,
+        isbn: book.isbn,
+      });
+      if (!meta?.coverUrl) return book;
+      updatedCount += 1;
+      const nextBook: VestibularBook = { ...book, capaAutoUrl: meta.coverUrl };
+      if (db) {
+        await setDoc(
+          doc(db, VESTIBULAR_COLLECTION, book.id),
+          { capaAutoUrl: meta.coverUrl },
+          { merge: true },
+        );
+      }
+      return nextBook;
+    }),
+  );
+
+  if (updatedCount > 0) {
+    saveLocal(LOCAL_VESTIBULAR_KEY, updatedBooks);
+  }
+  return updatedCount;
 }

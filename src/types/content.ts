@@ -145,6 +145,7 @@ export interface VestibularBook {
   sala: string;
   estante: string;
   capaUrl?: string;
+  capaAutoUrl?: string;
   corCapa?: string;
   disponivel: boolean;
   observacao?: string;
