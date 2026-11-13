@@ -55,27 +55,18 @@
   }
 }
 
-/* Barra de progresso "Corte de Folhas" */
-.pageEdgeTrack {
-  position: relative;
-  width: 100%;
-  height: 3px;
-  background: rgba(44, 34, 24, 0.06);
-  overflow: hidden;
+/* Estante Progressiva de Livros no Desktop */
+.desktopShelfWrap {
+  display: none;
 }
 
-.pageEdgeFill {
-  width: 100%;
-  height: 100%;
-  transform-origin: left center;
-  will-change: transform;
-  background: repeating-linear-gradient(
-    90deg,
-    var(--color-brand, #8a3354) 0px,
-    var(--color-brand, #8a3354) 4px,
-    rgba(44, 34, 24, 0.22) 4px,
-    rgba(44, 34, 24, 0.22) 6px
-  );
+@media (min-width: 768px) {
+  .desktopShelfWrap {
+    display: block;
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 1.25rem;
+  }
 }
 
 .navInner {

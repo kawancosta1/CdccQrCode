@@ -17,6 +17,7 @@ import {
   SearchAutocompleteDropdown,
   type AutocompleteEntry,
 } from "../SearchAutocompleteDropdown";
+import { BookshelfScrollProgress } from "../BookshelfScrollProgress";
 import { UniversalAccessibilityIcon } from "../icons/UniversalAccessibilityIcon";
 import { useAccessibility } from "../../context/accessibilityStore";
 import { useBookSearchContext } from "../../context/bookSearchStore";
@@ -346,9 +347,6 @@ export function Nav() {
 
   const errorBannerId = "nav-search-error";
   const resolvedLogo = getImageSrc("bentinho_logo", config.logoUrl || logoCdcc);
-  const progressStyle: CSSProperties = {
-    transform: `scaleX(${scrollProgress.toFixed(4)})`,
-  };
 
   const dynamicMenuItems: DesktopNavItemConfig[] = menuPages.map((pg, idx) => ({
     code: `${String(INTERNAL_DESKTOP_ITEMS.length + idx + 1).padStart(2, "0")}.`,
@@ -795,10 +793,14 @@ export function Nav() {
             </div>
           )}
 
-          {/* Linha dupla editorial + Progresso "Corte de Folhas" no Desktop */}
+          {/* Linha dupla editorial + Estante Progressiva de Livros no Desktop */}
           <div className={style.doubleRuleBottom} aria-hidden="true" />
-          <div className={style.pageEdgeTrack} aria-hidden="true">
-            <div className={style.pageEdgeFill} style={progressStyle} />
+          <div className={style.desktopShelfWrap}>
+            <BookshelfScrollProgress
+              progress={scrollProgress}
+              variant="desktop"
+              reducedMotion={reducedMotion}
+            />
           </div>
         </nav>
       </header>
@@ -806,9 +808,11 @@ export function Nav() {
       {/* Mobile Bottom Navigation Dock ("Livro Aberto") */}
       <nav className={style.mobileDock} aria-label="Navegação rápida mobile">
         <div className={style.mobileDockEdgeWrap}>
-          <div className={style.pageEdgeTrack} aria-hidden="true">
-            <div className={style.pageEdgeFill} style={progressStyle} />
-          </div>
+          <BookshelfScrollProgress
+            progress={scrollProgress}
+            variant="mobile"
+            reducedMotion={reducedMotion}
+          />
         </div>
 
         <div className={style.mobileDockGrid}>
