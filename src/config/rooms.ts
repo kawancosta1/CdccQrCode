@@ -10,6 +10,12 @@ export interface ShelfMarkerPosition {
   left?: string;
   right?: string;
   centered?: boolean;
+  /** Largura física aproximada na planta (em % do mapa, 0..100) */
+  widthPct?: number;
+  /** Profundidade física aproximada na planta (em % do mapa, 0..100) */
+  depthPct?: number;
+  /** Direção da face frontal com livros */
+  facing?: "south" | "north" | "east" | "west";
 }
 
 export interface RoomConfig {
@@ -74,19 +80,19 @@ export const ROOM_CONFIG: Record<RoomId, RoomConfig> = {
     mapAlt: "Mapa da Sala 2",
     shelfNumbers: Array.from({ length: 12 }, (_, i) => i + 1),
     shelfMarkers: {
-      "1": { top: "78%", left: "13.2%" },
-      "2": { top: "75%", left: "24%" },
-      "3": { top: "71%", left: "22%" },
-      "4": { top: "63%", left: "12%" },
-      "5": { top: "60%", left: "24%" },
-      "6": { top: "55%", left: "24%" },
-      "7": { top: "48%", left: "8.2%" },
-      "8": { top: "44%", left: "24%" },
-      "9": { top: "39%", left: "24%" },
-      "10": { top: "31%", left: "12%" },
-      "11": { top: "26.5%", left: "24%" },
-      "12": { top: "27.2%", left: "24%" },
-      "13": { top: "20.2%", left: "24%" },
+      "1": { top: "82%", left: "11.2%", centered: true, widthPct: 6, depthPct: 7.5, facing: "east" },
+      "2": { top: "75.5%", left: "29.5%", centered: true, widthPct: 31, depthPct: 4, facing: "south" },
+      "3": { top: "71.5%", left: "29.5%", centered: true, widthPct: 31, depthPct: 4, facing: "north" },
+      "4": { top: "66%", left: "11.2%", centered: true, widthPct: 6, depthPct: 7.5, facing: "east" },
+      "5": { top: "60%", left: "29.5%", centered: true, widthPct: 31, depthPct: 4, facing: "south" },
+      "6": { top: "56%", left: "29.5%", centered: true, widthPct: 31, depthPct: 4, facing: "north" },
+      "7": { top: "50%", left: "11.2%", centered: true, widthPct: 6, depthPct: 7.5, facing: "east" },
+      "8": { top: "44%", left: "29.5%", centered: true, widthPct: 31, depthPct: 4, facing: "south" },
+      "9": { top: "40%", left: "29.5%", centered: true, widthPct: 31, depthPct: 4, facing: "north" },
+      "10": { top: "34%", left: "11.2%", centered: true, widthPct: 6, depthPct: 7.5, facing: "east" },
+      "11": { top: "28%", left: "29.5%", centered: true, widthPct: 31, depthPct: 4, facing: "south" },
+      "12": { top: "24%", left: "29.5%", centered: true, widthPct: 31, depthPct: 4, facing: "north" },
+      "13": { top: "20.2%", left: "29.5%", centered: true, widthPct: 31, depthPct: 4, facing: "north" },
       R: { top: "2.2%", left: "22%" },
       R2: { top: "2.2%", left: "85%" },
       R3: { top: "6%", left: "10%" },

@@ -5,6 +5,17 @@ export interface Point2D {
   y: number;
 }
 
+export interface ShelfObstacle extends Point2D {
+  widthPct?: number;
+  depthPct?: number;
+}
+
+export interface TargetApproachOptions {
+  widthPct?: number;
+  depthPct?: number;
+  facing?: "south" | "north" | "east" | "west";
+}
+
 export interface ShelfPositionInput {
   top: string;
   left?: string;
@@ -64,39 +75,79 @@ const DIRS: ReadonlyArray<readonly [number, number]> = [
   [-1, 0], // esquerda
 ];
 
+function resolveApproachAndEdge(
+  target: Point2D,
+  options?: TargetApproachOptions,
+): { astarGoal: Point2D; finalPoint: Point2D; hasFacing: boolean } {
+  if (!options?.facing) {
+    return { astarGoal: target, finalPoint: target, hasFacing: false };
+  }
+  const halfW = (options.widthPct ?? 12.5) / 2;
+  const halfD = (options.depthPct ?? 7.5) / 2;
+  const aisleOffset = 3.2;
+
+  switch (options.facing) {
+    case "south":
+      return {
+        astarGoal: { x: clampPercent(target.x), y: clampPercent(target.y + halfD + aisleOffset) },
+        finalPoint: { x: clampPercent(target.x), y: clampPercent(target.y + halfD) },
+        hasFacing: true,
+      };
+    case "north":
+      return {
+        astarGoal: { x: clampPercent(target.x), y: clampPercent(target.y - halfD - aisleOffset) },
+        finalPoint: { x: clampPercent(target.x), y: clampPercent(target.y - halfD) },
+        hasFacing: true,
+      };
+    case "east":
+      return {
+        astarGoal: { x: clampPercent(target.x + halfW + aisleOffset), y: clampPercent(target.y) },
+        finalPoint: { x: clampPercent(target.x + halfW), y: clampPercent(target.y) },
+        hasFacing: true,
+      };
+    case "west":
+      return {
+        astarGoal: { x: clampPercent(target.x - halfW - aisleOffset), y: clampPercent(target.y) },
+        finalPoint: { x: clampPercent(target.x - halfW), y: clampPercent(target.y) },
+        hasFacing: true,
+      };
+  }
+}
+
 /**
- * Calcula o menor caminho ortogonal pelos corredores usando A* em grade 25x25,
- * desviando das células ocupadas pelas estantes e penalizando curvas desnecessárias.
+ * Calcula o menor caminho ortogonal pelos corredores usando A* em grade 40x40,
+ * desviando das áreas reais ocupadas pelas estantes e penalizando curvas desnecessárias.
  */
 export function findRoomPath(
   entrance: Point2D,
   target: Point2D,
-  shelfObstacles: Point2D[],
+  shelfObstacles: ShelfObstacle[],
+  targetOptions?: TargetApproachOptions,
 ): Point2D[] {
+  const { astarGoal, finalPoint, hasFacing } = resolveApproachAndEdge(target, targetOptions);
   const startGx = toGridIndex(entrance.x);
   const startGy = toGridIndex(entrance.y);
-  const goalGx = toGridIndex(target.x);
-  const goalGy = toGridIndex(target.y);
+  const goalGx = toGridIndex(astarGoal.x);
+  const goalGy = toGridIndex(astarGoal.y);
 
   if (startGx === goalGx && startGy === goalGy) {
-    return [entrance, target];
+    return hasFacing ? simplifyCollinear([entrance, astarGoal, finalPoint]) : [entrance, target];
   }
 
   const blocked = new Set<string>();
   for (const obs of shelfObstacles) {
-    const ox = toGridIndex(obs.x);
-    const oy = toGridIndex(obs.y);
-    // Bloqueia a área física real da estante (~12.5% largura x 7.5% profundidade)
-    for (let dx = -2; dx <= 2; dx += 1) {
-      for (let dy = -1; dy <= 1; dy += 1) {
-        const bx = ox + dx;
-        const by = oy + dy;
-        if (bx < 0 || bx >= GRID_SIZE || by < 0 || by >= GRID_SIZE) continue;
-        if ((bx === startGx && by === startGy) || (bx === goalGx && by === goalGy)) {
-          continue;
-        }
-        // Não bloqueia células imediatamente adjacentes ao alvo para permitir acesso pelo corredor
-        if (Math.abs(bx - goalGx) <= 1 && Math.abs(by - goalGy) <= 1) {
+    const halfW = (obs.widthPct ?? 12.5) / 2;
+    const halfD = (obs.depthPct ?? 7.5) / 2;
+    const minGx = toGridIndex(obs.x - halfW + 0.15);
+    const maxGx = toGridIndex(obs.x + halfW - 0.15);
+    const minGy = toGridIndex(obs.y - halfD + 0.15);
+    const maxGy = toGridIndex(obs.y + halfD - 0.15);
+
+    for (let bx = minGx; bx <= maxGx; bx += 1) {
+      for (let by = minGy; by <= maxGy; by += 1) {
+        if (bx === startGx && by === startGy) continue;
+        if (bx === goalGx && by === goalGy) continue;
+        if (!hasFacing && Math.abs(bx - goalGx) <= 1 && Math.abs(by - goalGy) <= 1) {
           continue;
         }
         blocked.add(`${bx},${by}`);
@@ -183,9 +234,18 @@ export function findRoomPath(
   }
   gridPoints.reverse();
 
-  // Ajusta extremidades exatas para a entrada e o centro da estante alvo
+  // Ajusta extremidades exatas para a entrada e o ponto de acesso/face da estante alvo
   gridPoints[0] = { x: clampPercent(entrance.x), y: clampPercent(entrance.y) };
-  gridPoints[gridPoints.length - 1] = { x: clampPercent(target.x), y: clampPercent(target.y) };
+  gridPoints[gridPoints.length - 1] = {
+    x: clampPercent(astarGoal.x),
+    y: clampPercent(astarGoal.y),
+  };
+  if (hasFacing) {
+    gridPoints.push({
+      x: clampPercent(finalPoint.x),
+      y: clampPercent(finalPoint.y),
+    });
+  }
 
   return simplifyCollinear(gridPoints);
 }

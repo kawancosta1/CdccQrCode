@@ -76,21 +76,32 @@ export function LibraryMap3D({ roomId, shelves, className }: LibraryMap3DProps) 
   const shelfNodes = useMemo(() => {
     const activeSet = new Set(shelves.map((s) => s.toUpperCase()));
     const keys = Array.from(new Set([...room.shelfNumbers.map(String), ...shelves]));
-    const nodes: Array<{ key: string; point: Point2D; isTarget: boolean }> = [];
+    const nodes: Array<{
+      key: string;
+      point: Point2D;
+      isTarget: boolean;
+      widthPct: number;
+      depthPct: number;
+      facing: "south" | "north" | "east" | "west";
+    }> = [];
 
     for (const key of keys) {
       const override = overrides.find(
         (o) => o.shelfKey.toUpperCase() === key.toUpperCase(),
       );
+      const basePos = room.shelfMarkers[key];
       const pos = override
-        ? { top: override.top, left: override.left, right: undefined }
-        : room.shelfMarkers[key];
+        ? { ...basePos, top: override.top, left: override.left, right: undefined }
+        : basePos;
       const pt = pos ? resolveShelfPercentPoint(pos) : null;
       if (!pt) continue;
       nodes.push({
         key,
         point: pt,
         isTarget: activeSet.has(key.toUpperCase()),
+        widthPct: pos?.widthPct ?? 16,
+        depthPct: pos?.depthPct ?? 7.5,
+        facing: pos?.facing ?? "south",
       });
     }
     return nodes;
@@ -128,12 +139,23 @@ export function LibraryMap3D({ roomId, shelves, className }: LibraryMap3DProps) 
 
   const routeWaypoints = useMemo(() => {
     if (!targetNode) return [];
+    const targetMarker = room.shelfMarkers[targetNode.key];
+    const hasFacing = Boolean(targetMarker?.facing);
     const obstacles = shelfNodes
-      .filter((n) => n.key !== targetNode.key && n.point.x !== originPoint.x && n.point.y !== originPoint.y)
-      .map((n) => n.point);
-    const raw = findRoomPath(originPoint, targetNode.point, obstacles);
+      .filter((n) => (hasFacing ? true : n.key !== targetNode.key) && (n.point.x !== originPoint.x || n.point.y !== originPoint.y))
+      .map((n) => ({
+        x: n.point.x,
+        y: n.point.y,
+        widthPct: n.widthPct,
+        depthPct: n.depthPct,
+      }));
+    const raw = findRoomPath(originPoint, targetNode.point, obstacles, {
+      widthPct: targetNode.widthPct,
+      depthPct: targetNode.depthPct,
+      facing: targetMarker?.facing,
+    });
     return buildSmoothedPathPoints(raw, 2.2);
-  }, [originPoint, shelfNodes, targetNode]);
+  }, [originPoint, room.shelfMarkers, shelfNodes, targetNode]);
 
   const moveCameraTo = (pos: THREE.Vector3, target: THREE.Vector3) => {
     if (reducedMotion) {
@@ -328,9 +350,9 @@ export function LibraryMap3D({ roomId, shelves, className }: LibraryMap3DProps) 
     }
 
     // Estantes 3D proporcionais ao tamanho real no mapa 2D + livros coloridos na face frontal
-    const shelfGeo = new THREE.BoxGeometry(2.25, 1.55, 1.05);
-    const shelfCapGeo = new THREE.BoxGeometry(2.35, 0.12, 1.13);
-    const spineGeo = new THREE.BoxGeometry(1.9, 0.34, 0.08);
+    const shelfGeo = new THREE.BoxGeometry(1, 1.55, 1);
+    const shelfCapGeo = new THREE.BoxGeometry(1, 0.12, 1);
+    const spineGeo = new THREE.BoxGeometry(1, 0.34, 0.06);
 
     const normalMat = new THREE.MeshStandardMaterial({ color: 0x7a5c43, roughness: 0.78 });
     const normalCapMat = new THREE.MeshStandardMaterial({ color: 0x5c4330, roughness: 0.7 });
@@ -352,7 +374,11 @@ export function LibraryMap3D({ roomId, shelves, className }: LibraryMap3DProps) 
 
     for (const node of shelfNodes) {
       const { x, z } = toWorldXZ(node.point);
+      const widthWorld = (node.widthPct / 100) * WORLD_SPAN;
+      const depthWorld = (node.depthPct / 100) * WORLD_SPAN;
+
       const body = new THREE.Mesh(shelfGeo, node.isTarget ? targetMat : normalMat);
+      body.scale.set(widthWorld, 1, depthWorld);
       body.position.set(x, 0.775, z);
       body.castShadow = true;
       body.receiveShadow = true;
@@ -361,16 +387,36 @@ export function LibraryMap3D({ roomId, shelves, className }: LibraryMap3DProps) 
       clickableMeshes.push(body);
 
       const cap = new THREE.Mesh(shelfCapGeo, node.isTarget ? targetCapMat : normalCapMat);
+      cap.scale.set(widthWorld + 0.08, 1, depthWorld + 0.06);
       cap.position.set(x, 1.61, z);
       scene.add(cap);
 
-      // Faixa frontal de livros para indicar orientação
+      // Faixa frontal de livros orientada para o corredor da estante
+      const isEastWest = node.facing === "east" || node.facing === "west";
+      const spineLen = (isEastWest ? depthWorld : widthWorld) * 0.84;
+      const spineX =
+        node.facing === "east"
+          ? x + widthWorld / 2 + 0.03
+          : node.facing === "west"
+            ? x - widthWorld / 2 - 0.03
+            : x;
+      const spineZ =
+        node.facing === "south"
+          ? z + depthWorld / 2 + 0.03
+          : node.facing === "north"
+            ? z - depthWorld / 2 - 0.03
+            : z;
+
       const spineRowTop = new THREE.Mesh(spineGeo, spineMatA);
-      spineRowTop.position.set(x, 1.12, z + 0.54);
+      spineRowTop.scale.set(spineLen, 1, 1);
+      if (isEastWest) spineRowTop.rotation.y = Math.PI / 2;
+      spineRowTop.position.set(spineX, 1.12, spineZ);
       scene.add(spineRowTop);
 
       const spineRowBot = new THREE.Mesh(spineGeo, spineMatB);
-      spineRowBot.position.set(x, 0.54, z + 0.54);
+      spineRowBot.scale.set(spineLen, 1, 1);
+      if (isEastWest) spineRowBot.rotation.y = Math.PI / 2;
+      spineRowBot.position.set(spineX, 0.54, spineZ);
       scene.add(spineRowBot);
 
       const label = createShelfLabelSprite(node.key, node.isTarget);
@@ -380,7 +426,8 @@ export function LibraryMap3D({ roomId, shelves, className }: LibraryMap3DProps) 
       if (label.material.map) disposableTextures.push(label.material.map);
 
       if (node.isTarget) {
-        const ringGeo = new THREE.RingGeometry(1.35, 1.72, 32);
+        const ringInner = Math.max(widthWorld, depthWorld) * 0.52;
+        const ringGeo = new THREE.RingGeometry(ringInner, ringInner + 0.34, 32);
         const ringMat = new THREE.MeshBasicMaterial({
           color: 0xf59e0b,
           side: THREE.DoubleSide,

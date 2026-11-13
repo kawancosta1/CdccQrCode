@@ -7,7 +7,7 @@ import {
   findRoomPath,
   resolveShelfPercentPoint,
   ROOM_ENTRANCE_POINT,
-  type Point2D,
+  type ShelfObstacle,
 } from "../../domain/roomPathfinding";
 import { getMarkerOverrides } from "../../services/mappingService";
 import type { DynamicMarkerOverride } from "../../types/content";
@@ -45,16 +45,23 @@ export function RoomMap({ roomId, shelves, imageClassName, interactive = false }
   const entrance = ROOM_ENTRANCE_POINT[roomId];
 
   const allShelfObstacles = useMemo(() => {
-    const pts: Point2D[] = [];
+    const pts: ShelfObstacle[] = [];
     for (const key of Object.keys(room.shelfMarkers)) {
       const override = overrides.find(
         (o) => o.shelfKey.toUpperCase() === key.toUpperCase(),
       );
+      const basePos = room.shelfMarkers[key];
       const pos = override
-        ? { top: override.top, left: override.left, right: undefined }
-        : room.shelfMarkers[key];
+        ? { ...basePos, top: override.top, left: override.left, right: undefined }
+        : basePos;
       const pt = pos ? resolveShelfPercentPoint(pos) : null;
-      if (pt) pts.push(pt);
+      if (pt) {
+        pts.push({
+          ...pt,
+          widthPct: pos?.widthPct,
+          depthPct: pos?.depthPct,
+        });
+      }
     }
     return pts;
   }, [overrides, room.shelfMarkers]);
@@ -65,15 +72,22 @@ export function RoomMap({ roomId, shelves, imageClassName, interactive = false }
         const override = overrides.find(
           (o) => o.shelfKey.toUpperCase() === shelfKey.toUpperCase(),
         );
+        const basePos = room.shelfMarkers[shelfKey];
         const pos = override
-          ? { top: override.top, left: override.left, right: undefined }
-          : room.shelfMarkers[shelfKey];
+          ? { ...basePos, top: override.top, left: override.left, right: undefined }
+          : basePos;
         const pt = pos ? resolveShelfPercentPoint(pos) : null;
         if (!pt) return null;
-        const obstacles = allShelfObstacles.filter(
-          (obs) => Math.hypot(obs.x - pt.x, obs.y - pt.y) > 2,
-        );
-        const waypoints = findRoomPath(entrance, pt, obstacles);
+        const obstacles = pos?.facing
+          ? allShelfObstacles
+          : allShelfObstacles.filter(
+              (obs) => Math.hypot(obs.x - pt.x, obs.y - pt.y) > 2,
+            );
+        const waypoints = findRoomPath(entrance, pt, obstacles, {
+          widthPct: pos?.widthPct,
+          depthPct: pos?.depthPct,
+          facing: pos?.facing,
+        });
         return buildRoundedSvgPath(waypoints);
       })
       .filter((d): d is string => Boolean(d));
