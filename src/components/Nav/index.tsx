@@ -167,13 +167,17 @@ interface DesktopNavItemConfig {
   end?: boolean;
 }
 
-const DESKTOP_NAV_ITEMS: DesktopNavItemConfig[] = [
+const INTERNAL_DESKTOP_ITEMS: DesktopNavItemConfig[] = [
   { code: "01.", label: "Início", to: "/", end: true },
-  { code: "02.", label: "Acervo Dedalus", href: "https://dedalus.usp.br/" },
-  { code: "03.", label: "Mapa 3D", to: "/estantes", end: false },
-  { code: "04.", label: "Vestibular", to: "/vestibular", end: false },
-  { code: "05.", label: "Espaço Lúdico", to: "/espacoludico", end: false },
+  { code: "02.", label: "Mapa 3D", to: "/estantes", end: false },
+  { code: "03.", label: "Vestibular", to: "/vestibular", end: false },
+  { code: "04.", label: "Espaço Lúdico", to: "/espacoludico", end: false },
 ];
+
+const DEDALUS_NAV_ITEM: Omit<DesktopNavItemConfig, "code"> = {
+  label: "Acervo Dedalus",
+  href: "https://dedalus.usp.br/",
+};
 
 /**
  * Barra de navegação editorial tátil ("Warm Academic Editorial & Tactile UI")
@@ -346,14 +350,20 @@ export function Nav() {
     transform: `scaleX(${scrollProgress.toFixed(4)})`,
   };
 
+  const dynamicMenuItems: DesktopNavItemConfig[] = menuPages.map((pg, idx) => ({
+    code: `${String(INTERNAL_DESKTOP_ITEMS.length + idx + 1).padStart(2, "0")}.`,
+    label: pg.titulo,
+    to: `/p/${pg.slug}`,
+    end: false,
+  }));
+
   const allDesktopItems: DesktopNavItemConfig[] = [
-    ...DESKTOP_NAV_ITEMS,
-    ...menuPages.map((pg, idx) => ({
-      code: `${String(DESKTOP_NAV_ITEMS.length + idx + 1).padStart(2, "0")}.`,
-      label: pg.titulo,
-      to: `/p/${pg.slug}`,
-      end: false,
-    })),
+    ...INTERNAL_DESKTOP_ITEMS,
+    ...dynamicMenuItems,
+    {
+      ...DEDALUS_NAV_ITEM,
+      code: `${String(INTERNAL_DESKTOP_ITEMS.length + dynamicMenuItems.length + 1).padStart(2, "0")}.`,
+    },
   ];
 
   const mobileExtraLinks = [
