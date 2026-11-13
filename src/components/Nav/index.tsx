@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, type CSSProperties } from "react";
+import { motion } from "framer-motion";
 import { NavLink, Link, useLocation } from "react-router-dom";
 import {
   BookOpen,
@@ -18,6 +19,7 @@ import {
   type AutocompleteEntry,
 } from "../SearchAutocompleteDropdown";
 import { BookshelfScrollProgress } from "../BookshelfScrollProgress";
+import { LibraryLampToggle } from "../editorial";
 import { UniversalAccessibilityIcon } from "../icons/UniversalAccessibilityIcon";
 import { useAccessibility } from "../../context/accessibilityStore";
 import { useBookSearchContext } from "../../context/bookSearchStore";
@@ -452,7 +454,12 @@ export function Nav() {
                     {({ isActive }) => (
                       <>
                         {isActive ? (
-                          <span className={style.activeRibbon} aria-hidden="true" />
+                          <motion.span
+                            layoutId="nav-active-ribbon"
+                            className={style.activeRibbon}
+                            transition={{ type: "spring", stiffness: 320, damping: 26 }}
+                            aria-hidden="true"
+                          />
                         ) : (
                           <span className={style.ribbonPeek} aria-hidden="true" />
                         )}
@@ -576,16 +583,11 @@ export function Nav() {
 
                     <div className={style.a11yRow}>
                       <span>Alto Contraste</span>
-                      <button
-                        type="button"
-                        className={`${style.miniChoiceBtn} ${
-                          highContrast ? style.miniChoiceBtnActive : ""
-                        }`}
-                        aria-pressed={highContrast}
-                        onClick={() => setHighContrast(!highContrast)}
-                      >
-                        {highContrast ? "Ativo" : "Desativado"}
-                      </button>
+                      <LibraryLampToggle
+                        lit={highContrast}
+                        onToggle={() => setHighContrast(!highContrast)}
+                        label={highContrast ? "Ativo" : "Desativado"}
+                      />
                     </div>
 
                     <div className={style.a11yRow}>

@@ -1,0 +1,92 @@
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.tabBar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.tabBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.42rem 0.78rem;
+  border-radius: 8px 8px 2px 2px;
+  border: 1px solid rgba(44, 34, 24, 0.16);
+  background: #f2e9dd;
+  color: var(--color-text-secondary, #4e4246);
+  font-size: 0.83rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.14s ease, background-color 0.16s ease, border-color 0.16s ease;
+}
+
+.tabBtn:hover {
+  border-color: var(--color-brand, #8a3354);
+}
+
+.tabBtnActive {
+  background: #faf7f2;
+  border-color: var(--color-brand, #8a3354);
+  color: var(--color-brand-text, #6e223f);
+  transform: translateY(-2px);
+  box-shadow: 0 3px 10px rgba(44, 34, 24, 0.08);
+}
+
+.tabCode {
+  font-family: var(--font-mono, monospace);
+  font-size: 0.71rem;
+  opacity: 0.75;
+}
+
+.deckStage {
+  position: relative;
+  perspective: 900px;
+  min-height: 150px;
+}
+
+.card {
+  border-radius: 12px;
+  border: 1px solid rgba(44, 34, 24, 0.16);
+  background:
+    repeating-linear-gradient(
+      180deg,
+      transparent 0px,
+      transparent 23px,
+      rgba(20, 83, 153, 0.06) 23px,
+      rgba(20, 83, 153, 0.06) 24px
+    ),
+    #faf7f2;
+  padding: 1.05rem 1.2rem;
+  box-shadow: 0 8px 22px rgba(28, 22, 24, 0.08);
+  transform-origin: bottom center;
+  will-change: transform, opacity;
+}
+
+.cardTumbled {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.cardHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.55rem;
+  padding-bottom: 0.4rem;
+  border-bottom: 1.5px solid rgba(138, 51, 84, 0.28);
+}
+
+.cardTitle {
+  margin: 0;
+  font-family: var(--font-display, "Fraunces", "Georgia", serif);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--color-text-primary, #1c1618);
+}

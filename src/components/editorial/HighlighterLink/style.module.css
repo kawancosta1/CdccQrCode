@@ -1,0 +1,63 @@
+.link {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.28rem;
+  padding: 0.08rem 0.24rem;
+  text-decoration: none;
+  font-family: var(--font-display, "Fraunces", "Georgia", serif);
+  font-weight: 600;
+  color: var(--color-text-primary, #1c1618);
+  z-index: 1;
+}
+
+.highlight {
+  position: absolute;
+  inset: 14% -2px 8% -2px;
+  z-index: -1;
+  border-radius: 3px;
+  background: rgba(253, 224, 71, 0.56);
+  transform-origin: left center;
+  transform: scaleX(0) rotate(-1deg);
+  transition: transform 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+  pointer-events: none;
+}
+
+.highlightPink {
+  background: rgba(244, 182, 206, 0.52);
+}
+
+.highlightMint {
+  background: rgba(167, 243, 208, 0.58);
+}
+
+.link:hover .highlight,
+.link:focus-visible .highlight {
+  transform: scaleX(1) rotate(-1deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .highlight {
+    transform: rotate(-1deg);
+    opacity: 0;
+    transition: opacity 0.15s ease;
+  }
+
+  .link:hover .highlight,
+  .link:focus-visible .highlight {
+    transform: rotate(-1deg);
+    opacity: 1;
+  }
+}
+
+:global(html.reduced-motion) .highlight {
+  transform: rotate(-1deg);
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+:global(html.reduced-motion) .link:hover .highlight,
+:global(html.reduced-motion) .link:focus-visible .highlight {
+  transform: rotate(-1deg);
+  opacity: 1;
+}

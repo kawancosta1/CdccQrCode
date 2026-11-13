@@ -1,0 +1,56 @@
+.stampBtn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  padding: 0.55rem 1rem;
+  border-radius: 8px;
+  border: 1.5px solid rgba(44, 34, 24, 0.28);
+  background: #faf7f2;
+  color: var(--color-text-primary, #1c1618);
+  font-family: var(--font-display, "Fraunces", "Georgia", serif);
+  font-size: 0.88rem;
+  font-weight: 700;
+  cursor: pointer;
+  overflow: visible;
+  box-shadow:
+    0 2px 0 rgba(44, 34, 24, 0.18),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.7);
+  transition: border-color 0.16s ease, background-color 0.16s ease;
+}
+
+.stampBtn:hover {
+  border-color: var(--color-brand, #8a3354);
+  background: var(--color-brand-soft, #f9eff3);
+}
+
+.stampBtnPrimary {
+  background: var(--color-brand, #8a3354);
+  border-color: var(--color-brand-active, #5c1e36);
+  color: #ffffff;
+  box-shadow: 0 2px 0 rgba(28, 22, 24, 0.25);
+}
+
+.stampBtnPrimary:hover {
+  background: var(--color-brand-hover, #702642);
+  color: #ffffff;
+}
+
+.stampMark {
+  position: absolute;
+  pointer-events: none;
+  z-index: 20;
+  padding: 0.16rem 0.42rem;
+  border: 1.5px dashed rgba(138, 51, 84, 0.85);
+  border-radius: 3px;
+  background: rgba(250, 247, 242, 0.88);
+  color: var(--color-brand, #8a3354);
+  font-family: var(--font-mono, monospace);
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  box-shadow: 0 1px 4px rgba(44, 34, 24, 0.14);
+}

@@ -2,6 +2,7 @@ import "./styles/global.css";
 import "./styles/theme.css";
 
 import { lazy, Suspense } from "react";
+import { MotionConfig } from "framer-motion";
 import { HashRouter, Route, Routes } from "react-router-dom";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { PageSkeleton } from "./components/PageSkeleton";
@@ -42,7 +43,8 @@ const AdminRoutes = lazy(() =>
 
 export function App() {
   return (
-    <HashRouter>
+    <MotionConfig reducedMotion="user">
+      <HashRouter>
       <RouteTitleUpdater />
       <SiteConfigProvider>
         <AccessibilityProvider>
@@ -72,5 +74,6 @@ export function App() {
         </AccessibilityProvider>
       </SiteConfigProvider>
     </HashRouter>
+    </MotionConfig>
   );
 }
