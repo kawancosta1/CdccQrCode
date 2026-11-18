@@ -222,7 +222,7 @@ export function LibraryMap3D({ roomId, shelves, className }: LibraryMap3DProps) 
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
     renderer.setSize(width, height);
     renderer.shadowMap.enabled = true;
-    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    renderer.shadowMap.type = THREE.PCFShadowMap;
     host.innerHTML = "";
     host.appendChild(renderer.domElement);
 
@@ -582,12 +582,13 @@ export function LibraryMap3D({ roomId, shelves, className }: LibraryMap3DProps) 
       typeof ResizeObserver !== "undefined" ? new ResizeObserver(handleResize) : null;
     resizeObserver?.observe(host);
 
-    const clock = new THREE.Clock();
+    const clock = new THREE.Timer();
     let lastTime = 0;
     let frameId = 0;
     const animate = () => {
       frameId = window.requestAnimationFrame(animate);
-      const elapsed = clock.getElapsedTime();
+      clock.update();
+      const elapsed = clock.getElapsed();
       const delta = Math.min(0.05, Math.max(0.001, elapsed - lastTime));
       lastTime = elapsed;
 

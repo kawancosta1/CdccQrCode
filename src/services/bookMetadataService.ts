@@ -1,3 +1,5 @@
+import { createLimiter } from "../utils/concurrencyLimiter.ts";
+
 export interface BookMetadataResult {
   coverUrl?: string;
   sinopse?: string;
@@ -13,6 +15,18 @@ const CACHE_TTL_MS = 30 * 24 * 60 * 60 * 1000; // 30 dias
 const NEGATIVE_CACHE_TTL_MS = 24 * 60 * 60 * 1000; // 1 dia quando não encontra capa
 
 const inFlight = new Map<string, Promise<BookMetadataResult | null>>();
+
+// A página de Vestibular/Novidades pede dezenas de capas de uma vez. Sem limite, o navegador
+// enfileira as conexões e o timeout (que antes começava ao chamar fetch) abortava as últimas,
+// além de estourar a cota anônima do Google Books.
+const limitGoogle = createLimiter(3);
+const limitOpenLibrary = createLimiter(3);
+const GOOGLE_BLOCK_MS = 5 * 60 * 1000; // pausa depois de 403/429 (cota/limite de taxa)
+let googleBlockedUntil = 0;
+
+function isGoogleBlocked(): boolean {
+  return Date.now() < googleBlockedUntil;
+}
 
 function makeKey(titulo: string, autor?: string, isbn?: string): string {
   const cleanIsbn = (isbn ?? "").replace(/[^0-9Xx]/g, "").trim();
@@ -85,6 +99,12 @@ interface GoogleBooksResponse {
 }
 
 async function queryGoogleBooks(query: string): Promise<BookMetadataResult | null> {
+  if (isGoogleBlocked()) return null;
+  return limitGoogle(() => queryGoogleBooksNow(query));
+}
+
+async function queryGoogleBooksNow(query: string): Promise<BookMetadataResult | null> {
+  if (isGoogleBlocked()) return null;
   const controller = new AbortController();
   const timeout = window.setTimeout(() => controller.abort(), 6500);
   try {
@@ -92,6 +112,10 @@ async function queryGoogleBooks(query: string): Promise<BookMetadataResult | nul
       query,
     )}&maxResults=4&printType=books`;
     const res = await fetch(url, { signal: controller.signal });
+    if (res.status === 429 || res.status === 403) {
+      googleBlockedUntil = Date.now() + GOOGLE_BLOCK_MS;
+      return null;
+    }
     if (!res.ok) return null;
     const data = (await res.json()) as GoogleBooksResponse;
     const items = data.items ?? [];
@@ -151,6 +175,13 @@ async function queryOpenLibrary(
     };
   }
 
+  return limitOpenLibrary(() => queryOpenLibrarySearch(titulo, autor));
+}
+
+async function queryOpenLibrarySearch(
+  titulo: string,
+  autor?: string,
+): Promise<BookMetadataResult | null> {
   const controller = new AbortController();
   const timeout = window.setTimeout(() => controller.abort(), 6500);
   try {
@@ -272,10 +303,10 @@ export async function fetchBookCoverAndMetadata(params: {
       }
     }
 
-    const finalEntry: BookMetadataResult = result ?? {
-      cachedAt: Date.now(),
-    };
-    writeCacheEntry(key, finalEntry);
+    // Se o Google estava bloqueado (limite de taxa), a falha é temporária: não grava cache negativo.
+    if (result || !isGoogleBlocked()) {
+      writeCacheEntry(key, result ?? { cachedAt: Date.now() });
+    }
     return result;
   })();
 
