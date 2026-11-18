@@ -5,6 +5,13 @@ import { ADMIN_ROLES } from "./permissionService.ts";
 
 const DEV_SESSION_KEY = "qrcodecdcc_admin_dev_session";
 
+// Login local de demonstração (admin / senha de desenvolvimento): só em `npm run dev`
+// ou quando o Firebase NÃO está configurado. Com o Firebase ativo, essas credenciais
+// nunca são aceitas, para não abrir o painel com uma senha pública.
+function isLocalDemoAllowed(): boolean {
+  return import.meta.env.DEV || !isFirebaseConfigured();
+}
+
 export type LoginResult =
   | { ok: true; user: Administrator }
   | { ok: false; error: string };
@@ -28,6 +35,10 @@ export const AuthService = {
         typeof parsed.username !== "string" ||
         !ADMIN_ROLES.includes(parsed.role)
       ) {
+        return null;
+      }
+      // Sessões simuladas só valem no modo local (DEV ou sem Firebase configurado).
+      if (parsed.isSimulated && !isLocalDemoAllowed()) {
         return null;
       }
       return parsed;
@@ -84,40 +95,39 @@ export const AuthService = {
       }
     }
 
-    // 2. Fallback de desenvolvimento (DEV ou simulação local)
-    const expectedUser = import.meta.env.VITE_ADMIN_DEV_USER || "admin";
-    const expectedPassword = import.meta.env.VITE_ADMIN_DEV_PASSWORD || "cdcc-admin-dev";
+    // 2. Modo local de demonstração (sem Firebase ativo ou em desenvolvimento).
+    if (isLocalDemoAllowed()) {
+      const expectedUser = import.meta.env.VITE_ADMIN_DEV_USER || "admin";
+      const expectedPassword = import.meta.env.VITE_ADMIN_DEV_PASSWORD || "cdcc-admin-dev";
 
-    if (trimmedUser === expectedUser && password === expectedPassword) {
-      const user: Administrator = {
-        id: "dev-admin-1",
-        username: expectedUser,
-        displayName: "Administrador (DEV)",
-        role: "super_admin",
-        isSimulated: true,
-      };
+      if (trimmedUser === expectedUser && password === expectedPassword) {
+        const user: Administrator = {
+          id: "dev-admin-1",
+          username: expectedUser,
+          displayName: "Administrador (DEV)",
+          role: "super_admin",
+          isSimulated: true,
+        };
 
-      try {
-        window.sessionStorage.setItem(DEV_SESSION_KEY, JSON.stringify(user));
-      } catch {
-        // Ignora erro de sessionStorage.
+        try {
+          window.sessionStorage.setItem(DEV_SESSION_KEY, JSON.stringify(user));
+        } catch {
+          // Ignora erro de sessionStorage.
+        }
+
+        return { ok: true, user };
       }
 
-      return { ok: true, user };
-    }
-
-    // Se Firebase não configurado e não bate com credenciais DEV
-    if (!isFirebaseConfigured() && !import.meta.env.DEV) {
       return {
         ok: false,
-        error:
-          "Autenticação administrativa indisponível: configure as variáveis do Firebase no ambiente de produção.",
+        error: "Usuário ou senha inválidos. Utilize as credenciais do Firebase ou o usuário 'admin' em desenvolvimento.",
       };
     }
 
+    // Firebase ativo: apenas contas de administrador (e-mail + senha) entram.
     return {
       ok: false,
-      error: "Usuário ou senha inválidos. Utilize as credenciais do Firebase ou o usuário 'admin' em desenvolvimento.",
+      error: "Informe o e-mail e a senha de uma conta de administrador.",
     };
   },
 

@@ -42,21 +42,51 @@ Este documento descreve como conectar o **QRCodeCDCC** ao Firebase para gerencia
 
 Copie as regras dos arquivos da raiz do projeto para o console do Firebase ou faça o deploy via Firebase CLI:
 
+### Administradores (passo obrigatório)
+
+As regras abaixo só deixam **administradores** ler/escrever o painel. Administrador é o usuário cujo UID tem um documento em `admins/{uid}`:
+
+1. Em **Authentication > Users**, copie o **UID** do usuário administrador.
+2. Em **Firestore Database**, crie a coleção `admins` e um documento com **ID = UID copiado** (pode ter qualquer campo, ex.: `email`).
+3. Em **Authentication > Settings > User actions**, desative a criação de novas contas (sign-up) para que ninguém se cadastre sozinho.
+
+> Publique as regras (console ou `firebase deploy --only firestore:rules,storage`) **depois** de criar o documento do seu UID, senão você fica sem acesso ao painel.
+
 ### Firestore (`firestore.rules`):
 ```text
 rules_version = '2';
+
 service cloud.firestore {
   match /databases/{database}/documents {
+
+    // Administrador = usuário autenticado cujo UID tem um documento em /admins/{uid}.
+    // Novos admins são criados pelo console do Firebase (ou por um admin já existente);
+    // um usuário comum não consegue se promover, pois não tem permissão de escrita.
+    function isAdmin() {
+      return request.auth != null
+          && exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+    }
+
+    // Carrossel da Home:
+    // - Leitura pública para qualquer visitante do site (Home).
+    // - Criação, atualização e exclusão restritas a administradores.
     match /carrossel_home/{slideId} {
       allow read: if true;
-      allow write: if request.auth != null;
+      allow write: if isAdmin();
     }
+
+    // Jogos do Espaço Lúdico:
+    // - Leitura pública para visualização no site (/espacoludico e regras).
+    // - Gestão restrita a administradores.
     match /jogos/{jogoId} {
       allow read: if true;
-      allow write: if request.auth != null;
+      allow write: if isAdmin();
     }
+
+    // Coleções administrativas gerais (livros, estantes, salas, auditoria, configurações):
+    // leitura e escrita apenas para administradores.
     match /{document=**} {
-      allow read, write: if request.auth != null;
+      allow read, write: if isAdmin();
     }
   }
 }
@@ -65,17 +95,32 @@ service cloud.firestore {
 ### Storage (`storage.rules`):
 ```text
 rules_version = '2';
+
 service firebase.storage {
   match /b/{bucket}/o {
+
+    // Administrador = UID com documento em /admins/{uid} no Firestore.
+    function isAdmin() {
+      return request.auth != null
+          && firestore.exists(/databases/(default)/documents/admins/$(request.auth.uid));
+    }
+
+    // Imagens do Carrossel da Home:
+    // - Leitura pública para exibição na página inicial.
+    // - Upload restrito a administradores, limitado a arquivos de imagem até 5MB.
     match /carousel/{allPaths=**} {
       allow read: if true;
-      allow write: if request.auth != null
+      allow write: if isAdmin()
                    && request.resource.size < 5 * 1024 * 1024
                    && request.resource.contentType.matches('image/.*');
     }
+
+    // Fotos de capa dos Jogos do Espaço Lúdico:
+    // - Leitura pública para exibição no catálogo.
+    // - Upload restrito a administradores autenticados, imagem até 5MB.
     match /games/{allPaths=**} {
       allow read: if true;
-      allow write: if request.auth != null
+      allow write: if isAdmin()
                    && request.resource.size < 5 * 1024 * 1024
                    && request.resource.contentType.matches('image/.*');
     }

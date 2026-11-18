@@ -3,22 +3,28 @@ rules_version = '2';
 service firebase.storage {
   match /b/{bucket}/o {
 
+    // Administrador = UID com documento em /admins/{uid} no Firestore.
+    function isAdmin() {
+      return request.auth != null
+          && firestore.exists(/databases/(default)/documents/admins/$(request.auth.uid));
+    }
+
     // Imagens do Carrossel da Home:
     // - Leitura pública para exibição na página inicial.
-    // - Upload restrito a usuários autenticados, limitado a arquivos de imagem até 5MB.
+    // - Upload restrito a administradores, limitado a arquivos de imagem até 5MB.
     match /carousel/{allPaths=**} {
       allow read: if true;
-      allow write: if request.auth != null
+      allow write: if isAdmin()
                    && request.resource.size < 5 * 1024 * 1024
                    && request.resource.contentType.matches('image/.*');
     }
 
     // Fotos de capa dos Jogos do Espaço Lúdico:
     // - Leitura pública para exibição no catálogo.
-    // - Upload restrito a administradores autenticados, imagem até 5MB.
+    // - Upload restrito a administradores, imagem até 5MB.
     match /games/{allPaths=**} {
       allow read: if true;
-      allow write: if request.auth != null
+      allow write: if isAdmin()
                    && request.resource.size < 5 * 1024 * 1024
                    && request.resource.contentType.matches('image/.*');
     }
