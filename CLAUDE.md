@@ -38,7 +38,7 @@ npm run preview
 
 **Mapas.** Mapa 2D (`components/RoomMap`, posições das estantes em percentual) e mapa 3D com three.js (`components/LibraryMap3D`, chunk `three-vendor`). A rota do visitante é calculada por A* nos corredores em `domain/roomPathfinding.ts` (testada em `tests/roomPathfinding.test.ts`). As pegadas/posições 3D das estantes precisam coincidir com a planta 2D — commits recentes corrigiram desalinhamentos nas salas 1 e 2, então mexa nas duas representações juntas.
 
-**Outros.** Acessibilidade (`AccessibilityContext/Drawer`, VLibras carregado em `index.html`, `useSpeechGuide`); `domain/seasonEngine.ts` (tema sazonal); capas de livros via Google Books/OpenLibrary (`services/bookMetadataService.ts`) — o Google Books responde 429 nas páginas Vestibular/Novidades se houver muitas requisições seguidas.
+**Outros.** Acessibilidade (`AccessibilityContext/Drawer`, VLibras carregado em `index.html`, `useSpeechGuide`); `domain/seasonEngine.ts` (tema sazonal); capas de livros via Google Books/OpenLibrary (`services/bookMetadataService.ts`) — as requisições são limitadas a 3 simultâneas por API (`utils/concurrencyLimiter.ts`) e, após 403/429 do Google Books, o serviço pausa essa API por 5 min e usa só a Open Library.
 
 ## Observações
 
